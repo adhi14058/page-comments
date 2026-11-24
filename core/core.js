@@ -5,7 +5,9 @@
 //   capture.grab()   -> { source, k }: a picture of the visible tab (k image pixels per CSS pixel); called with the tool hidden
 //   capture.stop()   -> ends capturing when the tool closes
 //   saveFiles(files, zipName) -> message for the user; files: [{ name, bytes }] (PNG)
-//   checkVersion     -> true: compare with the published version.svg and say when this copy is old
+//   checkVersion     -> where this copy looks for the latest version.svg and sends its Help line: 'site' (the share
+//                       site), 'github' (the repository, for bookmarklet.txt: some networks reach only github.com) or false
+//                       (the store updates the extension)
 //   name             -> 'bookmark' | 'extension': written on the page (data-page-comments) while the tool is open, so the
 //                       other kind can see it; either asks the other to close with the 'page-comments:close' event
 //   shadowMode       -> 'closed' keeps page scripts from pressing our buttons (the extension's buttons can take pictures)
@@ -17,6 +19,8 @@
 export const startPageComments = (platform) => {
   const SERVER = 'http://localhost:4747';
   const SITE = 'https://page-comments.share.heyadhi.com/';
+  const GITHUB = 'https://github.com/adhi14058/page-comments';
+  const fromGithub = platform.checkVersion === 'github';
   // build.js replaces this with the release's id (6 hex digits); a copy pasted from source has none.
   const VERSION = '__PAGE_COMMENTS_VERSION__';
   // Running it a second time removes the tool.
@@ -320,7 +324,7 @@ export const startPageComments = (platform) => {
   const listBtn = action('list', 'Comments'), copyBtn = action('copy', 'Copy'), sendBtn = action('send', 'Send to Claude', 'button', { hidden: true });
   const clearBtn = action('clear', 'Clear all'), closeBtn = action('close', 'Close'), areaBtn = action('area', 'Select an area'), freezeBtn = action('freeze', FREEZE_LABEL);
   const batchBtn = action('batch', 'Select several'), shareBtn = action('share', 'Share link');
-  const infoLink = action('info', 'Help & install page · v' + VERSION, 'a', { href: SITE, target: '_blank', rel: 'noopener noreferrer' });
+  const infoLink = action('info', (fromGithub ? 'Help & install on GitHub · v' : 'Help & install page · v') + VERSION, 'a', { href: fromGithub ? GITHUB + '#-three-ways-to-use-it' : SITE, target: '_blank', rel: 'noopener noreferrer' });
   const detailsAct = action('details', 'Details: colours, font, spacing'), keysAct = action('shortcuts', 'Keyboard shortcuts'), moreBtn = action('dots', 'More');
   // A mode that is on shows its name; the comments action shows the count.
   areaBtn.append(h('span', { className: 'ontxt', textContent: 'Area' }));
@@ -1809,9 +1813,10 @@ export const startPageComments = (platform) => {
   render();
   importShared();
 
-  // Is a newer release out? The share site sends no CORS headers, so instead of reading a file we load
-  // version.svg as an image: its size encodes the latest version (width = major * 1000 + minor + 1,
-  // height = patch + 1), and any page may read an image's size. No code is fetched or run.
+  // Is a newer release out? Instead of reading a file we load version.svg as an image: its size encodes the latest
+  // version (width = major * 1000 + minor + 1, height = patch + 1), and any page may read an image's size. An image
+  // request without a referrer tells the server nothing about the page it came from (a file read would send the
+  // page's origin), and no code is fetched or run. GitHub serves the repository's copy as a real image.
   // A site whose CSP blocks the image just skips the check. An unbuilt copy (pasted from the repo) has no version.
   const [vMajor, vMinor, vPatch] = VERSION.split('.').map(Number);
   if (platform.checkVersion && /^\d+\.\d+\.\d+$/.test(VERSION)) {
@@ -1820,11 +1825,11 @@ export const startPageComments = (platform) => {
     img.onload = () => {
       if (img.naturalWidth === vMajor * 1000 + vMinor + 1 && img.naturalHeight === vPatch + 1) return;
       infoLink.classList.add('new');
-      infoLink.labelEl.textContent = 'New version: open, then re-drag the bookmark';
+      infoLink.labelEl.textContent = fromGithub ? 'New version: open, then copy the new bookmarklet.txt' : 'New version: open, then re-drag the bookmark';
       updateDot.hidden = false;
       layoutBar();
       toast('A new version of page-comments is out: hover the round button, open ⋯ and click the green Help line.');
     };
-    img.src = SITE + 'version.svg?t=' + Date.now();
+    img.src = (fromGithub ? 'https://raw.githubusercontent.com/adhi14058/page-comments/main/bookmarklet/' : SITE) + 'version.svg?t=' + Date.now();
   }
 };

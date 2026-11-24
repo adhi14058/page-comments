@@ -17,18 +17,24 @@ const SHARE_CLI = path.join(os.homedir(), '.local/share/heyadhi-share/heyadhi.mj
 // esbuild is fetched by npx, nothing to install.
 
 // The bookmark's code: core.js (the tool, shared with the extension) bundled with bookmark.js (its way of taking pictures,
-// saving files and finding updates) into one function call.
-const minifiedJs = execFileSync('npx', ['-y', 'esbuild@0.28.2', 'bookmark.js', '--bundle', '--format=iife', '--minify'], { cwd: __dirname, encoding: 'utf8' }).trim();
-// The UI's styles sit in one template string, which the JS minifier leaves alone; minify them as CSS too (about 8%).
-const uiCss = minifiedJs.match(/replaceSync\(`([\s\S]*?)`\)/)?.[1];
-if (!uiCss || uiCss.includes('${')) throw new Error('core.js styles not found as a plain template string');
-const cssMin = execFileSync('npx', ['-y', 'esbuild@0.28.2', '--minify', '--loader=css'], { input: uiCss, encoding: 'utf8' }).trim();
-const raw = minifiedJs.replace(uiCss, () => cssMin.replace(/[`\\]/g, '\\$&'));
+// saving files and finding updates) into one function call. updates: where the copy looks for a newer release and
+// sends its Help line ('site': everything on the share site; 'github': bookmarklet.txt, for networks that reach only
+// github.com).
+const bundle = (updates) => {
+  const minifiedJs = execFileSync('npx', ['-y', 'esbuild@0.28.2', 'bookmark.js', '--bundle', '--format=iife', '--minify', `--define:PAGE_COMMENTS_UPDATES="${updates}"`],
+    { cwd: __dirname, encoding: 'utf8' }).trim();
+  // The UI's styles sit in one template string, which the JS minifier leaves alone; minify them as CSS too (about 8%).
+  const uiCss = minifiedJs.match(/replaceSync\(`([\s\S]*?)`\)/)?.[1];
+  if (!uiCss || uiCss.includes('${')) throw new Error('core.js styles not found as a plain template string');
+  const cssMin = execFileSync('npx', ['-y', 'esbuild@0.28.2', '--minify', '--loader=css'], { input: uiCss, encoding: 'utf8' }).trim();
+  return minifiedJs.replace(uiCss, () => cssMin.replace(/[`\\]/g, '\\$&'));
+};
+const raw = bundle('site'), rawGithub = bundle('github');
 // Releases are major.minor.patch. release.json keeps the last published version and a hash of its code: changed code
 // gets the next patch (or `node bookmarklet/build.js minor` / `major`); unchanged code keeps its version, so nobody is told to update.
 const RELEASE = path.join(ROOT, 'release.json');
 const last = JSON.parse(fs.readFileSync(RELEASE, 'utf8'));
-const hash = crypto.createHash('sha256').update(raw).digest('hex');
+const hash = crypto.createHash('sha256').update(raw).update(rawGithub).digest('hex');
 const bump = process.argv[2];
 if (bump && !['major', 'minor', 'patch'].includes(bump)) throw new Error('usage: node bookmarklet/build.js [major|minor|patch]');
 const [major, minor, patch] = last.version.split('.').map(Number);
@@ -40,6 +46,7 @@ if (version !== last.version && !fs.readFileSync(path.join(ROOT, 'CHANGELOG.md')
 }
 const client = raw.replace('__PAGE_COMMENTS_VERSION__', version);
 if (client === raw) throw new Error('core.js lost its __PAGE_COMMENTS_VERSION__ placeholder');
+const clientGithub = rawGithub.replace('__PAGE_COMMENTS_VERSION__', version);
 // The bookmark reads the latest version from this image's size (see the version check in core.js):
 // width = major * 1000 + minor + 1, height = patch + 1.
 const [vMajor, vMinor, vPatch] = version.split('.').map(Number);
@@ -633,18 +640,19 @@ try {
   console.log(`published ${out.url} version ${version} (bookmark ${(Buffer.byteLength(bookmark) / 1024).toFixed(1)} KB)`);
   // The extension is built from the same core with the same version, so the two never drift apart.
   console.log(`extension ${version} built in ${require('../extension/build.js')(version)}`);
-  // For people who cannot reach the share site: the same install page as a file in the repository (it works opened
-  // straight from a download), and the fixed bookmark as one line to paste into a new bookmark's address.
-  // Every release commits and pushes just these files (Adhi, 2026-11-24), so the GitHub copy never falls behind.
-  fs.mkdirSync(path.join(ROOT, 'docs'), { recursive: true });
-  fs.writeFileSync(path.join(ROOT, 'docs', 'index.html'), html);
-  fs.writeFileSync(path.join(ROOT, 'bookmarklet.txt'), bookmarkFixed + '\n');
+  // For people whose network reaches only github.com: the fixed bookmark as one line to paste into a new bookmark's
+  // address, the build that checks for updates and links its Help line to GitHub. Every release commits and pushes it
+  // (Adhi, 2026-11-24) with the version.svg that bookmark checks and release.json (the README's version badge), so the
+  // GitHub copy never falls behind.
+  fs.writeFileSync(path.join(ROOT, 'bookmarklet.txt'), toBookmark(clientGithub) + '\n');
+  fs.writeFileSync(path.join(__dirname, 'version.svg'), versionSvg);
+  const files = ['bookmarklet.txt', 'bookmarklet/version.svg', 'release.json'];
   const git = (...args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' });
-  git('add', 'docs/index.html', 'bookmarklet.txt');
-  if (git('diff', '--cached', '--name-only', '--', 'docs/index.html', 'bookmarklet.txt').trim()) {
-    git('commit', '-m', `Release ${version}: install page and bookmarklet for the repository`, '--', 'docs/index.html', 'bookmarklet.txt');
+  git('add', ...files);
+  if (git('diff', '--cached', '--name-only', '--', ...files).trim()) {
+    git('commit', '-m', `Release ${version}: bookmarklet.txt for the repository`, '--', ...files);
     git('push');
-    console.log('pushed docs/index.html and bookmarklet.txt to GitHub');
+    console.log('pushed ' + files.join(', ') + ' to GitHub');
   }
 } finally {
   fs.rmSync(dir, { recursive: true, force: true });

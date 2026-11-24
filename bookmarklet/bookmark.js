@@ -62,7 +62,7 @@ const download = (blob, name) => {
 if (document.documentElement.dataset.pageCommentsExtension) document.dispatchEvent(new CustomEvent('page-comments:start'));
 else startPageComments({
   name: 'bookmark',
-  checkVersion: true,
+  checkVersion: PAGE_COMMENTS_UPDATES, // 'site' or 'github': build.js makes one bookmark of each (esbuild --define)
   capture: {
     ready: () => !!capture,
     start: startCapture,

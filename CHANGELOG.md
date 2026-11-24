@@ -1,6 +1,15 @@
 # page-comments releases
 
-What went out in each published version, newest first. `node build.js` refuses to publish a new version without its entry here.
+What went out in each published version, newest first. `node bookmarklet/build.js` refuses to publish a new version without its entry here.
+
+## 1.9.2 — 2026-11-24
+
+- The GitHub copy of the bookmark (`bookmarklet.txt`) checks for new versions with a small picture from the repository, the same way the install page's bookmarks do, so GitHub is not told which site you use it on.
+
+## 1.9.1 — 2026-11-24
+
+- For networks that reach only github.com: `bookmarklet.txt` in the repository is now its own build of the fixed bookmark. It learns of new versions from the repository (not the share site), and its Help line opens the repository. The install page copy in the repository (`docs/index.html`) is gone; `bookmarklet.txt` replaces it.
+- No change for bookmarks from the install page.
 
 ## 1.9.0 — 2026-11-24
 
