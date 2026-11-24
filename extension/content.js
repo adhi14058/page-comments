@@ -1,5 +1,5 @@
-// The extension's side of page-comments, run inside a tab when you click "Comment on this page" in the popup, press
-// the shortcut, or (on sites you allowed) when a page that has comments loads. extension/build.js bundles it with
+// The extension's side of page-comments, run inside a tab when you click the icon (which opens the popup), press the
+// shortcut, or (on sites you allowed) when a page that has comments loads. extension/build.js bundles it with
 // core.js into dist/<browser>/content.js. It runs in the extension's own isolated copy of the page's scripts: the page
 // cannot see or call it, but it shares the page's DOM, localStorage and IndexedDB, so comments made with the bookmark
 // show up here and the other way round.
@@ -69,5 +69,23 @@ if (!globalThis.__pageCommentsExtension) {
   globalThis.__pageCommentsExtension = true;
   html.dataset.pageCommentsExtension = '1';
   document.addEventListener('page-comments:start', start);
+  // A click on the page while the popup shows closes the popup and also lands on the page (measured in Chrome), where
+  // it would open a comment box: skip that one click. Registered before the core's listeners on window, so it runs
+  // first. The background says when the popup opens and closes; a short grace covers its close message arriving
+  // before the click does.
+  let armed = false, skipUntil = 0;
+  api.runtime.onMessage.addListener((msg) => {
+    if (msg.type !== 'popup') return;
+    if (msg.open) armed = true;
+    else setTimeout(() => { armed = false; }, 300);
+  });
+  const skip = (e) => {
+    if (e.type === 'pointerdown' && armed) { armed = false; skipUntil = Date.now() + 1000; }
+    if (Date.now() > skipUntil) return;
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    if (e.type === 'click') skipUntil = 0;
+  };
+  for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click']) addEventListener(type, skip, true);
 }
 start();

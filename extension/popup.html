@@ -8,8 +8,15 @@
 <body>
   <div class="top">
     <div class="row"><b><img src="icons/icon-32.png" alt="">page-comments</b><span id="version" class="muted"></span></div>
-    <button id="start" class="primary"><span>Comment on this page</span><kbd id="key" hidden></kbd></button>
-    <p id="why" class="muted"></p>
+    <div id="here" class="row" hidden>
+      <span class="running"><i class="dot"></i>On this page<kbd id="key" hidden></kbd></span>
+      <button id="close" class="soft">Close the tool</button>
+    </div>
+    <p id="why" class="muted" hidden></p>
+    <div id="keep" class="keep" hidden>
+      <span>Pins come back after a reload on this site?</span>
+      <span class="btns"><button id="later" class="plain">Not now</button><button id="allow" class="primary">Allow</button></span>
+    </div>
     <input id="search" type="search" placeholder="Search commented pages" aria-label="Search commented pages">
   </div>
   <div id="list" class="list"></div>

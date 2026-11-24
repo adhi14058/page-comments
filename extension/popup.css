@@ -1,4 +1,5 @@
-/* The popup (layout A): start the tool here, and every page with comments, grouped by site. */
+/* The popup (layout A, opened by the icon click that also starts the tool): close the tool, the pins question, and every
+   page with comments, grouped by site. */
 * { box-sizing: border-box; }
 body { margin: 0; width: 340px; max-height: 560px; display: flex; flex-direction: column; font: 13px/1.45 system-ui, sans-serif; color: #18181b; background: #fff; }
 .top { padding: 12px; border-bottom: 1px solid #e4e4e7; display: grid; gap: 10px; }
@@ -6,11 +7,16 @@ body { margin: 0; width: 340px; max-height: 560px; display: flex; flex-direction
 .row b { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .row img { width: 20px; height: 20px; }
 .muted { color: #71717a; font-size: 12px; margin: 0; }
-.primary { border: 0; border-radius: 10px; padding: 10px 14px; font: 600 14px system-ui, sans-serif; cursor: pointer; background: #2563eb; color: #fff;
-           display: flex; justify-content: space-between; align-items: center; }
-.primary:hover { background: #1d4ed8; }
-.primary:disabled { background: #a1a1aa; cursor: not-allowed; }
-.primary kbd { font: 600 11px ui-monospace, monospace; background: #1d4ed8; border-radius: 4px; padding: 2px 6px; }
+button { font: 600 12px system-ui, sans-serif; cursor: pointer; border: 0; border-radius: 8px; padding: 6px 10px; }
+.primary { background: #2563eb; color: #fff; } .primary:hover { background: #1d4ed8; }
+.soft { background: #f4f4f5; color: #18181b; } .soft:hover { background: #e4e4e7; }
+.plain { background: none; color: #52525b; } .plain:hover { color: #18181b; }
+.running { display: flex; align-items: center; gap: 7px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #16a34a; }
+kbd { font: 600 10.5px ui-monospace, monospace; color: #52525b; background: #f4f4f5; border: 1px solid #e4e4e7; border-radius: 4px; padding: 1px 5px; }
+.keep { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #eff6ff; border-radius: 10px; padding: 8px 8px 8px 10px; font-size: 12px; }
+.keep .btns { display: flex; gap: 2px; flex: none; }
+[hidden] { display: none !important; }
 input { width: 100%; border: 1px solid #d4d4d8; border-radius: 8px; padding: 7px 10px; font: 13px system-ui, sans-serif; }
 input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px #2563eb33; }
 .list { overflow: auto; padding: 4px 8px 10px; scrollbar-width: thin; scrollbar-color: #d4d4d8 transparent; }

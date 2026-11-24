@@ -22,7 +22,7 @@ const manifest = (version, browser) => ({
   // Chrome runs the background as a service worker; Firefox has no service workers for extensions and runs it as a page.
   background: browser === 'chrome' ? { service_worker: 'background.js' } : { scripts: ['background.js'] },
   // Not C or F: the tool uses Alt+Shift+C and Alt+Shift+F on the page, and the browser would take them first.
-  commands: { start: { suggested_key: { default: 'Alt+Shift+P' }, description: 'Comment on this page' } },
+  commands: { start: { suggested_key: { default: 'Alt+Shift+P' }, description: 'Start or close page-comments on this page' } },
   // Firefox: a fixed ID (AMO assigns none), 153+ (content scripts can set adoptedStyleSheets from 153, Mozilla bug
   // 1928865), and the required data declaration: nothing leaves the device (share links live in the link itself,
   // Send to Claude talks to a server on this computer).
