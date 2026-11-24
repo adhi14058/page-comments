@@ -4,6 +4,7 @@
 //   capture.start()  -> asks for what pictures need (the bookmark: Chrome's "Share this tab?")
 //   capture.grab()   -> { source, k }: a picture of the visible tab (k image pixels per CSS pixel); called with the tool hidden
 //   capture.stop()   -> ends capturing when the tool closes
+//   capture.available -> false where pictures are impossible (the Add screenshot tick turns off and explains why)
 //   saveFiles(files, zipName) -> message for the user; files: [{ name, bytes }] (PNG)
 //   checkVersion     -> where this copy looks for the latest version.svg and sends its Help line: 'site' (the share
 //                       site), 'github' (the repository, for bookmarklet.txt: some networks reach only github.com) or false
@@ -249,6 +250,7 @@ export const startPageComments = (platform) => {
     .snap input:checked { background: #2563eb; border-color: #2563eb; }
     .snap input:checked::before { transform: scale(1); }
     .snap input:focus-visible { outline: 2px solid #2563eb66; outline-offset: 2px; }
+    .snap.off { opacity: .55; cursor: help; } .snap.off input { cursor: not-allowed; }
     button.b:disabled, button.b:disabled:hover { background: #f4f4f5; color: #a1a1aa; border-color: #f4f4f5; cursor: not-allowed; }
   `);
   root.adoptedStyleSheets = [sheet];
@@ -275,6 +277,14 @@ export const startPageComments = (platform) => {
   const boxCopyBtn = btn('Copy', 'b', 'Copy this comment as it is now, with a picture if Add screenshot is ticked, without saving it');
   const shotBox = h('input', { type: 'checkbox' });
   const shotLabel = h('label', { className: 'snap' }, shotBox, 'Add screenshot');
+  // Where the platform cannot take pictures (the bookmark on a plain-http page that is not localhost: browsers keep
+  // screen capture for secure pages), the tick is off and says why, and how to allow it.
+  const canShoot = platform.capture.available !== false;
+  if (!canShoot) {
+    shotBox.disabled = true;
+    shotLabel.classList.add('off');
+    shotLabel.title = `No pictures on this page: it is plain http, and browsers allow screen capture only on https or localhost pages. To allow it in Chrome, open chrome://flags/#unsafely-treat-insecure-origin-as-secure, add ${location.origin}, choose Enabled and relaunch. Or open your site as localhost or name.localhost, or use the page-comments extension.`;
+  }
   const pop = h('div', { className: 'card pop', hidden: true }, h('div', { className: 'head' }, kindEl, nameEl, byEl, navEl), textarea, shotLabel,
     h('div', { className: 'row' }, h('span', { className: 'hint', textContent: 'Enter saves' }), deleteBtn, boxCopyBtn, cancelBtn, saveBtn), sideTab, side);
   const toastEl = h('div', { className: 'card toast', hidden: true });
@@ -773,7 +783,7 @@ export const startPageComments = (platform) => {
     deleteBtn.hidden = !d.comment;
     // An existing comment shows whether it has a screenshot; a new area or frozen comment starts ticked (a picture
     // is why you make one); any other new comment starts as the box was last left.
-    shotBox.checked = d.comment ? !!d.comment.shot : d.area || d.frozen ? true : localStorage.getItem(SHOT_KEY) === '1';
+    shotBox.checked = canShoot && (d.comment ? !!d.comment.shot : d.area || d.frozen ? true : localStorage.getItem(SHOT_KEY) === '1');
     shotLabel.hidden = !d.el; // nothing to photograph when the element is gone
     // A batch keeps its selections outlined while its box is open; ‹ › step through them (not on a frozen picture,
     // which cannot scroll).

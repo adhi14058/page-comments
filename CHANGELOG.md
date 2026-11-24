@@ -2,6 +2,10 @@
 
 What changed for you in each version, newest first.
 
+## 1.9.10 — 2026-11-24
+
+- On pages where the bookmark cannot take pictures (plain http that is not localhost), Add screenshot is greyed out, and its tooltip says why and how to allow it in Chrome. Local sites named `localhost`, `127.0.0.1` or `name.localhost` take pictures as usual.
+
 ## 1.9.9 — 2026-11-24
 
 - Copy pictures works on pages that are not https too. The pictures paste into Google Docs and email; Slack needs an https page for pictures.

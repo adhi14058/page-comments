@@ -66,6 +66,8 @@ else startPageComments({
   name: 'bookmark',
   checkVersion: PAGE_COMMENTS_UPDATES, // 'site' or 'github': build.js makes one bookmark of each (esbuild --define)
   capture: {
+    // Browsers offer tab capture only to secure pages (https, localhost and *.localhost).
+    available: !!navigator.mediaDevices?.getDisplayMedia,
     ready: () => !!capture,
     start: startCapture,
     grab: async () => {

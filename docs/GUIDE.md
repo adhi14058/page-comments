@@ -369,12 +369,12 @@ Comments stay in your browser. Nothing leaves it unless you copy, share or send.
 <summary><b>On pages that are not https</b></summary>
 <br>
 
-Browsers keep the clipboard and tab capture for secure pages (https and localhost). On a plain-http page, such as an internal tool, a staging server or a `.test` dev site:
+Browsers keep the clipboard and tab capture for secure pages: https, `localhost`, `127.0.0.1` and any `name.localhost`. A name from your hosts file (`myapp.test`, `myapp.local`) does not count, even when it points at your own machine. On a plain-http page:
 
 | | Bookmark | Extension |
 |---|---|---|
 | **Copy** | Text and rich text (no combined picture for Slack) | Text and rich text, pictures inside |
-| **Add screenshot** | Not possible: it says so | Works |
+| **Add screenshot** | Off, greyed out. Its tooltip says why and how to allow it (`chrome://flags/#unsafely-treat-insecure-origin-as-secure`, or open the site as `localhost` / `name.localhost`) | Works |
 | **Copy pictures** | Not possible: use **Save pictures** | Not possible: use **Save pictures** |
 
 </details>
