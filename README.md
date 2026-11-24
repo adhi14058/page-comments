@@ -18,6 +18,17 @@ It bundles `core.js` (the tool, shared with the coming extension) with `bookmark
 
 The install page offers two bookmarks. The orange one updates itself: each click loads the published `client.js` (which only defines `window.__pageCommentsLatest`, so it never runs on its own) and runs it. When the site blocks that (CSP or Trusted Types, as on Gmail, GitHub and Jira), the load fails or takes over 3 s, it runs the copy it was built with. The fixed one is that copy alone and never loads code, for workplaces that allow no outside scripts. Either way, a copy older than the published version shows the green update dot.
 
+## Without the share site
+
+Some networks block https://page-comments.share.heyadhi.com/. The repository carries the same bookmarks, updated by every release:
+
+- **Open a file:** on GitHub click **Code → Download ZIP** (or `git clone` it), unzip, and open `docs/index.html` in your browser. Drag a bookmark from that page into your bookmarks bar, as on the share site. The fixed bookmark is the one to take there: the self-updating one loads its updates from the share site.
+- **Paste a line:** open [`bookmarklet.txt`](bookmarklet.txt) on GitHub, click **Raw**, copy everything, then create a new bookmark (right-click the bookmarks bar → Add page…) and paste it as the address (URL). Name it Page comments.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
+
 ## The extension
 
 `node build.js` also builds the browser extension into `extension/dist/chrome/` (or run `node build-extension.js` alone). Load it with **Load unpacked** on `chrome://extensions` (Developer mode on). It runs the same `core.js` as the bookmark with its own platform part (`extension/content.js`): lossless pictures through `captureVisibleTab` (stored as PNG), pictures saved as separate files (Chrome makes their blob URLs in `offscreen.html`), the popup (`popup.html`: start the tool, every commented page from the extension's index), the shortcut Alt+Shift+P, and pins that come back after a reload on sites you allowed from the popup (`restore.js`, registered per site in `background.js`). Comments live in the page's own storage, so the bookmark and the extension see the same comments, and their share links open in either. After a reload, sharp pictures need one click on the icon or the shortcut (the browser's rule).

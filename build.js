@@ -632,6 +632,19 @@ try {
   console.log(`published ${out.url} version ${version} (bookmark ${(Buffer.byteLength(bookmark) / 1024).toFixed(1)} KB)`);
   // The extension is built from the same core with the same version, so the two never drift apart.
   console.log(`extension ${version} built in ${require('./build-extension.js')(version)}`);
+  // For people who cannot reach the share site: the same install page as a file in the repository (it works opened
+  // straight from a download), and the fixed bookmark as one line to paste into a new bookmark's address.
+  // Every release commits and pushes just these files (Adhi, 2026-11-24), so the GitHub copy never falls behind.
+  fs.mkdirSync(path.join(__dirname, 'docs'), { recursive: true });
+  fs.writeFileSync(path.join(__dirname, 'docs', 'index.html'), html);
+  fs.writeFileSync(path.join(__dirname, 'bookmarklet.txt'), bookmarkFixed + '\n');
+  const git = (...args) => execFileSync('git', args, { cwd: __dirname, encoding: 'utf8' });
+  git('add', 'docs/index.html', 'bookmarklet.txt');
+  if (git('diff', '--cached', '--name-only', '--', 'docs/index.html', 'bookmarklet.txt').trim()) {
+    git('commit', '-m', `Release ${version}: install page and bookmarklet for the repository`, '--', 'docs/index.html', 'bookmarklet.txt');
+    git('push');
+    console.log('pushed docs/index.html and bookmarklet.txt to GitHub');
+  }
 } finally {
   fs.rmSync(dir, { recursive: true, force: true });
 }
