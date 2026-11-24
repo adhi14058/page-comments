@@ -626,6 +626,11 @@ export const startPageComments = (platform) => {
     pill.style.left = more.style.left = Math.min(-2, innerWidth - 8 - r.left - pill.offsetWidth) + 'px';
   };
 
+  // What Copy says about an element's look: what a reader (a person, or Claude Code) needs to find and change it.
+  // Padding and radius only when set. No contrast: the colours are there, and the tool shows it while commenting.
+  const looks = (i, labelled) => [['Size', `${i.size} px`], ['Background', i.background], ['Text', i.color], ['Font', i.font],
+    ...[['Padding', i.padding], ['Radius', i.radius]].filter(([, v]) => v && v !== '0')]
+    .map(([k, v]) => (labelled ? `${k}: ${v}` : k === 'Size' ? v : `${k.toLowerCase()} ${v}`)).join(' · ');
   const toText = (items = numbered()) => {
     const body = items.map(({ c, n }) => [
       `## ${n}. ${c.comment}${c.by ? ` (from ${c.by})` : ''}`,
@@ -633,7 +638,7 @@ export const startPageComments = (platform) => {
         ? [c.group ? `- ${c.items.length} elements selected together, inside \`${c.selector}\`:` : `- Area over \`${c.selector}\`, covering ${c.items.length} element(s):`,
           ...c.items.map((it) => `  - \`${it.selector}\`: "${it.text}"`)]
         : [`- Element: \`${c.selector}\``, c.selectedText && `- Selected text: "${c.selectedText}"`, `- Element text: "${c.text}"`, `- HTML: \`${c.html}\``]),
-      c.info ? `- Size: ${c.info.size} px · Background: ${c.info.background} · Text: ${c.info.color} · Font: ${c.info.font} · Padding: ${c.info.padding} · Radius: ${c.info.radius} · Contrast: ${c.info.contrast}`
+      c.info ? `- ${looks(c.info, true)}`
         : c.size && `- Size: ${c.size} px · Background: ${c.background}`,
       c.frozen && '- Commented on a frozen moment: the element may only show on hover or in a menu',
       c.shot && (c.shotCount > 1 ? `- Screenshots: pictures ${n}a to ${n}${tagOf({ length: c.shotCount }, c.shotCount - 1)}, one per selected element, in the order above` : `- Screenshot: picture ${n}`),
@@ -651,7 +656,7 @@ export const startPageComments = (platform) => {
       // one small grey line for whoever builds it (text/plain, which Claude Code reads, keeps them in full).
       const details = [
         c.area ? `${c.group ? 'selected together inside' : 'area over'} ${c.selector}: ${c.items.map((it) => it.selector).join(', ')}` : c.selector,
-        c.info ? `${c.info.size} px · background ${c.info.background} · text ${c.info.color} · font ${c.info.font} · padding ${c.info.padding} · radius ${c.info.radius} · contrast ${c.info.contrast}`
+        c.info ? looks(c.info, false)
           : c.size && `${c.size} px · background ${c.background}`,
       ].filter(Boolean).join(' · ');
       const img = (pics.get(c) || []).map((p) => `<p><img src="${p.url}" alt="Screenshot of comment ${n}"${p.width ? ` width="${Math.max(p.width, 240)}"` : ''}></p>`).join('');

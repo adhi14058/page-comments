@@ -2,6 +2,10 @@
 
 What went out in each published version, newest first. `node bookmarklet/build.js` refuses to publish a new version without its entry here.
 
+## 1.9.6 — 2026-11-24
+
+- Copy and Send to Claude carry less noise: each element's line keeps its size, colours and font, shows padding and corner radius only when they are set, and no longer includes the contrast score (the tool still shows it while you comment).
+
 ## 1.9.5 — 2026-11-24
 
 - Copy works on pages that are not https (internal tools, staging servers, `.test` dev sites). It failed there with "Cannot read properties of undefined": browsers keep the clipboard for secure pages, so on those pages the tool now uses the browser's older copy command, which carries the text and the rich text with its pictures.
