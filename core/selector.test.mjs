@@ -16,3 +16,9 @@ test('the nearest id wins over an earlier one, and short chains stay whole', () 
 test('without an id it starts from the top', () => {
   assert.strictEqual(shortSelector('body > main > section > div > ul > li:nth-of-type(4) > a'), 'body > … > ul > li:nth-of-type(4) > a');
 });
+
+test('inside frames each page shortens its own part, and every frame on the way stays named', () => {
+  assert.strictEqual(shortSelector('#shell > div > div > section > div > iframe >>> body > main > div > div > ul > li:nth-of-type(3) >>> #plan > h3'),
+    '#shell > … > section > div > iframe >>> body > … > div > ul > li:nth-of-type(3) >>> #plan > h3');
+  assert.strictEqual(shortSelector('iframe#app >>> .plan'), 'iframe#app >>> .plan');
+});

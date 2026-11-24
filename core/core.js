@@ -20,11 +20,15 @@
 // A selector as Copy shows it: from the nearest id (or the start), with only its last steps, so a reader is not handed
 // a chain of fifteen divs; the element's text and HTML identify it better. The tool keeps the full one to find the
 // element again after a reload.
-export const shortSelector = (selector, keep = 3) => {
-  const parts = String(selector).split(' > ');
+// An element inside a same-origin frame has the frame's selector, ' >>> ', then its selector in the frame's page (one
+// ' >>> ' per frame when nested). No CSS selector holds ' >>> ', so a copy of the tool that does not know frames
+// finds nothing for such a comment, rather than a wrong element of the top page.
+export const FRAME_SEP = ' >>> ';
+export const shortSelector = (selector, keep = 3) => String(selector).split(FRAME_SEP).map((one) => {
+  const parts = one.split(' > ');
   const tail = parts.slice(Math.max(0, parts.findLastIndex((p) => /^[\w-]*#/.test(p))));
   return tail.length <= keep + 1 ? tail.join(' > ') : `${tail[0]} > … > ${tail.slice(-keep).join(' > ')}`;
-};
+}).join(FRAME_SEP);
 
 export const startPageComments = (platform) => {
   const SERVER = 'http://localhost:4747';
@@ -462,20 +466,48 @@ export const startPageComments = (platform) => {
       saveFailed = true;
     }
   };
+  // The page inside the frames a selector names before its last ' >>> ' (the top page when none); throws when one of
+  // them is gone or of another origin now.
+  const docIn = (frames) => frames.reduce((doc, s) => doc.querySelector(s).contentDocument, document);
   const find = (selector) => {
     try {
-      return document.querySelector(selector);
+      const frames = selector.split(FRAME_SEP), own = frames.pop();
+      return docIn(frames).querySelector(own);
     } catch {
       return null;
     }
   };
-  const elOf = (c) => (c.el && c.el.isConnected ? c.el : (c.el = find(c.selector)));
+  // The iframe a frame's page sits in; null for the top page.
+  const frameOf = (doc) => (doc !== document && doc.defaultView?.frameElement) || null;
+  // Where a frame's page starts in the top page's coordinates: each frame's box, plus its border and padding.
+  // shortcut: a CSS transform or zoom on an iframe is not counted; count it when a page that has one needs it.
+  const offsetOf = (doc) => {
+    let x = 0, y = 0;
+    for (let f; (f = frameOf(doc)); doc = f.ownerDocument) {
+      const r = f.getBoundingClientRect(), cs = getComputedStyle(f);
+      x += r.left + f.clientLeft + parseFloat(cs.paddingLeft);
+      y += r.top + f.clientTop + parseFloat(cs.paddingTop);
+    }
+    return { x, y };
+  };
+  // An element's box in the top page's coordinates, where the tool draws (inside a frame, its own box counts from the frame).
+  const rectOf = (el) => {
+    const r = el.getBoundingClientRect(), o = offsetOf(el.ownerDocument);
+    return new DOMRect(r.x + o.x, r.y + o.y, r.width, r.height);
+  };
+  // A pointer event's spot in the top page's coordinates.
+  const pointOf = (e) => { const o = offsetOf(e.target.ownerDocument || e.target); return { x: e.clientX + o.x, y: e.clientY + o.y }; };
+  // The element's parent: from a frame's <body> out to its iframe; null past the top page's <body>.
+  const up = (el) => { const p = el.parentElement; return p && p !== p.ownerDocument.documentElement ? p : frameOf(el.ownerDocument); };
+  const holds = (a, el) => { for (; el; el = up(el)) if (el === a) return true; return false; };
+  // An element of a frame's earlier page still counts as connected (to that page): it must also still be shown.
+  const elOf = (c) => (c.el?.isConnected && c.el.ownerDocument.defaultView ? c.el : (c.el = find(c.selector)));
 
   // Screenshots are opt-in per comment; platform.capture takes them (see the top of this file).
   const SHOT_KEY = 'page-comments:shot'; // the Add screenshot tick, remembered per site
   // What a screenshot shows: an element plus a margin (24 px, 8 px for each of several picked elements), or a dragged area plus 8 px.
   const shotRect = (el, area, m = 24) => {
-    const r = el.getBoundingClientRect();
+    const r = rectOf(el);
     if (area) return { left: r.left + area.dx - 8, top: r.top + area.dy - 8, right: r.left + area.dx + area.w + 8, bottom: r.top + area.dy + area.h + 8 };
     return { left: r.left - m, top: r.top - m, right: r.right + m, bottom: r.bottom + m };
   };
@@ -509,7 +541,7 @@ export const startPageComments = (platform) => {
     if (!platform.capture.ready()) await platform.capture.start();
     // Only the page belongs in the picture: not the tool, not a text-selection highlight, not a focus outline.
     host.style.visibility = 'hidden';
-    getSelection().removeAllRanges();
+    for (const doc of [document, ...linked.keys()]) doc.getSelection()?.removeAllRanges();
     if (document.activeElement && document.activeElement !== document.body && document.activeElement !== host) document.activeElement.blur();
     try {
       await new Promise(requestAnimationFrame); // the hidden tool reaches the screen
@@ -612,15 +644,15 @@ export const startPageComments = (platform) => {
 
   // Short CSS path: stops at the nearest id, nth-of-type only where siblings share a tag.
   const selectorOf = (el) => {
-    const parts = [];
-    for (; el && el.nodeType === 1 && el !== document.documentElement; el = el.parentElement) {
+    const parts = [], doc = el.ownerDocument, frame = frameOf(doc);
+    for (; el && el.nodeType === 1 && el !== doc.documentElement; el = el.parentElement) {
       if (el.id) { parts.unshift('#' + CSS.escape(el.id)); break; }
       let part = el.tagName.toLowerCase();
       const same = el.parentElement ? [...el.parentElement.children].filter((c) => c.tagName === el.tagName) : [];
       if (same.length > 1) part += `:nth-of-type(${same.indexOf(el) + 1})`;
       parts.unshift(part);
     }
-    return parts.join(' > ');
+    return (frame ? selectorOf(frame) + FRAME_SEP : '') + parts.join(' > ');
   };
   // The words an element shows. innerText follows the layout, but for an element that is not rendered right now (a menu
   // that closed after a freeze) it falls back to textContent, which runs block children together ("Offline syncKeeps
@@ -654,10 +686,11 @@ export const startPageComments = (platform) => {
   // background comes from the nearest ancestor that has one (white if none).
   const hex = (rgb) => '#' + (rgb.match(/[\d.]+/g) || []).map((v, i) => (i < 3 ? +v : Math.round(v * 255)).toString(16).padStart(2, '0'))
     .join('').replace(/^(.{6})ff$/, '$1');
-  // `seen` (optional) caches answers per element, for inspecting many elements at once (Freeze).
+  // `seen` (optional) caches answers per element, for inspecting many elements at once (Freeze). A frame's page without a
+  // background of its own shows the page around the frame, so the walk goes on out through the iframe.
   const backgroundOf = (el, seen) => {
     const walked = [], done = (v) => { walked.forEach((w) => seen?.set(w, v)); return v; };
-    for (let e = el; e && e.nodeType === 1; e = e.parentElement) {
+    for (let e = el; e && e.nodeType === 1; e = e.parentElement || frameOf(e.ownerDocument)) {
       if (seen?.has(e)) return done(seen.get(e));
       walked.push(e);
       const c = getComputedStyle(e).backgroundColor;
@@ -706,13 +739,22 @@ export const startPageComments = (platform) => {
   const looks = (i, labelled) => [['Size', `${i.size} px`], ['Background', i.background], ['Text', i.color], ['Font', i.font],
     ...[['Padding', i.padding], ['Radius', i.radius]].filter(([, v]) => v && v !== '0')]
     .map(([k, v]) => (labelled ? `${k}: ${v}` : k === 'Size' ? v : `${k.toLowerCase()} ${v}`)).join(' · ');
+  // How Copy names an element: its selector in backticks and, inside a frame, the frame (outermost first) and the frame's
+  // page address while it is on the page, so a reader knows which page's code to look in.
+  const named = (selector) => {
+    const frames = selector.split(FRAME_SEP), own = `\`${shortSelector(frames.pop())}\``;
+    if (!frames.length) return own;
+    let url = '';
+    try { url = docIn(frames).URL; } catch {}
+    return `${own} inside the frame ${frames.map((f) => `\`${shortSelector(f)}\``).join(' › ')}${/^(https?|file):/.test(url) ? ` (its page: ${url})` : ''}`;
+  };
   const toText = (items = numbered()) => {
     const body = items.map(({ c, n }) => [
       `## ${n}. ${c.comment}${c.by ? ` (from ${c.by})` : ''}`,
       ...(c.area
-        ? [c.group ? `- ${c.items.length} elements selected together, inside \`${shortSelector(c.selector)}\`:` : `- Area over \`${shortSelector(c.selector)}\`, covering ${c.items.length} element(s):`,
-          ...c.items.map((it) => `  - \`${shortSelector(it.selector)}\`: "${it.text}"`)]
-        : [`- Element: \`${shortSelector(c.selector)}\``, c.selectedText && `- Selected text: "${c.selectedText}"`, `- Element text: "${c.text}"`, `- HTML: \`${c.html}\``]),
+        ? [c.group ? `- ${c.items.length} elements selected together, inside ${named(c.selector)}:` : `- Area over ${named(c.selector)}, covering ${c.items.length} element(s):`,
+          ...c.items.map((it) => `  - ${named(it.selector)}: "${it.text}"`)]
+        : [`- Element: ${named(c.selector)}`, c.selectedText && `- Selected text: "${c.selectedText}"`, `- Element text: "${c.text}"`, `- HTML: \`${c.html}\``]),
       c.info ? `- ${looks(c.info, true)}`
         : c.size && `- Size: ${c.size} px · Background: ${c.background}`,
       c.frozen && '- Commented on a frozen moment: the element may only show on hover or in a menu',
@@ -749,11 +791,20 @@ export const startPageComments = (platform) => {
 
   // Each pin stays on the spot that was clicked, kept as an offset inside its element so it follows
   // scrolling and layout changes. A pin hides while its element is gone or not rendered.
+  // A pin inside a frame also hides while its spot is scrolled out of the frame's box (of each frame, when nested).
+  const inFrames = (doc, x, y) => {
+    for (let f; (f = frameOf(doc)); doc = f.ownerDocument) {
+      const r = rectOf(f);
+      if (x < r.left || x > r.right || y < r.top || y > r.bottom) return false;
+    }
+    return true;
+  };
   const place = () => here().forEach((c, i) => {
-    const pin = pins.children[i], el = elOf(c), r = el ? el.getBoundingClientRect() : { width: 0 };
-    pin.hidden = !r.width;
-    pin.style.left = r.left + Math.min(c.dx, r.width) + 'px';
-    pin.style.top = r.top + Math.min(c.dy, r.height) + 'px';
+    const pin = pins.children[i], el = elOf(c), r = el ? rectOf(el) : { width: 0 };
+    const x = r.left + Math.min(c.dx, r.width), y = r.top + Math.min(c.dy, r.height);
+    pin.hidden = !r.width || !inFrames(el.ownerDocument, x, y);
+    pin.style.left = x + 'px';
+    pin.style.top = y + 'px';
   });
   const schedulePlace = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(() => { place(); drawPicked(); drawShown(); }); };
 
@@ -785,15 +836,21 @@ export const startPageComments = (platform) => {
     place();
   };
 
-  // An iframe (or embed) is a page of its own: the pointer over it never reaches this page's listeners. So while
-  // commenting, embeds let the pointer through to this page (a stylesheet object, which page CSP rules do not block), and
-  // the embed under the pointer becomes the target, to be picked whole like a picture.
-  const EMBEDS = 'iframe, frame, embed, object';
+  // An iframe (or embed) is a page of its own: the pointer over it never reaches this page's listeners. A frame whose
+  // page has this page's origin is linked (see linkFrame): the tool listens inside it as it does here, so its elements
+  // are picked one by one. Every other one (another origin, a sandbox, a frame running its own copy of the tool) lets
+  // the pointer through to this page while commenting (a stylesheet object, which page CSP rules do not block), and the
+  // embed under the pointer becomes the target, to be picked whole like a picture.
+  const EMBEDS = 'iframe, frame, embed, object', FRAMES = 'iframe, frame', LINKED = 'data-page-comments-frame';
+  const embedRule = `iframe:not([${LINKED}]), frame:not([${LINKED}]), embed, object { pointer-events: none !important; }`;
   const embedSheet = new CSSStyleSheet();
-  embedSheet.replaceSync(`${EMBEDS} { pointer-events: none !important; }`);
+  embedSheet.replaceSync(embedRule);
+  const sheets = new Map([[document, embedSheet]]); // a stylesheet object serves one page: each linked frame has its own
   const passEmbeds = (on) => {
-    const rest = document.adoptedStyleSheets.filter((x) => x !== embedSheet);
-    document.adoptedStyleSheets = on ? [...rest, embedSheet] : rest;
+    for (const [doc, sheet] of sheets) {
+      const rest = doc.adoptedStyleSheets.filter((x) => x !== sheet);
+      doc.adoptedStyleSheets = on ? [...rest, sheet] : rest;
+    }
   };
   const targetOf = (e) => [...(e.target.querySelectorAll?.(EMBEDS) ?? [])].reverse().find((f) => {
     const r = f.getBoundingClientRect();
@@ -871,7 +928,7 @@ export const startPageComments = (platform) => {
     const it = shown[shownCur], el = find(it.selector);
     if (el) {
       const rect = () => {
-        const r = el.getBoundingClientRect();
+        const r = rectOf(el);
         return it.box ? { left: r.left + it.box.dx, top: r.top + it.box.dy, right: r.left + it.box.dx + it.box.w, bottom: r.top + it.box.dy + it.box.h } : r;
       };
       showRect(el, rect);
@@ -894,7 +951,7 @@ export const startPageComments = (platform) => {
   const drawShown = () => shownBoxes.replaceChildren(...shown.flatMap((it, i) => {
     const el = find(it.selector);
     if (!el) return [];
-    const r = el.getBoundingClientRect(), b = it.box ? { left: r.left + it.box.dx, top: r.top + it.box.dy, width: it.box.w, height: it.box.h } : r;
+    const r = rectOf(el), b = it.box ? { left: r.left + it.box.dx, top: r.top + it.box.dy, width: it.box.w, height: it.box.h } : r;
     return [h('div', { className: 'picked' + (i === shownCur ? ' cur' : ''), style: `left:${b.left}px;top:${b.top}px;width:${b.width}px;height:${b.height}px` })];
   }));
   const edit = (c) => {
@@ -903,10 +960,10 @@ export const startPageComments = (platform) => {
     if (!el) return openPop({ selector: c.selector + ' (not found on the page now)', selectedText: c.selectedText, comment: c }, innerWidth / 2 - 150, innerHeight / 3);
     // Bring what it covers to the middle of the screen, unless it is already in full view.
     el.scrollIntoView({ block: 'nearest' });
-    let r = el.getBoundingClientRect();
+    let r = rectOf(el);
     const top = r.top + (c.area ? c.area.dy : 0), height = c.area ? c.area.h : r.height;
     if (top < 0 || top + height > innerHeight) scrollBy({ top: top + Math.min(height, innerHeight) / 2 - innerHeight / 2, behavior: 'instant' });
-    r = el.getBoundingClientRect();
+    r = rectOf(el);
     shown = c.group ? c.items : [{ selector: c.selector, box: c.area }];
     if (c.area) openPop({ el, selector: c.selector, area: c.area, items: c.items, comment: c }, r.left + c.area.dx, r.top + c.area.dy + c.area.h);
     else openPop({ el, selector: c.selector, selectedText: c.selectedText, comment: c }, r.left + c.dx, r.top + c.dy);
@@ -964,7 +1021,7 @@ export const startPageComments = (platform) => {
         size: `${area.w}×${area.h}`, background: rec ? rec.info.background : backgroundOf(el), ...(rec ? { frozen: true } : {}),
       };
     }
-    const r = rec ? rec.rect : el.getBoundingClientRect();
+    const r = rec ? rec.rect : rectOf(el);
     return {
       id: newId(), comment, selectedText, el, page: pageOf(), dx: Math.max(0, x - r.left), dy: Math.max(0, y - r.top),
       selector: d.selector, text: clip(textOf(el), 200), html: clip(el.outerHTML, 400), info: rec ? rec.info : inspect(el), ...(rec ? { frozen: true } : {}),
@@ -1001,11 +1058,11 @@ export const startPageComments = (platform) => {
     schedulePlace();
     if (frozen || menuState) return; // the frozen picture and the menu draw their own highlight
     if (!commenting || draft || ours(e)) return void (hl.hidden = true);
-    if (kbTarget && kbTarget.el.contains(e.target)) return;
+    if (kbTarget && holds(kbTarget.el, e.target)) return;
     kbTarget = null;
     kbStack = [];
     hovered = targetOf(e);
-    showHighlight(hovered.getBoundingClientRect(), inspect(hovered));
+    showHighlight(rectOf(hovered), inspect(hovered));
   };
   const onClick = (e) => {
     if (ours(e)) return;
@@ -1022,14 +1079,15 @@ export const startPageComments = (platform) => {
     e.stopPropagation();
     if (menuState) return closeMenu(); // a click away from the menu only closes it
     if (draft) return textarea.focus(); // never throw away unsaved text
-    if (e.shiftKey || batchOn) return togglePick(kbTarget && kbTarget.el.contains(e.target) ? kbTarget : liveTarget(targetOf(e)), e.clientX, e.clientY);
-    if (kbTarget && kbTarget.el.contains(e.target)) return openPop({ el: kbTarget.el, selector: kbTarget.selector }, e.clientX, e.clientY);
-    const sel = getSelection();
+    const { x, y } = pointOf(e);
+    if (e.shiftKey || batchOn) return togglePick(kbTarget && holds(kbTarget.el, e.target) ? kbTarget : liveTarget(targetOf(e)), x, y);
+    if (kbTarget && holds(kbTarget.el, e.target)) return openPop({ el: kbTarget.el, selector: kbTarget.selector }, x, y);
+    const sel = e.target.ownerDocument.getSelection(); // a frame's page has its own selection
     const text = sel.toString().trim();
     // The smallest element that holds the whole selection, which may span several elements.
     const common = text && sel.getRangeAt(0).commonAncestorContainer;
     const el = text ? (common.nodeType === 1 ? common : common.parentElement) : targetOf(e);
-    openPop({ el, selector: selectorOf(el), selectedText: text }, e.clientX, e.clientY);
+    openPop({ el, selector: selectorOf(el), selectedText: text }, x, y);
   };
   // Details (colours, font, spacing, selector) are one remembered switch: D, or the comment box's tab.
   // A press-once switch, not a held key: holding a key while moving the mouse is awkward, and Alt is Option on a Mac.
@@ -1116,7 +1174,7 @@ export const startPageComments = (platform) => {
   const leaveBatch = () => (picked.length ? askDrop() : setBatch(false));
   const pickRect = (t) => {
     if (t.fixed) return t.rect;
-    const r = t.el.getBoundingClientRect();
+    const r = rectOf(t.el);
     if (!t.box) return r;
     const left = r.left + t.box.dx, top = r.top + t.box.dy;
     return { left, top, width: t.box.w, height: t.box.h, right: left + t.box.w, bottom: top + t.box.h };
@@ -1155,10 +1213,10 @@ export const startPageComments = (platform) => {
     if (list.length === 1 && !one.box) return openPop({ el: one.el, selector: one.selector, ...(frozen ? { frozen: one } : {}) }, pickAt.x, pickAt.y);
     if (list.length === 1) return openPop({ el: one.el, selector: one.selector, ...(frozen ? { frozen: one.entry } : {}), area: one.box, items: one.items }, pickAt.x, pickAt.y);
     let a = list[0].el;
-    for (const t of list) while (a && !a.contains(t.el)) a = a.parentElement;
+    for (const t of list) while (a && !holds(a, t.el)) a = up(a); // across frames: picks may be in several pages
     if (frozen) while (a && !frozen.byEl.has(a)) a = a.parentElement;
     const anchor = frozen ? (a ? frozen.byEl.get(a) : frozen.entries[0]) : liveTarget(a || document.body);
-    const rects = list.map(pickRect), ar = frozen ? anchor.rect : anchor.el.getBoundingClientRect();
+    const rects = list.map(pickRect), ar = frozen ? anchor.rect : rectOf(anchor.el);
     const u = { left: Math.min(...rects.map((r) => r.left)), top: Math.min(...rects.map((r) => r.top)), right: Math.max(...rects.map((r) => r.right)), bottom: Math.max(...rects.map((r) => r.bottom)) };
     openPop({
       el: anchor.el, selector: anchor.selector, ...(frozen ? { frozen: anchor } : {}), group: true,
@@ -1195,12 +1253,12 @@ export const startPageComments = (platform) => {
     if (!next) return;
     if (up) kbStack.push(t);
     kbTarget = next;
-    showHighlight(frozen ? next.rect : next.el.getBoundingClientRect(), next.info);
+    showHighlight(frozen ? next.rect : rectOf(next.el), next.info);
   };
   const commentOnHighlighted = () => {
     const t = currentTarget();
     if (!t) return;
-    const r = frozen ? t.rect : t.el.getBoundingClientRect();
+    const r = frozen ? t.rect : rectOf(t.el);
     openPop({ el: t.el, selector: t.selector, ...(frozen ? { frozen: t } : {}) }, r.left, r.bottom);
   };
 
@@ -1252,7 +1310,7 @@ export const startPageComments = (platform) => {
   };
   // ---- What a comment is about: a live element, or one recorded at the moment of freezing. Both look the same:
   // { el, rect, info, selector }; a recorded one keeps its data after the real element has gone.
-  const liveTarget = (el) => ({ el, rect: el.getBoundingClientRect(), info: inspect(el), selector: selectorOf(el) });
+  const liveTarget = (el) => ({ el, rect: rectOf(el), info: inspect(el), selector: selectorOf(el) });
   const overlap60 = (b, r) => {
     const ix = Math.min(b.right, r.right) - Math.max(b.left, r.left), iy = Math.min(b.bottom, r.bottom) - Math.max(b.top, r.top);
     return ix > 0 && iy > 0 && ix * iy >= 0.6 * b.width * b.height;
@@ -1416,8 +1474,8 @@ export const startPageComments = (platform) => {
       for (let e = t.el.parentElement; e; e = e.parentElement) if (frozen.byEl.has(e)) return frozen.byEl.get(e);
       return null;
     }
-    const p = t.el.parentElement;
-    return p && p !== document.documentElement ? liveTarget(p) : null;
+    const p = up(t.el);
+    return p ? liveTarget(p) : null;
   };
   const menuItem = (label, hint, run) => h('button', { className: 'mi', onclick: (e) => { e.stopPropagation(); run(); } },
     h('span', { textContent: label }), h('span', { className: 'mk', textContent: hint }));
@@ -1459,7 +1517,8 @@ export const startPageComments = (platform) => {
     if (!commenting || frozen || ours(e)) return;
     e.preventDefault();
     e.stopPropagation();
-    openMenu(liveTarget(e.target), e.clientX, e.clientY);
+    const { x, y } = pointOf(e);
+    openMenu(liveTarget(e.target), x, y);
   };
   addEventListener('contextmenu', onContext, true);
   addEventListener('mousedown', onDown, true);
@@ -1470,6 +1529,42 @@ export const startPageComments = (platform) => {
   const onScrollMenu = (e) => { if (!ours(e)) closeMenu(); };
   addEventListener('scroll', onScrollMenu, true);
   addEventListener('resize', schedulePlace);
+  // Linking a same-origin frame: our listeners on its window, its own embed stylesheet (for frames inside it), and a mark
+  // on its iframe that lets the pointer in. Done for every frame now and again whenever one loads (a new page in a frame
+  // is a new document); a frame that now shows a page of another origin loses its mark and is picked whole again.
+  const linked = new Map(); // a linked frame's page -> what undoes the linking
+  const ownTool = (doc) => doc.documentElement?.dataset.pageComments !== undefined;
+  const FRAME_EVENTS = [['mousemove', onMove], ['click', onClick], ['mousedown', onDown], ['contextmenu', onContext], ['keydown', onKey],
+    ['scroll', schedulePlace], ['scroll', onScrollMenu], ['resize', schedulePlace]];
+  const onFrameLoad = (e) => { if (e.target.matches?.(FRAMES)) { linkFrame(e.target); schedulePlace(); } }; // its pins can show now
+  const linkFrame = (f) => {
+    for (const [doc, undo] of linked) if (!doc.defaultView) undo(); // pages gone from their frames
+    const doc = f.contentDocument;
+    if (!doc?.documentElement || ownTool(doc)) return f.removeAttribute(LINKED);
+    f.setAttribute(LINKED, '');
+    if (linked.has(doc)) return;
+    const win = doc.defaultView, sheet = new win.CSSStyleSheet();
+    sheet.replaceSync(embedRule);
+    // A copy of the tool started inside the frame later takes over its page; ours then keeps out of its way.
+    const handlers = FRAME_EVENTS.map(([type, fn]) => [type, (e) => ownTool(doc) || fn(e)]);
+    for (const [type, fn] of handlers) win.addEventListener(type, fn, true);
+    doc.addEventListener('load', onFrameLoad, true); // a load event never reaches the window
+    sheets.set(doc, sheet);
+    linked.set(doc, () => {
+      // `win` follows the frame to its next page. A frame's first, blank page hands its window on to the next page of
+      // the same origin, listeners and all: remove them. Any other new page has a new window, ours went with the old
+      // one, and one of another origin refuses the call.
+      try { for (const [type, fn] of handlers) win.removeEventListener(type, fn, true); } catch {}
+      doc.removeEventListener('load', onFrameLoad, true);
+      doc.adoptedStyleSheets = doc.adoptedStyleSheets.filter((x) => x !== sheet);
+      sheets.delete(doc);
+      linked.delete(doc);
+    });
+    passEmbeds(commenting);
+    doc.querySelectorAll(FRAMES).forEach(linkFrame);
+  };
+  document.addEventListener('load', onFrameLoad, true);
+  document.querySelectorAll(FRAMES).forEach(linkFrame);
 
   // The round button can be dragged anywhere; its centre is saved per site. The default is the bottom-right corner.
   const POS_KEY = 'page-comments:pos';
@@ -1923,6 +2018,9 @@ export const startPageComments = (platform) => {
     document.removeEventListener('page-comments:close', destroy);
     if (document.documentElement.dataset.pageComments === platform.name) delete document.documentElement.dataset.pageComments;
     passEmbeds(false);
+    for (const doc of [document, ...linked.keys()]) for (const f of doc.querySelectorAll(`[${LINKED}]`)) f.removeAttribute(LINKED);
+    for (const undo of [...linked.values()]) undo();
+    document.removeEventListener('load', onFrameLoad, true);
     host.remove();
     delete window.__pageComments;
   };
