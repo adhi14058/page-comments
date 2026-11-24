@@ -776,8 +776,23 @@ export const startPageComments = (platform) => {
     place();
   };
 
+  // An iframe (or embed) is a page of its own: the pointer over it never reaches this page's listeners. So while
+  // commenting, embeds let the pointer through to this page (a stylesheet object, which page CSP rules do not block), and
+  // the embed under the pointer becomes the target, to be picked whole like a picture.
+  const EMBEDS = 'iframe, frame, embed, object';
+  const embedSheet = new CSSStyleSheet();
+  embedSheet.replaceSync(`${EMBEDS} { pointer-events: none !important; }`);
+  const passEmbeds = (on) => {
+    const rest = document.adoptedStyleSheets.filter((x) => x !== embedSheet);
+    document.adoptedStyleSheets = on ? [...rest, embedSheet] : rest;
+  };
+  const targetOf = (e) => [...(e.target.querySelectorAll?.(EMBEDS) ?? [])].reverse().find((f) => {
+    const r = f.getBoundingClientRect();
+    return e.clientX >= r.left && e.clientX < r.right && e.clientY >= r.top && e.clientY < r.bottom;
+  }) || e.target;
   const setCommenting = (on) => {
     commenting = on;
+    passEmbeds(on);
     main.classList.toggle('on', on);
     main.firstChild.replaceWith(icon(on ? 'comment' : 'browse'));
     main.ariaLabel = on ? 'Commenting. Click to switch to browsing.' : 'Browsing. Click to switch to commenting.';
@@ -979,8 +994,8 @@ export const startPageComments = (platform) => {
     if (kbTarget && kbTarget.el.contains(e.target)) return;
     kbTarget = null;
     kbStack = [];
-    hovered = e.target;
-    showHighlight(e.target.getBoundingClientRect(), inspect(e.target));
+    hovered = targetOf(e);
+    showHighlight(hovered.getBoundingClientRect(), inspect(hovered));
   };
   const onClick = (e) => {
     if (ours(e)) return;
@@ -997,13 +1012,13 @@ export const startPageComments = (platform) => {
     e.stopPropagation();
     if (menuState) return closeMenu(); // a click away from the menu only closes it
     if (draft) return textarea.focus(); // never throw away unsaved text
-    if (e.shiftKey || batchOn) return togglePick(kbTarget && kbTarget.el.contains(e.target) ? kbTarget : liveTarget(e.target), e.clientX, e.clientY);
+    if (e.shiftKey || batchOn) return togglePick(kbTarget && kbTarget.el.contains(e.target) ? kbTarget : liveTarget(targetOf(e)), e.clientX, e.clientY);
     if (kbTarget && kbTarget.el.contains(e.target)) return openPop({ el: kbTarget.el, selector: kbTarget.selector }, e.clientX, e.clientY);
     const sel = getSelection();
     const text = sel.toString().trim();
     // The smallest element that holds the whole selection, which may span several elements.
     const common = text && sel.getRangeAt(0).commonAncestorContainer;
-    const el = text ? (common.nodeType === 1 ? common : common.parentElement) : e.target;
+    const el = text ? (common.nodeType === 1 ? common : common.parentElement) : targetOf(e);
     openPop({ el, selector: selectorOf(el), selectedText: text }, e.clientX, e.clientY);
   };
   // Details (colours, font, spacing, selector) are one remembered switch: D, or the comment box's tab.
@@ -1896,6 +1911,7 @@ export const startPageComments = (platform) => {
     platform.capture.stop(); // the bookmark: ends Chrome's "sharing this tab"
     document.removeEventListener('page-comments:close', destroy);
     if (document.documentElement.dataset.pageComments === platform.name) delete document.documentElement.dataset.pageComments;
+    passEmbeds(false);
     host.remove();
     delete window.__pageComments;
   };
