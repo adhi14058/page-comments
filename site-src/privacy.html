@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy policy · Page Comments</title>
+<meta name="description" content="What Page Comments stores and where: your comments and pictures stay in your own browser, in the storage of the site you comment on. Nothing leaves your device unless you copy, share or send it.">
+<link rel="canonical" href="{{home}}privacy.html">
+<meta name="theme-color" content="#18181b">
+<script src="theme.js"></script>
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Page Comments">
+<meta property="og:title" content="Page Comments privacy policy">
+<meta property="og:description" content="Your comments and pictures stay in your browser. Nothing leaves your device unless you copy, share or send it.">
+<meta property="og:url" content="{{home}}privacy.html">
+<meta property="og:image" content="{{home}}img/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Page Comments on a pricing page: numbered comment pins, the round button and its keys, beside the words: point at anything on a web page and say what should change.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="changelog.css">
+<link rel="stylesheet" href="privacy.css">
+
+<nav class="bnav always" aria-label="Site">
+  <div class="bnav-in">
+    <a class="bnav-brand" href="./"><img src="img/icon.svg" alt="">Page Comments</a>
+    <a class="ver bnav-ver" href="changelog.html" title="What's new">{{version}}</a>
+    <button class="bnav-menu" type="button" aria-expanded="false" aria-controls="bnav-links"><span class="bnav-now">Sections</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <div class="bnav-links" id="bnav-links"><a href="./#story">How it works</a><a href="./#play">Try it</a><a href="./#asks">What it asks</a><a href="./#ref">Reference</a></div>
+    <div class="bnav-act"><a class="bnav-get home" href="./">Get it</a></div>
+    <a class="bnav-gh" href="https://github.com/adhi14058/page-comments" aria-label="Page Comments on GitHub" title="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg></a>
+    <span class="bnav-theme-slot" aria-hidden="true"></span>
+  </div>
+</nav>
+<header class="top" id="top">
+  <div class="intro"><h1>Privacy</h1><p>Page Comments keeps your comments in your own browser. Nothing leaves your device unless you copy, share or send it.</p></div>
+</header>
+<main class="log policy">
+  <p class="updated">Last updated <time datetime="2026-11-25">25 Nov 2026</time>. This covers the bookmark, the browser extension and this website.</p>
+
+  <h2>In short</h2>
+  <ul>
+    <li>No account, no cookies, no analytics, no ads, no tracking.</li>
+    <li>Your comments and pictures are stored in your browser, in the storage of the site you comment on. We never receive them.</li>
+    <li>They leave your device only when you do it yourself: copy them, save pictures, share a link, or send them to Claude Code on your own computer.</li>
+  </ul>
+
+  <h2>What is stored, and where</h2>
+  <p>Everything below stays in your browser. Each website has its own storage, so comments made on one site are only visible on that site.</p>
+  <ul>
+    <li><b>Your comments</b>, in the site's local storage (the <code>page-comments:v1</code> key): what you wrote, the page address, which element or area it is about (its selector, a short piece of its text and HTML), how it looks (size, colours, font), and the name you gave if you share comments.</li>
+    <li><b>Pictures</b> you choose to take (the Add screenshot tick, or Freeze), in the site's IndexedDB (the <code>page-comments</code> database). A picture shows only the part of the page you commented on.</li>
+    <li><b>Small settings</b>, in the site's local storage: whether Add screenshot was ticked, whether details are shown, where you moved the round button, your name for shared comments, and whether a one-time tip was shown.</li>
+    <li><b>The extension only</b>, in the browser's own extension storage: the list of pages you commented on (address, title, number of comments and when), which the extension's popup shows, and the sites where you answered "Not now" to bringing pins back after a reload.</li>
+  </ul>
+  <p>To delete it: use Delete or Clear all in the tool, or clear the site's data in your browser. Removing the extension removes its own storage.</p>
+
+  <h2>Pictures of the page</h2>
+  <p>To take a picture, the bookmark asks Chrome to share the current tab ("Share this tab?"), and the extension uses the browser's own capture of the visible tab. The picture is taken inside your browser and stored as described above. Tab sharing stops when you close the tool. Nothing is recorded or sent anywhere.</p>
+
+  <h2>When something leaves your device</h2>
+  <p>Only when you ask for it:</p>
+  <ul>
+    <li><b>Copy</b> puts comments and pictures on your clipboard, for you to paste where you choose.</li>
+    <li><b>Save pictures</b> saves files to your Downloads folder.</li>
+    <li><b>Share link</b> packs the page's comments (and small copies of their pictures) into the link itself, after the <code>#</code>. Browsers never send that part of an address to any server, so the comments reach only the people you give the link to.</li>
+    <li><b>Send to Claude</b> sends the comments to a server that you run on your own computer (<code>localhost:4747</code>). While you are on a local page (<code>localhost</code> and similar addresses), the tool also checks whether that server is running. Nothing is sent to the internet.</li>
+  </ul>
+
+  <h2>What this website receives</h2>
+  <ul>
+    <li>The self-updating bookmark loads its newest code from this website each time you click it. The request does not say which page you are on. The server sees what every web server sees: your IP address and browser.</li>
+    <li>The bookmark checks for a newer version by loading a tiny picture from this website (the GitHub copy loads it from GitHub), also without saying which page you are on.</li>
+    <li>The fixed bookmark and the extension load nothing from this website. The extension makes no internet requests at all.</li>
+    <li>This website remembers your light or dark theme choice in your browser. Comments you make in its playground are stored like any others, in your browser.</li>
+  </ul>
+
+  <h2>Contact</h2>
+  <p>Questions about privacy: <a href="mailto:pagecomments@heyadhi.com">pagecomments@heyadhi.com</a>. The code is open source on <a href="https://github.com/adhi14058/page-comments">GitHub</a>, so you can check all of the above. If this policy changes, this page will say so, with a new date.</p>
+</main>
+<footer><a href="./">Install page</a><a href="changelog.html">Changelog</a><a href="https://github.com/adhi14058/page-comments">GitHub</a></footer>
+<a class="goup" href="#top" aria-label="Back to the top" title="Back to the top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></a>
+<script src="nav.js"></script>
+</html>

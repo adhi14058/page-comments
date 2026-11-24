@@ -1,4 +1,4 @@
-// The website, written to site/: the install page, the changelog page and the playground, the sitemap and robots.txt,
+// The website, written to site/: the install page, the changelog page, the privacy page and the playground, the sitemap and robots.txt,
 // plus client.js and version.svg, the two files every bookmark loads. site-src/ is its source; site/ is only ever build
 // output (a copy of site-src/ with the pages filled in), so the release can commit it as it is and a server can serve
 // it as it is.
@@ -41,10 +41,11 @@ const fill = (page, values) => page.replace(/\{\{(\w+)\}\}/g, (_, k) => {
   return values[k];
 });
 
-// The sitemap lists the two pages, dated by the newest release: the site is only rebuilt by a release.
+// The sitemap lists the pages people search for, dated by the newest release: the site is only rebuilt by a release.
+const PAGES = ['', 'changelog.html', 'privacy.html'];
 const sitemap = (rels) => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${['', 'changelog.html'].map((p) => `  <url><loc>${HOME}${p}</loc><lastmod>${rels[0].iso}</lastmod></url>`).join('\n')}
+${PAGES.map((p) => `  <url><loc>${HOME}${p}</loc><lastmod>${rels[0].iso}</lastmod></url>`).join('\n')}
 </urlset>
 `;
 
@@ -64,6 +65,7 @@ const sitePages = ({ version, extVersion, bookmark, bookmarkFixed, siteUrl, serv
     'index.html': fill(index, { home: HOME, version, extVersion, bookmark, bookmarkFixed, siteHost: new URL(siteUrl).host, serverCode: serverHtml, serverLines: serverHtml.split('\n').length }),
     'changelog.html': fill(fs.readFileSync(path.join(SRC, 'changelog.html'), 'utf8'),
       { home: HOME, version, extVersion, releases: rels.map(releaseHtml).join('\n') }),
+    'privacy.html': fill(fs.readFileSync(path.join(SRC, 'privacy.html'), 'utf8'), { home: HOME, version }),
     'sitemap.xml': sitemap(rels),
     'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${HOME}sitemap.xml\n`,
     'client.js': clientJs,

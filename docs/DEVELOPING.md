@@ -8,6 +8,7 @@ For using the tool, see the [Guide](GUIDE.md).
 - [📁 Folders](#-folders)
 - [🔨 Build and release](#-build-and-release)
 - [🧩 The extension](#the-extension)
+- [🔍 For store reviewers](#for-store-reviewers)
 - [🔌 Server](#-server)
 - [🧪 Test](#-test)
 
@@ -109,14 +110,45 @@ It runs the same `core.js` as the bookmark, with its own platform part.
 
 | Part | File | Does |
 |---|---|---|
-| Platform part | `content.js` | Lossless pictures through `captureVisibleTab` (stored as PNG); skips the click that closes the popup, since it also lands on the page |
+| Platform part | `content.js` | Bundled with `core.js`. Lossless pictures through `captureVisibleTab` (stored as PNG); skips the click that closes the popup, since it also lands on the page |
 | Background | `background.js` | Takes the pictures, saves files, runs the shortcut <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> (starts or closes the tool), and registers `restore.js` per allowed site |
-| Popup | `popup.html`, `popup.js` | Opens on an icon click and starts the tool; offers **Close the tool**; asks once per site whether pins may come back after a reload; lists every commented page from the extension's index |
-| Pins after a reload | `restore.js` | Runs on sites you allowed from the popup, and brings the tool back when the page has comments |
+| Popup | `popup.html`, `popup.js` (bundled with the core's page key) | Opens on an icon click and starts the tool; offers **Close the tool**; asks once per site whether pins may come back after a reload; lists every commented page from the extension's index |
+| Pins after a reload | `restore.js` (bundled with the core's page key) | Runs on sites you allowed from the popup, and brings the tool back when the page has comments |
 | Saved pictures | `offscreen.html`, `offscreen.js` | Chrome only: makes the blob URLs for pictures saved as separate files |
 
 - Comments live in the page's own storage, so the bookmark and the extension see the same comments. Their share links open in either.
 - After a reload, sharp pictures need one click on the icon or the shortcut. That is the browser's rule.
+
+<a id="for-store-reviewers"></a>
+
+## 🔍 For store reviewers
+
+How to rebuild `extension/dist/` from the source, for the Chrome Web Store and addons.mozilla.org reviews.
+Three files of the extension are bundles: `content.js`, `restore.js` and `popup.js`. esbuild joins each with the code it imports from `core/core.js`, without minifying. Every other file is copied as it is.
+
+**What you need**
+
+- Node.js 18 or newer (built with Node 22.19.0). No `npm install`: the repository has no dependencies.
+- esbuild 0.28.2, which the build fetches itself through `npx -y esbuild@0.28.2` (internet access needed on the first run).
+- Linux or macOS (the build calls `npx` directly, which Windows runs only as `npx.cmd`).
+
+**Steps**
+
+1. Unpack the source zip (or clone the repository at the release's commit) and open a terminal in its root folder.
+2. Run `node extension/build.js`.
+3. It writes `extension/dist/chrome/` and `extension/dist/firefox/`, with the version from `release.json`. The Firefox upload is the contents of `extension/dist/firefox/`.
+
+The files match the uploaded add-on byte for byte. To check: `diff -r extension/dist/firefox <the unpacked .xpi>`.
+
+| File in the add-on | Source |
+|---|---|
+| `content.js` | `extension/content.js` + `core/core.js` |
+| `restore.js`, `popup.js` | `extension/restore.js`, `extension/popup.js` + `pageKey` from `core/core.js` |
+| `background.js`, `popup.html`, `popup.css` (and `offscreen.*` for Chrome) | Copied from `extension/` |
+| `icons/` | Copied from `core/icons/` |
+| `manifest.json` | Written by `extension/build.js` |
+
+The extension loads no remote code. Its only network requests go to `http://localhost:4747`, the user's own local server: when they click **Send to Claude**, and a check whether it runs on pages served from their own machine. `content.js` also holds the bookmark's update check (it loads `version.svg` from page-comments.heyadhi.com or GitHub); the extension switches it off (`checkVersion: false` in `extension/content.js`), so it never runs.
 
 ## 🔌 Server
 

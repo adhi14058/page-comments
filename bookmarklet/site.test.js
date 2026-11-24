@@ -31,16 +31,16 @@ test('the tool still has the class names and storage key the website relies on',
   assert.match(core, /const KEY = 'page-comments:v1';/);
 });
 
-test('the sitemap dates both pages by the newest release', () => {
+test('the sitemap dates every page by the newest release', () => {
   const xml = sitemap(releases('## 1.9.11 — 2026-11-24\n\n- x\n\n## 1.9.10 — 2026-11-20\n\n- y\n'));
   assert.deepStrictEqual([...xml.matchAll(/<loc>(.*?)<\/loc><lastmod>(.*?)</g)].map((m) => [m[1], m[2]]),
-    [[HOME, '2026-11-24'], [`${HOME}changelog.html`, '2026-11-24']]);
+    [[HOME, '2026-11-24'], [`${HOME}changelog.html`, '2026-11-24'], [`${HOME}privacy.html`, '2026-11-24']]);
 });
 
 // A link preview or an icon pointing at a missing file fails quietly: the page still works, the preview has no picture.
 test('every icon, manifest and preview picture the pages name exists, and the structured data parses', () => {
   const src = path.join(__dirname, '..', 'site-src');
-  for (const page of ['index.html', 'changelog.html']) {
+  for (const page of ['index.html', 'changelog.html', 'privacy.html']) {
     const html = fill(fs.readFileSync(path.join(src, page), 'utf8'), new Proxy({}, { has: () => true, get: (_, k) => (k === 'home' ? HOME : '1.0.0') }));
     const urls = [...html.matchAll(/<link rel="(?:icon|apple-touch-icon|manifest)"[^>]*href="([^"]+)"|<meta property="og:image" content="([^"]+)"/g)].map((m) => m[1] ?? m[2]);
     assert.ok(urls.length >= 5, page);
