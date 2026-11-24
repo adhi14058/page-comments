@@ -1,0 +1,9 @@
+/* The privacy page: plain reading text under the changelog page's header and width. */
+.policy { font-size: 16px; line-height: 1.6; color: var(--text-2); }
+.policy h2 { font: 750 22px/1.25 system-ui, sans-serif; letter-spacing: -.01em; color: var(--text); margin: 34px 0 10px; }
+.policy p, .policy ul { margin: 0 0 12px; }
+.policy ul { padding-left: 22px; } .policy li { margin: 6px 0; } .policy li::marker { color: #a1a1aa; }
+.policy b { color: var(--text); }
+.policy code { font: 14px ui-monospace, monospace; background: var(--card-sunk); border-radius: 4px; padding: 1px 5px; }
+.policy a { color: #2563eb; } html.dark .policy a { color: #60a5fa; }
+.policy .updated { color: var(--muted); font-size: 14px; }

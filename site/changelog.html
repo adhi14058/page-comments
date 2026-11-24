@@ -26,7 +26,7 @@
 <nav class="bnav always" aria-label="Site">
   <div class="bnav-in">
     <a class="bnav-brand" href="./"><img src="img/icon.svg" alt="">Page Comments</a>
-    <a class="ver bnav-ver" href="#top" title="What's new">1.10.0</a>
+    <a class="ver bnav-ver" href="#top" title="What's new">1.10.1</a>
     <button class="bnav-menu" type="button" aria-expanded="false" aria-controls="bnav-links"><span class="bnav-now">Sections</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
     <div class="bnav-links" id="bnav-links"><a href="./#story">How it works</a><a href="./#play">Try it</a><a href="./#asks">What it asks</a><a href="./#ref">Reference</a></div>
     <div class="bnav-act"><a class="bnav-get home" href="./">Get it</a></div>
@@ -35,11 +35,15 @@
   </div>
 </nav>
 <header class="top" id="top">
-  <div class="intro"><h1>What's new</h1><p>Every release, newest first. The latest is <span class="ver">Bookmark 1.10.0</span> <span class="ver">Extension 1.10.0</span></p></div>
+  <div class="intro"><h1>What's new</h1><p>Every release, newest first. The latest is <span class="ver">Bookmark 1.10.1</span> <span class="ver">Extension 1.10.1</span></p></div>
 </header>
 <main class="log">
+  <article class="rel" id="v1.10.1">
+    <header><a class="pill" href="#v1.10.1">1.10.1</a><span class="latest">Latest</span><time datetime="2026-11-25">25 Nov 2026</time></header>
+    <ul><li>With the bookmark, keys work right after you allow "Share this tab?". Before, F, A, B and the other keys did nothing until you clicked the page.</li><li>Pressing F before sharing is on now asks to share, then counts down and freezes, as the Freeze button does. You no longer press F a second time.</li><li>While you comment, the cursor is a pointing hand over the whole page, in Freeze too, because a click picks whatever is under it. Only Area keeps the crosshair.</li><li>The same page opened from a newsletter or an ad (with <code>utm_…</code>, <code>fbclid</code>, <code>gclid</code> and similar tracking parameters in its address) shows the same comments. Comments you already saved keep showing.</li><li>Shared links are checked more strictly. A broken or tampered link can no longer save a comment that spoils the page's list. A link made by a newer version asks you to update.</li><li>On right-to-left pages (Arabic, Hebrew) the bar no longer mirrors, and comments and names typed in those languages run right to left.</li><li>AltGr+Shift+C and AltGr+Shift+F type their letters again (Windows) instead of switching modes or freezing.</li><li>On sites that block storage, the comment box opens as usual, and Copy no longer says it failed after it worked.</li><li>The extension no longer closes the tool it has just opened when a page reloads at the same moment.</li><li>A bookmark you drag from now on no longer tells this website which page you used it on. Drag it again to get this.</li><li>The website has a privacy page: what is stored, where, and what leaves your device. On the website's Try it demo, a tool you already have running picks the things inside the demo before you press Start.</li></ul>
+  </article>
   <article class="rel" id="v1.10.0">
-    <header><a class="pill" href="#v1.10.0">1.10.0</a><span class="latest">Latest</span><time datetime="2026-11-25">25 Nov 2026</time></header>
+    <header><a class="pill" href="#v1.10.0">1.10.0</a><time datetime="2026-11-25">25 Nov 2026</time></header>
     <ul><li>page-comments has a new website, and it now lives at page-comments.heyadhi.com: add the tool as the extension, a bookmark or a copy to paste, see how it works, try it right on the page, see what your browser will ask, and look up every key. It also shows this changelog. The old address forwards there, and bookmarks you already have keep working.</li><li>The round button is orange while you browse (it was black), and still blue while you comment. The comment count on it is now dark, so it shows on orange.</li><li>Hovering the round button now says what it does: a click switches between commenting and browsing, a drag moves it, and Alt+Shift+C does the same from the keyboard.</li><li>Close is one click: hovering the round button shows a small × on its outer side, away from the bar. The ⋯ list keeps Close too.</li><li>When a comment box opens over the round button, the button moves to the nearest free corner, and goes back when the box closes.</li><li>The small card of keys above the round button is compact: B batch, A area, F freeze, Esc back to browsing, and ? for all keys (Alt+Shift+C stays in the full list).</li><li>Freeze's bar now sits at the bottom of the screen, like the Select several bar, so it stays clear of menus near the top (the things you freeze).</li><li>You can comment on embedded frames (iframes, such as a video, a map or another page shown inside this one). Before, hovering one showed nothing and clicking it opened no comment box. When the frame's page comes from the same site (for example Storybook, or an app that shows its pages in frames), you pick, comment and pin the things inside it, and ↑ goes out to the frame. Copy names the frame. Frames from other sites are picked whole, like a picture.</li><li>At the right edge of a page, the details card over a highlighted element (D) no longer runs off the screen.</li><li>The card that explains a greyed-out Add screenshot now opens only from the small ? beside it, and it opens under the comment box (over it when the box is at the bottom of the screen), so it never covers what you are typing.</li></ul>
   </article>
   <article class="rel" id="v1.9.11">
@@ -151,7 +155,7 @@
     <ul><li>1.0.1: a comment opened from the comments list closes when you click outside it. Copy text, for Jira and Claude desktop.</li><li>1.0.0: the first numbered release. A comment box with plain names and a details tab, D to turn details on and off, Shift+click selections with one picture each, Copy pictures, Send to Claude on local site names from your computer's hosts file, and a test area on the install page.</li></ul>
   </article>
 </main>
-<footer><a href="./">Install page</a><a href="https://github.com/adhi14058/page-comments">GitHub</a></footer>
+<footer><a href="./">Install page</a><a href="https://github.com/adhi14058/page-comments">GitHub</a><a href="privacy.html">Privacy</a></footer>
 <a class="goup" href="#top" aria-label="Back to the top" title="Back to the top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></a>
 <script src="nav.js"></script>
 </html>

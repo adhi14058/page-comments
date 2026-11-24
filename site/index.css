@@ -122,8 +122,11 @@ a.ver { text-decoration: none; } a.ver:hover { border-color: var(--orange); }
 .coach[data-side=above] .coach-arrow { bottom: -8px; left: calc(var(--at) - 7px); border-left-color: transparent; border-top-color: transparent; }
 .coach[data-side=below] .coach-arrow { top: -8px; left: calc(var(--at) - 7px); border-right-color: transparent; border-bottom-color: transparent; }
 
-/* Before Start (and after the tool closes): a light veil over the demo with one card. */
-.coach-start { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; border-radius: 18px; background: #0f172a33; }
+/* Before Start (and after the tool closes): a light veil over the demo with one card. The veil lets the pointer through,
+   so a tool already running on this page picks elements inside the demo instead of the veil. */
+.coach-start { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; border-radius: 18px; background: #0f172a33;
+               pointer-events: none; }
+.coach-start .coach-card { pointer-events: auto; }
 .coach-card { width: min(360px, calc(100% - 32px)); padding: 22px; border-radius: 16px; text-align: center; background: var(--card); color: var(--text);
               border: 1px solid var(--line); box-shadow: 0 24px 60px -16px #0008; }
 .coach-card b { display: block; font-size: 18px; }
