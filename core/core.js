@@ -88,6 +88,12 @@ export const startPageComments = (platform) => {
     .main.on { background: #2563eb; box-shadow: 0 8px 24px #2563eb66, 0 0 0 3px #ffffff44; }
     .widget.open .main { box-shadow: none; }
     .main.dragging { cursor: grabbing; transform: scale(1.08); }
+    /* The round button's own tooltip: what a click and a drag do. It hugs the screen edge the widget sits on. */
+    .main .label { left: auto; right: 0; translate: none; }
+    .widget.left .main .label { left: 0; right: auto; }
+    .widget.top .main .label { bottom: auto; top: calc(100% + 10px); }
+    .main:hover .label, .main:focus-visible .label { opacity: 1; }
+    .main.dragging .label { opacity: 0; }
     .main svg { width: 24px; height: 24px; }
     .badge { position: absolute; top: -4px; right: -4px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; border: 2px solid #fff;
              background: #ea580c; color: #fff; font: 700 11px/18px system-ui, sans-serif; text-align: center; }
@@ -359,7 +365,8 @@ export const startPageComments = (platform) => {
 
   const badge = h('span', { className: 'badge', hidden: true });
   const updateDot = h('span', { className: 'dot', hidden: true });
-  const main = h('button', { className: 'main' }, icon('comment'), badge, updateDot);
+  const mainTip = h('span', { className: 'label' });
+  const main = h('button', { className: 'main' }, icon('comment'), badge, updateDot, mainTip);
   // One action in the bar (or the ⋯ list): its button (or link) carries an icon and a label.
   // The keyboard key of an action shows in its tooltip, after the name (which flash() and others change).
   const ACT_KEYS = { area: 'A', batch: 'B', freeze: 'F', list: 'L', copy: 'C', share: 'S', details: 'D', shortcuts: '?' };
@@ -798,6 +805,7 @@ export const startPageComments = (platform) => {
     main.classList.toggle('on', on);
     main.firstChild.replaceWith(icon(on ? 'comment' : 'browse'));
     main.ariaLabel = on ? 'Commenting. Click to switch to browsing.' : 'Browsing. Click to switch to commenting.';
+    mainTip.replaceChildren((on ? 'Click to browse the page' : 'Click to comment') + ' · drag to move', h('kbd', { textContent: ALT_SHIFT + 'C' }));
     hl.hidden = true;
     // Browsing means using the page, so nothing of ours may stay open over it.
     if (!on) { closePop(); panel.hidden = true; setArea(false); closeMenu(); unfreeze(); picked = []; setBatch(false); kbTarget = null; }

@@ -4,6 +4,7 @@ What changed for you in each version, newest first.
 
 ## 1.9.12 — 2026-11-24
 
+- Hovering the round button now says what it does: a click switches between commenting and browsing, a drag moves it, and Alt+Shift+C does the same from the keyboard.
 - You can comment on an embedded frame (an iframe, such as a video, a map or another page shown inside this one). Before, hovering it showed nothing and clicking it opened no comment box. It is picked whole, like a picture; while browsing it works as usual.
 - At the right edge of a page, the details card over a highlighted element (D) no longer runs off the screen.
 - The card that explains a greyed-out Add screenshot now opens only from the small ? beside it, and it opens under the comment box (over it when the box is at the bottom of the screen), so it never covers what you are typing.
