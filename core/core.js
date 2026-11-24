@@ -16,6 +16,15 @@
 //   pictureType      -> how pictures are stored: 'image/webp' (default, small) or 'image/png' (lossless: WebP halves the
 //                       colour detail, which turns thin coloured text pale; worth it only when the capture is lossless)
 // Comment mode starts on: click any element or select text, write a comment, Enter saves. Copy or send the batch to Claude.
+// A selector as Copy shows it: from the nearest id (or the start), with only its last steps, so a reader is not handed
+// a chain of fifteen divs; the element's text and HTML identify it better. The tool keeps the full one to find the
+// element again after a reload.
+export const shortSelector = (selector, keep = 3) => {
+  const parts = String(selector).split(' > ');
+  const tail = parts.slice(Math.max(0, parts.findLastIndex((p) => /^[\w-]*#/.test(p))));
+  return tail.length <= keep + 1 ? tail.join(' > ') : `${tail[0]} > … > ${tail.slice(-keep).join(' > ')}`;
+};
+
 export const startPageComments = (platform) => {
   const SERVER = 'http://localhost:4747';
   const SITE = 'https://page-comments.share.heyadhi.com/';
@@ -635,9 +644,9 @@ export const startPageComments = (platform) => {
     const body = items.map(({ c, n }) => [
       `## ${n}. ${c.comment}${c.by ? ` (from ${c.by})` : ''}`,
       ...(c.area
-        ? [c.group ? `- ${c.items.length} elements selected together, inside \`${c.selector}\`:` : `- Area over \`${c.selector}\`, covering ${c.items.length} element(s):`,
-          ...c.items.map((it) => `  - \`${it.selector}\`: "${it.text}"`)]
-        : [`- Element: \`${c.selector}\``, c.selectedText && `- Selected text: "${c.selectedText}"`, `- Element text: "${c.text}"`, `- HTML: \`${c.html}\``]),
+        ? [c.group ? `- ${c.items.length} elements selected together, inside \`${shortSelector(c.selector)}\`:` : `- Area over \`${shortSelector(c.selector)}\`, covering ${c.items.length} element(s):`,
+          ...c.items.map((it) => `  - \`${shortSelector(it.selector)}\`: "${it.text}"`)]
+        : [`- Element: \`${shortSelector(c.selector)}\``, c.selectedText && `- Selected text: "${c.selectedText}"`, `- Element text: "${c.text}"`, `- HTML: \`${c.html}\``]),
       c.info ? `- ${looks(c.info, true)}`
         : c.size && `- Size: ${c.size} px · Background: ${c.background}`,
       c.frozen && '- Commented on a frozen moment: the element may only show on hover or in a menu',
@@ -655,7 +664,7 @@ export const startPageComments = (platform) => {
       // People reading the ticket see the comment, what it is about and the picture; the technical details trail in
       // one small grey line for whoever builds it (text/plain, which Claude Code reads, keeps them in full).
       const details = [
-        c.area ? `${c.group ? 'selected together inside' : 'area over'} ${c.selector}: ${c.items.map((it) => it.selector).join(', ')}` : c.selector,
+        c.area ? `${c.group ? 'selected together inside' : 'area over'} ${shortSelector(c.selector)}: ${c.items.map((it) => shortSelector(it.selector)).join(', ')}` : shortSelector(c.selector),
         c.info ? looks(c.info, false)
           : c.size && `${c.size} px · background ${c.background}`,
       ].filter(Boolean).join(' · ');
