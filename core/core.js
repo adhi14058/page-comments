@@ -501,7 +501,7 @@ export const startPageComments = (platform) => {
   const numbered = (only) => here().map((c, i) => ({ c, n: i + 1 })).filter((x) => !only || only.includes(x.c));
   // Browsers give the clipboard API only to secure pages (https, localhost). On a plain-http page (an internal tool, a
   // staging server, a .test dev site) it is missing, so copy through the older copy command there: it carries text and
-  // HTML (pictures ride inside the HTML), but no picture file.
+  // HTML (pictures ride inside the HTML), but no picture file: Slack, which wants the file, gets nothing to paste.
   const writeClipboard = async ({ text, html, png }) => {
     if (navigator.clipboard) {
       if (!html && !png) return navigator.clipboard.writeText(text);
@@ -511,7 +511,8 @@ export const startPageComments = (platform) => {
       if (png) parts['image/png'] = png;
       return navigator.clipboard.write([new ClipboardItem(parts)]);
     }
-    if (text == null) throw new Error('this page is not https, so a picture cannot go on the clipboard: use Save pictures');
+    // A picture alone rides as HTML, which rich editors (Docs, email) paste as a picture.
+    if (text == null) [text, html] = ['', `<img src="${await dataUrl(png)}" alt="">`];
     const put = (e) => {
       e.preventDefault();
       e.clipboardData.setData('text/plain', text);

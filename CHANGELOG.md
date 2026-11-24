@@ -2,6 +2,10 @@
 
 What changed for you in each version, newest first.
 
+## 1.9.9 — 2026-11-24
+
+- Copy pictures works on pages that are not https too. The pictures paste into Google Docs and email; Slack needs an https page for pictures.
+
 ## 1.9.8 — 2026-11-24
 
 - Comments on a frozen menu or tooltip keep the spaces between its words. A menu item read "Offline syncKeeps working" once the menu had closed; it now reads "Offline sync Keeps working".
