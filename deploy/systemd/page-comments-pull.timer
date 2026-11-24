@@ -1,0 +1,12 @@
+[Unit]
+Description=Pull page-comments from GitHub every 90 seconds
+
+[Timer]
+OnBootSec=1min
+# From the start of the last run, failed or not, so one failure never stops
+# the next try. A run still going when the time comes is not started twice.
+OnUnitActiveSec=90s
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

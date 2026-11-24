@@ -1,0 +1,47 @@
+#!/bin/bash
+# Puts the site/ folder of GitHub's main branch live on the VPS. Run by
+# page-comments-pull.timer as the page-comments user; installed to
+# /usr/local/sbin, so a bad commit can never change the puller itself.
+#
+# Live is whatever main is on GitHub: the puller fetches main and unpacks
+# site/ from it with git archive, so there is no working tree to get stuck
+# on a local change or a forced push. A new release is unpacked beside the
+# live one and the `live` link is swapped in one rename; any failure before
+# that leaves the live site as it was and fails the unit, which the journal
+# records.
+set -euo pipefail
+
+repo=/srv/page-comments/repo.git
+www=/srv/page-comments/www
+url=https://github.com/adhi14058/page-comments.git
+
+# Depth 1: only the newest commit is ever unpacked, so old history is not kept.
+timeout 60 git -C "$repo" fetch --quiet --depth 1 "$url" +main:refs/heads/main
+rev=$(git -C "$repo" rev-parse --verify 'main^{commit}')
+
+[ "$(readlink "$www/live" 2>/dev/null)" = "releases/$rev" ] && exit 0
+
+tmp=$www/releases/.new-$rev
+rm -rf "$www"/releases/.new-*
+mkdir -p "$tmp"
+timeout 60 git -C "$repo" archive "$rev" site | tar -x -C "$tmp" --strip-components=1
+for f in index.html client.js version.svg; do
+	if [ ! -s "$tmp/$f" ]; then
+		echo "site/$f is missing or empty in $rev; the live site is unchanged" >&2
+		rm -rf "$tmp"
+		exit 1
+	fi
+done
+rm -rf "$www/releases/$rev"
+mv -T "$tmp" "$www/releases/$rev"
+
+# A relative link, so it resolves the same inside Caddy's /srv/www mount.
+ln -sfn "releases/$rev" "$www/.live-new"
+mv -T "$www/.live-new" "$www/live"
+echo "live: $rev"
+
+# Keep the live release and the four before it, to roll back by hand.
+cd "$www/releases"
+ls -1t | tail -n +6 | while read -r old; do
+	[ "$old" = "$rev" ] || rm -rf -- "$old"
+done

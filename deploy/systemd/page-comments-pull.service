@@ -1,0 +1,23 @@
+[Unit]
+Description=Put the site/ folder of page-comments' GitHub main live
+Documentation=https://github.com/adhi14058/page-comments/blob/main/deploy/README.md
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=page-comments
+Group=page-comments
+ExecStart=/usr/local/sbin/page-comments-pull
+# Every git step has its own limit; this one catches anything else that hangs.
+TimeoutStartSec=150
+# It fetches from the internet, so it may write only its own folder.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/srv/page-comments
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=256M

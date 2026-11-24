@@ -1,0 +1,44 @@
+# page-comments' own Caddy on the VPS: it serves the site/ folder of GitHub's
+# main branch, which page-comments-pull puts in /srv/page-comments/www. Run on
+# the VPS from this folder:
+#   sudo docker compose up -d
+#
+# No host port and no network: the only way in is the edge Caddy
+# (~/projects/edge), which hands every request for this project's names to the
+# socket this Caddy makes in /srv/sites/adhi/page-comments. Static files need
+# nothing else.
+name: page-comments
+
+services:
+  caddy:
+    # The same pin as every site's Caddy (edge README); move it with them.
+    image: caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f
+    restart: unless-stopped
+    # Loopback only, which `caddy reload` still needs for the admin endpoint.
+    network_mode: none
+    volumes:
+      # A folder, not the file: git replaces a file by rename, and a
+      # single-file mount would keep serving the old text.
+      - ./caddy:/etc/caddy:ro
+      # Owned by this uid, mode 710, and its inherited ACL lets the edge
+      # (uid 10011) reach the socket and nobody else.
+      - /srv/sites/adhi/page-comments:/srv/socket
+      # The parent of the `live` link, not the link itself: Docker resolves a
+      # mounted link once, so a mounted `live` would never see a new release.
+      - /srv/page-comments/www:/srv/www:ro
+    # Its own unused uid. Not page-comments-pull's user: the puller handles
+    # what comes from the internet, and must not be able to stand in for this
+    # Caddy on the socket.
+    user: "10012:10012"
+    read_only: true
+    tmpfs: ['/config:uid=10012,gid=10012', '/data:uid=10012,gid=10012']
+    cap_drop: [ALL]
+    # The image's caddy binary carries this file capability and will not start
+    # without it. It binds no port.
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options: { max-size: 10m, max-file: '3' }

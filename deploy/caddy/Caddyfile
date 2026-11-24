@@ -1,0 +1,53 @@
+# page-comments' own Caddy. The edge (~/projects/edge) holds the certificates
+# and hands each request here as plain HTTP over the socket below. After an
+# edit, on the VPS:
+#   sudo docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile
+#
+# /srv/www/live links to the newest release of site/; page-comments-pull swaps
+# the link in one step, so a request never sees a half-written folder, and a
+# new release needs no reload.
+{
+	# The edge already did HTTPS.
+	auto_https off
+	# 0220, not Caddy's 0200: the group bits are the socket's ACL mask, and the
+	# folder's default ACL lets only the edge's uid in through it.
+	default_bind unix//srv/socket/caddy.sock|0220
+	# Only the edge can reach the socket, so believe its X-Forwarded-For.
+	servers {
+		trusted_proxies_unix
+	}
+}
+
+# The headers the share site sends today, so nothing changes for a bookmark.
+(serve) {
+	root * /srv/www/live
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=86400"
+		X-Content-Type-Options nosniff
+	}
+	# Any file may change in any release and none has a hash in its name, so
+	# the browser asks each time (a 304 when unchanged). That includes
+	# client.js and version.svg, which live bookmarks fetch on every click and
+	# must see a new release at once.
+	header Cache-Control no-cache
+	file_server
+}
+
+http://page-comments.heyadhi.com {
+	import serve
+}
+
+# The old address, which every bookmark made before the move still loads.
+# It serves the two files bookmarks fetch, from the same release, and sends
+# everything else to the new address.
+http://page-comments.share.heyadhi.com {
+	@bookmark path /client.js /version.svg
+	handle @bookmark {
+		import serve
+	}
+	handle {
+		header Strict-Transport-Security "max-age=86400"
+		redir https://page-comments.heyadhi.com{uri} 308
+	}
+}
