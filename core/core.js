@@ -244,13 +244,14 @@ export const startPageComments = (platform) => {
     .mi:hover { background: #2563eb; color: #fff; }
     .mk { color: #71717a; font: 11px ui-monospace, monospace; } .mi:hover .mk { color: #dbeafe; }
     .menu hr { border: 0; border-top: 1px solid #3f3f46; margin: 4px 2px; }
-    /* Freeze: the picture of the screen at the moment of freezing, shown over the page. */
+    /* Freeze: the picture of the screen at the moment of freezing, shown over the page. Its bar sits at the bottom, like
+       the Select several bar: menus and tooltips, the things people freeze, mostly open near the top. */
     .freeze-layer { position: fixed; inset: 0; pointer-events: auto; cursor: crosshair; }
     .freeze-layer canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-    .freeze-bar { position: absolute; left: 50%; top: 10px; translate: -50% 0; display: flex; gap: 10px; align-items: center; background: #0284c7; color: #fff;
+    .freeze-bar { position: absolute; left: 50%; bottom: 18px; translate: -50% 0; display: flex; gap: 10px; align-items: center; background: #0284c7; color: #fff;
                   padding: 6px 6px 6px 14px; border-radius: 999px; font-weight: 600; box-shadow: 0 6px 18px #0005; cursor: default; white-space: nowrap; }
     .freeze-bar button { border: 0; background: #fff; color: #0369a1; font-weight: 700; border-radius: 999px; padding: 4px 12px; cursor: pointer; }
-    .pick-bar { position: fixed; top: auto; bottom: 18px; pointer-events: auto; background: #2563eb; } .pick-bar button { color: #1d4ed8; }
+    .pick-bar { position: fixed; pointer-events: auto; background: #2563eb; } .pick-bar button { color: #1d4ed8; }
     .pick-bar button:disabled { opacity: .5; cursor: default; }
     .act.freeze.active { background: #0284c7; color: #fff; }
     /* Area mode: a crosshair layer over the page, and the dashed box being dragged (kept while its comment is open). */
