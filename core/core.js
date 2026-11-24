@@ -682,14 +682,16 @@ export const startPageComments = (platform) => {
   const details = (i) => [detail('background', swatch(i.background), i.background), detail('text', swatch(i.color), i.color), detail('font', i.font),
     detail('padding', i.padding), detail('radius', i.radius), detail('contrast', h('span', { className: i.contrast.endsWith('✓') ? 'ok' : 'bad', textContent: i.contrast }))];
   // The outline, pill and (with details on) details card for an element at rectangle r.
+  let hlLast = null; // the highlight's last element box and facts, to lay it out again when the details switch
   const showHighlight = (r, i) => {
+    hlLast = [r, i];
     Object.assign(hl.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
     pill.replaceChildren(h('span', { className: 't', textContent: i.label }), i.size.replace('×', ' × '), aa(i), h('span', { className: 'dim', textContent: i.background }), h('kbd', { textContent: 'D' }));
     more.replaceChildren(...details(i));
     hl.classList.toggle('below', r.top < (detailsOn ? 170 : 34));
     hl.hidden = false;
-    // keep the pill on screen at the right edge
-    pill.style.left = more.style.left = Math.min(-2, innerWidth - 8 - r.left - pill.offsetWidth) + 'px';
+    // Keep the pill and the details on screen at the right edge, each by its own width (the details are often wider).
+    for (const el of [pill, more]) el.style.left = Math.min(-2, innerWidth - 8 - r.left - el.offsetWidth) + 'px';
   };
 
   // What Copy says about an element's look: what a reader (a person, or Claude Code) needs to find and change it.
@@ -1037,6 +1039,7 @@ export const startPageComments = (platform) => {
     detailsOn = on;
     pop.classList.toggle('details', on);
     hl.classList.toggle('details', on);
+    if (!hl.hidden && hlLast) showHighlight(...hlLast); // the details change its height and width
     placeSide();
     try { localStorage.setItem(DETAILS_KEY, on ? '1' : '0'); } catch {}
   };
