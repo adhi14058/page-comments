@@ -1708,16 +1708,20 @@ export const startPageComments = (platform) => {
   // clipboard. Each picture becomes its own captioned PNG, named after its comment; platform.saveFiles saves them.
   const slug = (t) => clip(t, 40).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'comment';
   filesBtn.onclick = async () => {
-    const found = await pageShots(), items = numbered().filter((x) => found.get(x.c));
-    if (!items.length) return toast('No pictures on this page yet: tick Add screenshot on a comment.');
-    const files = [];
-    for (const x of items) {
-      const pics = found.get(x.c);
-      for (const [k, p] of pics.entries()) {
-        files.push({ name: `${x.n}${tagOf(pics, k)}-${slug(x.c.comment)}.png`, bytes: new Uint8Array(await (await png(await captioned(x, p, tagOf(pics, k)))).arrayBuffer()) });
+    try {
+      const found = await pageShots(), items = numbered().filter((x) => found.get(x.c));
+      if (!items.length) return toast('No pictures on this page yet: tick Add screenshot on a comment.');
+      const files = [];
+      for (const x of items) {
+        const pics = found.get(x.c);
+        for (const [k, p] of pics.entries()) {
+          files.push({ name: `${x.n}${tagOf(pics, k)}-${slug(x.c.comment)}.png`, bytes: new Uint8Array(await (await png(await captioned(x, p, tagOf(pics, k)))).arrayBuffer()) });
+        }
       }
+      toast(await platform.saveFiles(files, `page-comments-${slug(location.hostname)}-${files.length}-pictures.zip`), 7000);
+    } catch (err) {
+      toast('Could not save the pictures (' + err.message + ')');
     }
-    toast(await platform.saveFiles(files, `page-comments-${slug(location.hostname)}-${files.length}-pictures.zip`), 7000);
   };
   picsBtn.onclick = async () => {
     try {

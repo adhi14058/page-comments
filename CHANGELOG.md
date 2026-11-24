@@ -2,6 +2,11 @@
 
 What went out in each published version, newest first. `node bookmarklet/build.js` refuses to publish a new version without its entry here.
 
+## 1.9.3 — 2026-11-24
+
+- Save pictures now says so when it fails, instead of doing nothing.
+- The extension (not yet in the stores): clicking its icon starts the tool and opens the popup, which offers Close the tool, asks once per site whether pins may come back after a reload (Not now is remembered), and lists every commented page. The click that closes the popup no longer opens a comment box. In Firefox, Save pictures works, and pins come back after a reload on sites with a port (like localhost:3000).
+
 ## 1.9.2 — 2026-11-24
 
 - The GitHub copy of the bookmark (`bookmarklet.txt`) checks for new versions with a small picture from the repository, the same way the install page's bookmarks do, so GitHub is not told which site you use it on.

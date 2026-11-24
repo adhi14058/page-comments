@@ -27,6 +27,9 @@ const grab = async () => {
 
 // Messages carry text, so pictures travel as base64.
 const toBase64 = (bytes) => {
+  // The bytes come from a picture the page's canvas made; in Firefox, reading them across into our world throws, so
+  // copy them into our own array first.
+  bytes = new Uint8Array(bytes);
   let s = '';
   for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
   return btoa(s);

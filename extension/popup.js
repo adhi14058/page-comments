@@ -10,7 +10,9 @@ const [tab] = await api.tabs.query({ active: true, currentWindow: true });
 const url = tab?.url || '';
 const web = /^https?:/.test(url);
 const origin = web ? new URL(url).origin : null;
-const site = web ? origin + '/*' : null;
+// Without the port: Firefox never matches a pattern that names one (a grant for localhost:3000 would cover nothing),
+// and Chrome reads a pattern without one as every port.
+const site = web ? `${new URL(url).protocol}//${new URL(url).hostname}/*` : null;
 
 $('version').textContent = 'v' + api.runtime.getManifest().version;
 const command = (await api.commands.getAll()).find((c) => c.name === 'start');
