@@ -1,71 +1,138 @@
-# page-comments
+<p align="center">
+  <img src="docs/images/banner.svg" width="100%" alt="Page Comments: point at anything on a web page, say what should change, hand it on">
+</p>
 
-Point at things on a web page, say what should change, and let Claude Code edit the source.
+<p align="center">
+  <a href="https://page-comments.share.heyadhi.com/"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fadhi14058%2Fpage-comments%2Fmain%2Frelease.json&query=%24.version&label=version&color=ea580c&style=flat-square" alt="Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2563eb?style=flat-square" alt="MIT license"></a>
+  <img src="https://img.shields.io/badge/account-none%20needed-16a34a?style=flat-square" alt="No account needed">
+</p>
 
-## Install page
+<p align="center">
+  <a href="#-three-ways-to-use-it"><b>Get it</b></a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/GUIDE.md"><b>Guide</b></a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/DEVELOPING.md"><b>Developing</b></a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="CHANGELOG.md"><b>Changes</b></a>
+</p>
 
-**https://page-comments.share.heyadhi.com/** has the bookmark to drag onto the bookmarks bar, and a bash/zsh command that writes the server to `~/page-comments-server.js` (`server.js` without its comments, syntax-coloured, in a quoted heredoc).
+<br>
 
-After any change to `core.js`, `bookmark.js`, `server.js` or `build.js`, run:
+<p align="center">
+  <img src="docs/images/demo.gif" width="760" alt="Hover an element, click it, type a comment, press Enter: a numbered pin appears">
+</p>
 
-```sh
-node build.js
-```
+## ✨ How it works
 
-Releases are `major.minor.patch`. `release.json` keeps the last published version and a hash of its code: `node build.js` gives changed code the next patch version, `node build.js minor` / `node build.js major` bump the others, and unchanged code keeps its version. Each release publishes `version.svg`, whose size encodes the version (width = major × 1000 + minor + 1, height = patch + 1). The bookmark loads that image (an image's size can be read across sites without CORS) and turns the ⓘ action green (with a green dot on the round button) when its own version differs. The ⓘ action always opens the install page.
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="docs/images/step-point.webp" alt="Hovering a button shows its tag, size and colour"></td>
+    <td width="33%" align="center"><img src="docs/images/step-comment.webp" alt="The comment box open on the price"></td>
+    <td width="33%" align="center"><img src="docs/images/step-share.webp" alt="The comments list with three numbered comments"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>1 · Point</b><br><sub>Hover anything to see its tag, size and colour.</sub></td>
+    <td align="center"><b>2 · Comment</b><br><sub>Click it, type, press <kbd>Enter</kbd>. A numbered pin stays.</sub></td>
+    <td align="center"><b>3 · Hand it on</b><br><sub>Copy, share a link, or send it to Claude Code.</sub></td>
+  </tr>
+</table>
 
-It bundles `core.js` (the tool, shared with the coming extension) with `bookmark.js` (the bookmark's way of taking pictures, saving several pictures as one zip and checking for updates) using esbuild (`npx` downloads it on first use), strips the comments from `server.js` and colours it with the small tokenizer in `highlight.js`, builds the page and publishes it over the same link with the `heyadhi-share` CLI, together with `client.js`. No local copy is kept.
+## 🚀 Three ways to use it
 
-The install page offers two bookmarks. The orange one updates itself: each click loads the published `client.js` (which only defines `window.__pageCommentsLatest`, so it never runs on its own) and runs it. When the site blocks that (CSP or Trusted Types, as on Gmail, GitHub and Jira), the load fails or takes over 3 s, it runs the copy it was built with. The fixed one is that copy alone and never loads code, for workplaces that allow no outside scripts. Either way, a copy older than the published version shows the green update dot.
+All three run the same tool. In one browser, comments made with one show up in the others, and share links open in all of them.
 
-## Without the share site
+<table>
+  <tr>
+    <td width="33%" valign="top">
+      <img src="docs/images/way-bookmark.svg" width="56" alt=""><br>
+      <h3>The bookmark</h3>
+      <sub><b>For most people.</b> Updates itself.</sub>
+      <ol>
+        <li>Open the <a href="https://page-comments.share.heyadhi.com/"><b>install page</b></a>.</li>
+        <li>Drag the orange button to your bookmarks bar.</li>
+        <li>On any page, click the bookmark.</li>
+      </ol>
+    </td>
+    <td width="33%" valign="top">
+      <img src="docs/images/way-github.svg" width="56" alt=""><br>
+      <h3>Copy it from GitHub</h3>
+      <sub><b>When your network only lets you reach github.com.</b></sub>
+      <ol>
+        <li>Open <a href="bookmarklet.txt"><code>bookmarklet.txt</code></a> and click <b>Copy raw file</b>.</li>
+        <li>Right-click the bookmarks bar → <b>Add page…</b> (Firefox: <b>Add Bookmark…</b>)</li>
+        <li>Name it <i>Page comments</i> and paste into <b>URL</b>.</li>
+        <li>On any page, click the bookmark.</li>
+      </ol>
+    </td>
+    <td width="33%" valign="top">
+      <img src="docs/images/way-extension.svg" width="56" alt=""><br>
+      <h3>The extension</h3>
+      <sub><b>Chrome and Firefox.</b> Coming to their stores.</sub>
+      <ol>
+        <li>Click the icon: the tool starts.</li>
+        <li>Sharper pictures, and always the newest version, even on strict sites like Gmail.</li>
+        <li>Pins come back after a reload by themselves, on sites you allow.</li>
+      </ol>
+      <sub>Try it now: <a href="docs/DEVELOPING.md#the-extension">load it unpacked</a>.</sub>
+    </td>
+  </tr>
+</table>
 
-Some networks block https://page-comments.share.heyadhi.com/. The repository carries the same bookmarks, updated by every release:
+> [!TIP]
+> **Which one?** Can you open page-comments.share.heyadhi.com? Take **the bookmark**. Only github.com? **Copy it from GitHub**. Want the sharpest pictures and pins that come back on their own? **The extension**.
 
-- **Open a file:** on GitHub click **Code → Download ZIP** (or `git clone` it), unzip, and open `docs/index.html` in your browser. Drag a bookmark from that page into your bookmarks bar, as on the share site. The fixed bookmark is the one to take there: the self-updating one loads its updates from the share site.
-- **Paste a line:** open [`bookmarklet.txt`](bookmarklet.txt) on GitHub, click **Raw**, copy everything, then create a new bookmark (right-click the bookmarks bar → Add page…) and paste it as the address (URL). Name it Page comments.
+## 📮 Where your comments go
 
-## License
+<p align="center">
+  <img src="docs/images/handover.svg" width="100%" alt="Your comments go to Slack, Jira, Google Docs or email by Copy; to a teammate by Share link; to Claude Code by Send">
+</p>
 
-MIT, see [LICENSE](LICENSE).
+## 🧰 What it can do
 
-## The extension
+<p align="center">
+  <img src="docs/images/toolbar.png" width="470" alt="Hover the round button and it grows into a bar of actions">
+</p>
 
-`node build.js` also builds the browser extension into `extension/dist/chrome/` (or run `node build-extension.js` alone). Load it with **Load unpacked** on `chrome://extensions` (Developer mode on). It runs the same `core.js` as the bookmark with its own platform part (`extension/content.js`): lossless pictures through `captureVisibleTab` (stored as PNG), pictures saved as separate files (Chrome makes their blob URLs in `offscreen.html`), the popup (`popup.html`: start the tool, every commented page from the extension's index), the shortcut Alt+Shift+P, and pins that come back after a reload on sites you allowed from the popup (`restore.js`, registered per site in `background.js`). Comments live in the page's own storage, so the bookmark and the extension see the same comments, and their share links open in either. After a reload, sharp pictures need one click on the icon or the shortcut (the browser's rule).
+<table>
+  <tr>
+    <td width="50%" valign="top"><b>📌 Pins that stay</b><br><sub>Saved per page, back whenever you open the tool again.</sub></td>
+    <td width="50%" valign="top"><b>📸 Pictures</b><br><sub>Each comment can carry a numbered picture of what it points at.</sub></td>
+  </tr>
+  <tr>
+    <td valign="top"><b>🔲 More ways to point</b><br><sub>Select text, drag an area, or pick several things at once.</sub></td>
+    <td valign="top"><b>🧊 Freeze</b><br><sub>Keep a hover menu or tooltip still while you comment on it.</sub></td>
+  </tr>
+  <tr>
+    <td valign="top"><b>🔗 Share link</b><br><sub>Comments and small pictures travel inside the link itself.</sub></td>
+    <td valign="top"><b>🤖 Send to Claude Code</b><br><sub>On your own dev app, Claude edits the source. <a href="docs/GUIDE.md#send-to-claude">How</a></sub></td>
+  </tr>
+</table>
 
-## Use
+<details>
+<summary><b>⌨️ Keyboard shortcuts</b></summary>
+<br>
 
-1. Click the **🗨️ Page comments** bookmark on any page. Comment mode is on straight away.
-2. Hovering shows each element's tag, size and background colour (also passed on to Claude); press `D` for font, padding, radius and contrast (one remembered switch, shared with the comment box's tab). Click any element, or select some text, type your comment, press `Enter`. The box names the pick in plain words ("Pro — $29", the selected words, "3 elements"); the dark tab on its edge opens the details: size, colours, font, spacing, contrast and the selector. A click elsewhere while the box is empty just closes it; a half-written comment is never thrown away. Tick **Add screenshot** to attach a picture of it: Chrome asks "Share this tab?" the first time; the tick is remembered. Screenshots survive a reload (stored in the site's IndexedDB). Every picture carries its comment's number as a caption. Copy puts the text and one combined, numbered image on the clipboard; the comments list has a copy button per comment, for apps that put all pictures after the text (Slack). Pasted into rich editors, each comment reads: comment, plain name, its pictures, then one small grey line of technical details. Jira and Confluence take text and pictures only in two pastes (their editor drops the text when a paste holds an image file and HTML with an image, and drops pictures inside HTML): the comments list's Copy text (no pictures on the clipboard) gives the text, its Copy pictures gives the pictures. Save pictures saves each picture as its own captioned PNG (`2a-make-it-bold.png`), for apps that should get separate pictures (a page can put only one picture on the clipboard) (Ctrl+V in Claude Code pastes the image); Send passes them to Claude as files. A numbered pin stays on that spot until you delete it or clear them all (the clear action, click twice). Click a pin to edit or delete it.
-3. The round button shows the mode: blue is commenting, dark is browsing. Click it (or press `Esc`) to switch; open popups close when browsing starts. Its orange badge counts this page's comments. Drag it to put it anywhere; the spot is saved per site.
-4. Hover the round button and it grows into a bar toward the middle of the screen: select an area, select several (batch), freeze · comments list, copy, share link, send to Claude · ⋯ for details, keyboard shortcuts, help, clear all and close. Each shows its name and key on hover. While commenting, a small card above the round button lists the main keys, one per row.
-5. Copy, Send to Claude and Clear act on the comments of the current page only. Each page (URL without `#hash`) keeps its own comments, also in single-page apps.
-6. Comments are saved in the site's `localStorage`, so a reload keeps them: click the bookmark again and they come back with their pins.
-7. **Share link** (an action on the round button, key `S`) copies a link to this page with its comments packed (compressed) after `#page-comments=`, with small copies of the pictures (1 pixel per CSS pixel, WebP 0.7, about 1.5 KB each) while the link stays under 30 KB; past that, without pictures, and the message says so; the person opening such a link is offered Retake, which takes those pictures on their page (frozen ones and ones whose element is missing cannot be retaken). Slack takes 40,000 characters a message. Whoever opens it and clicks their bookmark gets the comments, pins and pictures, saved as theirs. Opening a comment from the list scrolls to it and shows what it covers, dashed. The first share on a site asks your name in a small bar (remembered; `Shift+S` changes it); each comment carries its writer's name, and passed-on comments keep theirs. Comments that came in through a link show their writer's name (chip in the comment box, list line, pin tooltip, "(from Name)" in Copy) and colour (pin, number, a mild row background), one colour per name from a fixed list without blue or orange; links without names stay purple. Only useful for pages both people can open (not your localhost). A link's data is checked before use: comments of the wrong shape and anything but real colours are dropped.
-8. More ways to point, while commenting:
-   - **Right-click** opens the tool's own menu: comment on this, select parent ↑, select inner ↓, select an area, freeze, keyboard shortcuts, copy selector.
-   - **Batch** (`B`, the Select several action, or the right-click menu; `Shift`+click starts one too): every click adds or removes an element; press `A` to drag area boxes instead (`A` again: back to elements). On the frozen picture a drag always adds an area. `Enter` (or Comment on the blue bar) opens one comment for all of them, anchored on their nearest common ancestor, with one picture of each pick (2a, 2b, ...). Close without saving or `Esc` asks "Drop the N selected?" first. In the comment box, ‹ › step through the selections: each comes into view, outlined solid, with the box beside it.
-   - **Freeze** (`F`, `Alt+Shift+F` / `⌥⇧F`, or the arc's "Freeze: 3 s to open a menu first", which gives you 3 seconds to open the page's menu with the mouse) records the page as a still picture, so hover menus and tooltips stay put; click, drag or right-click on it as on the live page. The first press only starts tab sharing (its prompt would close open menus); press again to freeze. `Esc` unfreezes.
-   - **Keys:** `↑`/`↓` parent or inner element, `Enter` comment on it, `A` area, `C` copy, `L` list, `S` share link, `B` batch, `D` details on/off, `?` all shortcuts, `Esc` backs out one step, `Alt+Shift+C` (`⌥⇧C` on a Mac) switches commenting/browsing. A click outside the comments list closes it. Single keys are ignored while you type in a field.
+| Key | Does |
+|---|---|
+| <kbd>Enter</kbd> | Comment on the outlined element |
+| <kbd>↑</kbd> <kbd>↓</kbd> | Outline the parent or the inner element |
+| <kbd>A</kbd> | Select an area |
+| <kbd>B</kbd> | Select several |
+| <kbd>F</kbd> | Freeze the page |
+| <kbd>L</kbd> | Comments list |
+| <kbd>C</kbd> | Copy |
+| <kbd>S</kbd> | Share link |
+| <kbd>D</kbd> | Details on or off |
+| <kbd>?</kbd> | All shortcuts |
+| <kbd>Esc</kbd> | Back out one step |
+| <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Switch between commenting and browsing |
 
-Without the bookmark: paste the published https://page-comments.share.heyadhi.com/client.js into the DevTools console, then run `window.__pageCommentsLatest()`.
+</details>
 
-## Server (only for Send to Claude)
+## 🔒 Privacy
 
-The send action appears only while the server answers `GET /health` for that page (checked when you hover the round button, at most every 10 s, and only on local pages (see Limits); every failed check shows in the browser console, so it never checks more often).
+Comments live in the page's own browser storage. Nothing leaves your browser unless you copy, share or send it. No account needed.
 
-```sh
-node server.js ~/projects/my-app        # or ~/page-comments-server.js, written by the install page's command
-```
+## 📚 More
 
-It runs `claude -p … --permission-mode acceptEdits` in that folder and prints the output. One batch at a time.
+- **[Guide](docs/GUIDE.md)**: every action, key and limit.
+- **[Developing](docs/DEVELOPING.md)**: folders, build, release, tests.
+- **[Changes](CHANGELOG.md)**: what each version brought.
 
-## Limits
-
-- Claude edits **source files**, so Send only makes sense for pages whose code is in the project folder.
-- Only pages served from this machine may send: `localhost`, `*.localhost`, loopback addresses, and names the hosts file points at `127.0.0.1` / `::1`. The bookmark offers Send on those and on the local-only endings `.test`, `.local`, `.internal`, `.home.arpa`; on a hosts-file name that looks like a public domain it does not show Send (use Copy). Any website can send requests to your machine, which is why the server checks.
-- A bookmark can't run by itself after a reload: click it again to bring the round button and comments back.
-- Comments are stored in the site's own `localStorage`, so the site's scripts could read them. Clearing site data deletes them.
-- After a reload, elements are found again by their CSS selector. If the page changed and the selector no longer matches, the pin hides; the comment stays in the list and in Copy.
-
-Test: `node --test` (the server test starts the real server, so port 4747 must be free)
+<sub>MIT licensed. See <a href="LICENSE">LICENSE</a>.</sub>
