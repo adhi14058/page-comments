@@ -2,6 +2,10 @@
 
 What went out in each published version, newest first. `node bookmarklet/build.js` refuses to publish a new version without its entry here.
 
+## 1.9.4 — 2026-11-24
+
+- Pasted into a rich-text editor (Google Docs, email, Notion), each picture is labelled with its number only, since the comment's text is right above it. The combined picture (Slack) and the files from Save pictures keep the full "2 · comment" label.
+
 ## 1.9.3 — 2026-11-24
 
 - Save pictures now says so when it fails, instead of doing nothing.

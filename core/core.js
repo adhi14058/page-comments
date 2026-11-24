@@ -492,8 +492,9 @@ export const startPageComments = (platform) => {
   const numbered = (only) => here().map((c, i) => ({ c, n: i + 1 })).filter((x) => !only || only.includes(x.c));
   const dataUrl = (blob) => new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(blob); });
   // A screenshot with a dark band on top saying "2 · <comment>", so a picture still says which comment it belongs to
-  // wherever it ends up (Slack, for one, shows all pictures after the text). Returned as a canvas.
-  const captioned = async ({ c, n }, { blob, width: cssWidth }, tag = '') => {
+  // wherever it ends up (Slack, for one, shows all pictures after the text). numberOnly: just "2", for a rich-text paste,
+  // where the comment's text sits right above its picture. Returned as a canvas.
+  const captioned = async ({ c, n }, { blob, width: cssWidth }, tag = '', numberOnly = false) => {
     const pic = await createImageBitmap(blob), k = cssWidth ? pic.width / cssWidth : 1, band = Math.round(28 * k);
     const width = Math.max(pic.width, Math.round(240 * k));
     const canvas = h('canvas', { width, height: band + pic.height });
@@ -504,7 +505,7 @@ export const startPageComments = (platform) => {
     g.fillRect(0, 0, width, band);
     g.fillStyle = '#ffffff';
     g.font = `600 ${Math.round(13 * k)}px system-ui, sans-serif`;
-    let label = `${n}${tag} · ${c.comment}`;
+    let label = numberOnly ? `${n}${tag}` : `${n}${tag} · ${c.comment}`;
     while (label.length > 4 && g.measureText(label).width > width - 20 * k) label = label.slice(0, -2) + '…';
     g.fillText(label, 10 * k, band * 0.68);
     g.drawImage(pic, 0, band);
@@ -619,7 +620,7 @@ export const startPageComments = (platform) => {
   const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const toHtml = async (items, found) => {
     const pics = new Map(await Promise.all(items.filter((x) => found.get(x.c)).map(async (x) => [x.c,
-      await Promise.all(found.get(x.c).map(async (p, k, all) => ({ url: await dataUrl(await png(await captioned(x, p, tagOf(all, k)))), width: p.width })))])));
+      await Promise.all(found.get(x.c).map(async (p, k, all) => ({ url: await dataUrl(await png(await captioned(x, p, tagOf(all, k), true))), width: p.width })))])));
     const parts = items.map(({ c, n }) => {
       // People reading the ticket see the comment, what it is about and the picture; the technical details trail in
       // one small grey line for whoever builds it (text/plain, which Claude Code reads, keeps them in full).
