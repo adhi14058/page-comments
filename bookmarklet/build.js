@@ -80,12 +80,14 @@ const installHtml = `<span class="b">cat</span> &gt; ~/page-comments-server.js &
 // runs twice) and runs that, the newest version. A site that blocks outside scripts (CSP or Trusted Types: Gmail,
 // GitHub, Jira) fails the load, and the bookmark runs its own copy instead; so does a load that errors or takes over
 // 3 s. That copy shows the green "New version" line only when it is older than the published one.
-// An open tool closes at once, without loading anything.
+// An open tool closes at once, without loading anything. The script request carries no referrer: the site never
+// learns which page the bookmark was clicked on.
+// This loader sits inside every dragged bookmark and never updates itself: a change here reaches only bookmarks dragged after it.
 const remoteJs = `window.__pageCommentsLatest=function(){${client}};\n`;
 const loader = `(()=>{const own=()=>{${client}};if(window.__pageComments)return window.__pageComments();let done=0;` +
   `const go=(f)=>{if(!done){done=1;f()}};try{const s=document.createElement("script");` +
   `s.onload=()=>{s.remove();go(window.__pageCommentsLatest||own)};s.onerror=()=>{s.remove();go(own)};` +
-  `setTimeout(()=>go(own),3000);s.src=${JSON.stringify(SITE_URL + 'client.js')};document.documentElement.append(s)}catch{go(own)}})()`;
+  `setTimeout(()=>go(own),3000);s.referrerPolicy="no-referrer";s.src=${JSON.stringify(SITE_URL + 'client.js')};document.documentElement.append(s)}catch{go(own)}})()`;
 // The fixed bookmark is the client alone, for workplaces that allow no code from outside: it never loads a script.
 const toBookmark = (code) => {
   const url = 'javascript:' + (code + ';void 0').replace(/[%\r\n\t#'&]/g, (c) => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'));

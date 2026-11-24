@@ -101,7 +101,7 @@ export const startPageComments = (platform) => {
   const sheet = new CSSStyleSheet();
   sheet.replaceSync(`
     /* Stop the page's inherited styles (dark color-scheme, text color, fonts) from reaching our UI. */
-    :host { all: initial; color-scheme: light; }
+    :host { all: initial; color-scheme: light; direction: ltr; } /* all leaves direction alone: an RTL page would mirror the bar */
     * { box-sizing: border-box; margin: 0; font: 13px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif; }
     [hidden] { display: none !important; }
     .hl { position: fixed; pointer-events: none; outline: 2px solid #2563eb; outline-offset: -1px; background: #2563eb1a; border-radius: 2px; }
@@ -359,7 +359,7 @@ export const startPageComments = (platform) => {
   const sideHead = h('button', { className: 'side-head' }, h('span', { textContent: 'details' }), h('span', { textContent: '‹' }));
   const sideBody = h('div'), selectorEl = h('div', { className: 'selector' }), copySelBtn = btn('copy selector', 'copy-sel');
   const side = h('div', { className: 'side' }, sideHead, sideBody, h('div', { className: 'sep' }), selectorEl, copySelBtn);
-  const textarea = h('textarea', { placeholder: 'What should change here?' });
+  const textarea = h('textarea', { placeholder: 'What should change here?', dir: 'auto' }); // comments in Arabic or Hebrew run right to left
   const deleteBtn = btn('Delete', 'b danger'), cancelBtn = btn('Cancel', 'b'), saveBtn = btn('Save', 'b primary');
   const boxCopyBtn = btn('Copy', 'b', 'Copy this comment as it is now, with a picture if Add screenshot is ticked, without saving it');
   const shotBox = h('input', { type: 'checkbox' });
@@ -972,7 +972,9 @@ export const startPageComments = (platform) => {
     deleteBtn.hidden = !d.comment;
     // An existing comment shows whether it has a screenshot; a new area or frozen comment starts ticked (a picture
     // is why you make one); any other new comment starts as the box was last left.
-    shotBox.checked = canShoot && (d.comment ? !!d.comment.shot : d.area || d.frozen ? true : localStorage.getItem(SHOT_KEY) === '1');
+    let lastTick = false; // a site whose storage is blocked (cookies off for it, a sandboxed page) throws on any read
+    try { lastTick = localStorage.getItem(SHOT_KEY) === '1'; } catch {}
+    shotBox.checked = canShoot && (d.comment ? !!d.comment.shot : d.area || d.frozen ? true : lastTick);
     shotLabel.hidden = !d.el; // nothing to photograph when the element is gone
     // A batch keeps its selections outlined while its box is open; ‹ › step through them (not on a frozen picture,
     // which cannot scroll).
@@ -1196,8 +1198,9 @@ export const startPageComments = (platform) => {
   const editable = (t) => t && (t.isContentEditable || /^(input|textarea|select)$/i.test(t.tagName || ''));
   const onKey = (e) => {
     // Alt+Shift+F freezes (or unfreezes) and Alt+Shift+C switches commenting/browsing, in either mode.
-    // e.code, because on a Mac Option changes e.key.
-    if (e.altKey && e.shiftKey && (e.code === 'KeyF' || e.code === 'KeyC')) {
+    // e.code, because on a Mac Option changes e.key. Not with Ctrl: on Windows AltGr is Ctrl+Alt, and AltGr+Shift+C or F
+    // types a letter (Ć in Polish) into the page's fields.
+    if (e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && (e.code === 'KeyF' || e.code === 'KeyC')) {
       e.preventDefault();
       e.stopPropagation();
       return void (e.code === 'KeyF' ? (frozen ? unfreeze() : freeze()) : setCommenting(!commenting));
@@ -1964,7 +1967,7 @@ export const startPageComments = (platform) => {
   // rather than a browser dialog; Shift+S asks again.
   const NAME_KEY = 'page-comments:name';
   const myName = () => { try { return localStorage.getItem(NAME_KEY) || ''; } catch { return ''; } };
-  const nameInput = h('input', { placeholder: 'Your name', maxLength: 40 });
+  const nameInput = h('input', { placeholder: 'Your name', maxLength: 40, dir: 'auto' });
   const nameGo = h('button', { textContent: 'Share' }), nameCancel = h('button', { textContent: 'Cancel' });
   const nameBar = h('div', { className: 'freeze-bar pick-bar name-bar', hidden: true },
     h('span', { textContent: 'Your name, shown with your comments:' }), nameInput, nameGo, nameCancel);
@@ -2033,14 +2036,16 @@ export const startPageComments = (platform) => {
   copyBtn.onclick = async () => {
     try {
       flash(copyBtn, await copyComments());
-      // Once per site: where the pictures went for Jira.
+    } catch (err) {
+      return flash(copyBtn, 'Could not copy (' + err.message + ')', 5000);
+    }
+    // Once per site: where the pictures went for Jira. Outside the copy's try: the copy has worked by now.
+    try {
       if (localStorage.getItem('page-comments:jira-tip') !== '1' && (await pageShots()).size) {
         localStorage.setItem('page-comments:jira-tip', '1');
         toast('Pasting into Jira or Confluence? They take text and pictures only in two pastes: open Comments, Copy text and paste, then Copy pictures and paste.', 9000);
       }
-    } catch (err) {
-      flash(copyBtn, 'Could not copy (' + err.message + ')', 5000);
-    }
+    } catch {}
   };
   // Send only shows while the local server answers. Every failed check shows up in the browser's console and
   // network panel (a page cannot hide that), so ask only when the answer matters: when the round button is hovered,

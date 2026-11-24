@@ -23,6 +23,8 @@ const manifest = (version, browser) => ({
   optional_host_permissions: ['https://*/*', 'http://*/*'],
   // Chrome runs the background as a service worker; Firefox has no service workers for extensions and runs it as a page.
   background: browser === 'chrome' ? { service_worker: 'background.js' } : { scripts: ['background.js'] },
+  // Chrome 116+: the offscreen API (109) and the CSS the tool uses (:has 105, color-mix 111).
+  ...(browser === 'chrome' ? { minimum_chrome_version: '116' } : {}),
   // Not C or F: the tool uses Alt+Shift+C and Alt+Shift+F on the page, and the browser would take them first.
   commands: { start: { suggested_key: { default: 'Alt+Shift+P' }, description: 'Start or close page-comments on this page' } },
   // Firefox: a fixed ID (AMO assigns none), 153+ (content scripts can set adoptedStyleSheets from 153, Mozilla bug

@@ -8,17 +8,28 @@ const inject = async (tabId, restoring = false) => {
   await api.scripting.executeScript({ target: { tabId }, files: ['content.js'] });
 };
 
-// The shortcut switches the tool on and off: content.js run on a page that has the tool open closes it.
-api.commands.onCommand.addListener((command, tab) => {
-  if (command === 'start' && tab?.id) inject(tab.id).catch(() => {});
-});
-
 // Whether the tool is open on the tab. The core sets __pageComments in our isolated world while it runs, and this
 // function runs in that same world.
 const running = async (tabId) => {
   const [r] = await api.scripting.executeScript({ target: { tabId }, func: () => !!globalThis.__pageComments });
   return !!r?.result;
 };
+// One job at a time per tab. Two starts that both found the tool closed (the popup and the reload restore, or the
+// restore right after the shortcut) would run content.js twice, and the second run closes the tool again.
+const queues = new Map();
+const queued = (tabId, job) => {
+  const run = (queues.get(tabId) ?? Promise.resolve()).catch(() => {}).then(job);
+  queues.set(tabId, run);
+  run.finally(() => { if (queues.get(tabId) === run) queues.delete(tabId); }).catch(() => {});
+  return run;
+};
+// Starts the tool unless it already runs.
+const start = (tabId, restoring = false) => queued(tabId, async () => { if (!(await running(tabId))) await inject(tabId, restoring); });
+
+// The shortcut switches the tool on and off: content.js run on a page that has the tool open closes it.
+api.commands.onCommand.addListener((command, tab) => {
+  if (command === 'start' && tab?.id) queued(tab.id, () => inject(tab.id)).catch(() => {});
+});
 const popups = new Set(); // tabs whose popup is showing
 const tellPopup = (tabId) => api.tabs.sendMessage(tabId, { type: 'popup', open: popups.has(tabId) }).catch(() => {});
 
@@ -54,15 +65,15 @@ api.runtime.onMessage.addListener((msg, sender, reply) => {
     save(msg.files).then(() => reply({}), (err) => reply({ error: err.message }));
     return true;
   }
-  if (msg.type === 'inject' && sender.tab?.id) inject(sender.tab.id, true).catch(() => {});
+  if (msg.type === 'inject' && sender.tab?.id) start(sender.tab.id, true).catch(() => {});
   // The popup opened: start the tool unless it already runs (running content.js again would close it).
   if (msg.type === 'open') {
-    running(msg.tabId).then((on) => on || inject(msg.tabId)).then(() => tellPopup(msg.tabId))
+    start(msg.tabId).then(() => tellPopup(msg.tabId))
       .then(() => reply({}), (err) => reply({ error: err.message }));
     return true;
   }
   if (msg.type === 'close') {
-    api.scripting.executeScript({ target: { tabId: msg.tabId }, func: () => globalThis.__pageComments?.() })
+    queued(msg.tabId, () => api.scripting.executeScript({ target: { tabId: msg.tabId }, func: () => globalThis.__pageComments?.() }))
       .then(() => reply({}), (err) => reply({ error: err.message }));
     return true;
   }
