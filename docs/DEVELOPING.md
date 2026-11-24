@@ -17,11 +17,16 @@ For using the tool, see the [Guide](GUIDE.md).
 |---|---|
 | `core/` | `core.js`, the tool itself, shared by the bookmark and the extension; `icons/` |
 | `bookmarklet/` | `bookmark.js`, the bookmark's platform part |
-| | `build.js`: builds and publishes the install page, and builds the extension |
+| | `build.js`: the release. Builds the website and the extension |
 | | `highlight.js`: colours the server code on the install page |
 | | `version.svg`: the GitHub copy's update check, written by every release |
+| | `site.js`: writes the website into `site/`; `site.test.js` checks its changelog reading, sitemap and head links |
+| | `site-images.py`: draws the website's favicons, home-screen icons and link-preview card (`site-src/img/og.png`) into `site-src/`. The PNGs are committed; run it again (`python3 bookmarklet/site-images.py`, needs Pillow) after changing the icon or the card |
 | `extension/` | The extension's own files, and `build.js` (Chrome and Firefox builds into `extension/dist/`) |
 | `server/` | `server.js`, the local server behind Send to Claude |
+| `site-src/` | The website's source: the install page and changelog page (with `{{name}}` slots the build fills), the playground, styles, scripts and `img/` |
+| `site/` | The website as served, built from `site-src/`. Never edit it: every build replaces it |
+| `deploy/` | How the server puts `site/` live. See [deploy/README.md](../deploy/README.md) |
 | `docs/` | The guides, and `images/` (the README's pictures) |
 
 | Root file | Holds |
@@ -33,7 +38,7 @@ For using the tool, see the [Guide](GUIDE.md).
 
 ## 🔨 Build and release
 
-Run the build after any change to `core/core.js`, `bookmarklet/bookmark.js`, `bookmarklet/highlight.js`, `server/server.js` or `bookmarklet/build.js`:
+Run the build after any change to `core/core.js`, `bookmarklet/bookmark.js`, `bookmarklet/highlight.js`, `server/server.js`, `bookmarklet/build.js`, `bookmarklet/site.js` or `site-src/`:
 
 ```sh
 node bookmarklet/build.js
@@ -46,6 +51,7 @@ Releases are `major.minor.patch`.
 | `node bookmarklet/build.js` | The next patch when the bookmark's code changed; the same version when it did not |
 | `node bookmarklet/build.js minor` | The next minor |
 | `node bookmarklet/build.js major` | The next major |
+| `node bookmarklet/build.js --site` | No release: writes `site/` only, to look at it. It refuses when the bookmark's code changed since the last release, because `site/` serves `client.js` to every bookmark |
 
 `release.json` keeps the last published versions and hashes of their code. `bookmarklet/version.js` decides how they move, and `bookmarklet/version.test.js` checks it.
 
@@ -61,10 +67,11 @@ The stores refuse an upload whose version did not go up, and only numbers are al
 
 1. Bundles `core.js` with `bookmark.js` using esbuild (`npx` downloads it on first use).
 2. Picks both versions, and stops when `CHANGELOG.md` has no `## <version> — <date>` entry for a new one (an extension-only release gets its own entry, e.g. `## 1.9.5.1`).
-3. Builds the install page. Its server command is `server.js` without its comments, syntax-coloured by `highlight.js`, in a quoted heredoc that writes `~/page-comments-server.js`.
-4. Publishes the install page, `client.js` and `version.svg` to [page-comments.share.heyadhi.com](https://page-comments.share.heyadhi.com/) with the `heyadhi-share` CLI. No local copy is kept.
-5. Writes `release.json` and builds the extension.
-6. Writes `bookmarklet.txt` and `bookmarklet/version.svg`, then commits and pushes them with `release.json`.
+3. Fills the website's pages from `site-src/` with the versions, the bookmarks, the server command and the releases from `CHANGELOG.md`, and adds `client.js` and `version.svg`. The server command is `server.js` without its comments, syntax-coloured by `highlight.js`, in a quoted heredoc that writes `~/page-comments-server.js`.
+4. Builds the extension. It comes before any file is written, so a failed extension build leaves the repository as it was.
+5. Writes `site/`, `bookmarklet.txt`, `bookmarklet/version.svg` and `release.json`, commits them, and pushes `main`.
+
+The server then pulls `main` within about 90 seconds and puts `site/` live at [page-comments.heyadhi.com](https://page-comments.heyadhi.com/). See [deploy/README.md](../deploy/README.md). Bookmarks made before the move still load `client.js` and `version.svg` from the old address, which serves the same files.
 
 <details>
 <summary><b>How the bookmark finds a new version</b></summary>
@@ -80,7 +87,7 @@ When the size does not match its own version, the bookmark turns the Help line i
 
 | Copy | Loads `version.svg` from | Help line opens |
 |---|---|---|
-| Orange and fixed bookmarks | The share site | The install page |
+| Orange and fixed bookmarks | The website | The install page |
 | GitHub copy (`bookmarklet.txt`) | The repository (`bookmarklet/version.svg`) | The repository |
 | Extension | No check: the store updates it | — |
 

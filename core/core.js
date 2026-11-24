@@ -6,8 +6,8 @@
 //   capture.stop()   -> ends capturing when the tool closes
 //   capture.available -> false where pictures are impossible (the Add screenshot tick turns off and explains why)
 //   saveFiles(files, zipName) -> message for the user; files: [{ name, bytes }] (PNG)
-//   checkVersion     -> where this copy looks for the latest version.svg and sends its Help line: 'site' (the share
-//                       site), 'github' (the repository, for bookmarklet.txt: some networks reach only github.com) or false
+//   checkVersion     -> where this copy looks for the latest version.svg and sends its Help line: 'site' (the
+//                       website), 'github' (the repository, for bookmarklet.txt: some networks reach only github.com) or false
 //                       (the store updates the extension)
 //   name             -> 'bookmark' | 'extension': written on the page (data-page-comments) while the tool is open, so the
 //                       other kind can see it; either asks the other to close with the 'page-comments:close' event
@@ -32,7 +32,7 @@ export const shortSelector = (selector, keep = 3) => String(selector).split(FRAM
 
 export const startPageComments = (platform) => {
   const SERVER = 'http://localhost:4747';
-  const SITE = 'https://page-comments.share.heyadhi.com/';
+  const SITE = 'https://page-comments.heyadhi.com/';
   const GITHUB = 'https://github.com/adhi14058/page-comments';
   const fromGithub = platform.checkVersion === 'github';
   // build.js replaces this with the release's id (6 hex digits); a copy pasted from source has none.
@@ -429,8 +429,6 @@ export const startPageComments = (platform) => {
     ['Esc', 'back out'], [ALT_SHIFT + 'F', 'freeze, in any mode'], [ALT_SHIFT + 'C', 'commenting / browsing, in any mode'], ['?', 'this card']];
   const keysCard = h('div', { className: 'keys', hidden: true }, h('b', { textContent: 'Keyboard shortcuts (while commenting)' }),
     ...KEYS.flatMap(([k, what]) => [h('span', {}, ...k.split(' / ').flatMap((x, i) => [i ? ' / ' : '', h('kbd', { textContent: x })])), h('span', { textContent: what })]));
-  // The key strip shows only while commenting with nothing else of ours open: one check, run whenever anything of ours
-  // shows, hides or changes state, so no single place that opens something has to remember the strip.
   // Two rules about what is open, checked whenever anything of ours shows, hides or changes state, so no single place
   // that opens something has to remember them:
   // - a message that was already showing closes when another popup opens (it is about what was on screen before);
