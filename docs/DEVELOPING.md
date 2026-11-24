@@ -1,41 +1,123 @@
 # Developing page-comments
 
-## Folders
+How the repository is laid out, and how to build, release and test it.
+For using the tool, see the [Guide](GUIDE.md).
+
+**On this page**
+
+- [📁 Folders](#-folders)
+- [🔨 Build and release](#-build-and-release)
+- [🧩 The extension](#the-extension)
+- [🔌 Server](#-server)
+- [🧪 Test](#-test)
+
+## 📁 Folders
 
 | Folder | Holds |
 |---|---|
 | `core/` | `core.js`, the tool itself, shared by the bookmark and the extension; `icons/` |
-| `bookmarklet/` | `bookmark.js` (the bookmark's platform part), `build.js` (builds and publishes the install page, and builds the extension), `highlight.js` (colours the server code on the install page), `version.svg` (the GitHub bookmark's update check, written by every release) |
-| `extension/` | the extension's own files and `build.js` (Chrome and Firefox builds into `extension/dist/`) |
+| `bookmarklet/` | `bookmark.js`, the bookmark's platform part |
+| | `build.js`: builds and publishes the install page, and builds the extension |
+| | `highlight.js`: colours the server code on the install page |
+| | `version.svg`: the GitHub copy's update check, written by every release |
+| `extension/` | The extension's own files, and `build.js` (Chrome and Firefox builds into `extension/dist/`) |
 | `server/` | `server.js`, the local server behind Send to Claude |
-| `docs/` | the guides and `images/` (the README's pictures) |
+| `docs/` | The guides, and `images/` (the README's pictures) |
 
-The root keeps only `README.md`, `LICENSE`, `CHANGELOG.md`, `release.json` (the one version number of the bookmark and the extension; the GitHub bookmark reads it) and `bookmarklet.txt` (the GitHub bookmark, written and pushed by every release).
+| Root file | Holds |
+|---|---|
+| `README.md`, `LICENSE` | The front page and the licence |
+| `CHANGELOG.md` | One release note per published version |
+| `release.json` | The one version number of the bookmark and the extension. The README's version badge reads it. |
+| `bookmarklet.txt` | The GitHub copy of the bookmark, written and pushed by every release |
 
-## Build and release
+## 🔨 Build and release
 
-**https://page-comments.share.heyadhi.com/** has the bookmark to drag onto the bookmarks bar, and a bash/zsh command that writes the server to `~/page-comments-server.js` (`server.js` without its comments, syntax-coloured, in a quoted heredoc).
-
-After any change to `core/core.js`, `bookmarklet/bookmark.js`, `server/server.js` or `bookmarklet/build.js`, run:
+Run the build after any change to `core/core.js`, `bookmarklet/bookmark.js`, `bookmarklet/highlight.js`, `server/server.js` or `bookmarklet/build.js`:
 
 ```sh
 node bookmarklet/build.js
 ```
 
-Releases are `major.minor.patch`. `release.json` keeps the last published version and a hash of its code: `node bookmarklet/build.js` gives changed code the next patch version, `node bookmarklet/build.js minor` / `node bookmarklet/build.js major` bump the others, and unchanged code keeps its version. Each release publishes `version.svg`, whose size encodes the version (width = major × 1000 + minor + 1, height = patch + 1). The bookmark loads that image (an image's size can be read across sites without CORS) and turns the ⓘ action green (with a green dot on the round button) when its own version differs. The ⓘ action always opens the install page.
+Releases are `major.minor.patch`.
 
-It bundles `core.js` (the tool, shared with the extension) with `bookmark.js` (the bookmark's way of taking pictures, saving several pictures as one zip and checking for updates) using esbuild (`npx` downloads it on first use), strips the comments from `server.js` and colours it with the small tokenizer in `highlight.js`, builds the page and publishes it over the same link with the `heyadhi-share` CLI, together with `client.js`. No local copy is kept.
+| Command | Version |
+|---|---|
+| `node bookmarklet/build.js` | The next patch when the bookmark's code changed; the same version when it did not |
+| `node bookmarklet/build.js minor` | The next minor |
+| `node bookmarklet/build.js major` | The next major |
 
-## The extension
+`release.json` keeps the last published version and a hash of the bookmark's code (`core.js` with `bookmark.js`).
+A change to the extension's own files alone does not change that hash, so it keeps the version.
 
-`node bookmarklet/build.js` also builds the browser extension into `extension/dist/chrome/` (or run `node extension/build.js` alone). Load it with **Load unpacked** on `chrome://extensions` (Developer mode on). It runs the same `core.js` as the bookmark with its own platform part (`extension/content.js`): lossless pictures through `captureVisibleTab` (stored as PNG), pictures saved as separate files (Chrome makes their blob URLs in `offscreen.html`), the popup (`popup.html`: clicking the icon opens it and starts the tool; it offers Close the tool, asks once per site whether pins may come back after a reload, and lists every commented page from the extension's index; a click on the page that closes it is skipped by `content.js`, since it also lands on the page), the shortcut Alt+Shift+P (starts or closes the tool), and pins that come back after a reload on sites you allowed from the popup (`restore.js`, registered per site in `background.js`). Comments live in the page's own storage, so the bookmark and the extension see the same comments, and their share links open in either. After a reload, sharp pictures need one click on the icon or the shortcut (the browser's rule).
+**What one run does**
 
-## Server
+1. Bundles `core.js` with `bookmark.js` using esbuild (`npx` downloads it on first use).
+2. Picks the version, and stops when `CHANGELOG.md` has no `## <version> — <date>` entry for a new one.
+3. Builds the install page. Its server command is `server.js` without its comments, syntax-coloured by `highlight.js`, in a quoted heredoc that writes `~/page-comments-server.js`.
+4. Publishes the install page, `client.js` and `version.svg` to [page-comments.share.heyadhi.com](https://page-comments.share.heyadhi.com/) with the `heyadhi-share` CLI. No local copy is kept.
+5. Writes `release.json` and builds the extension.
+6. Writes `bookmarklet.txt` and `bookmarklet/version.svg`, then commits and pushes them with `release.json`.
+
+<details>
+<summary><b>How the bookmark finds a new version</b></summary>
+<br>
+
+Each release publishes `version.svg`, an empty picture whose size encodes the version:
+
+- width = major × 1000 + minor + 1
+- height = patch + 1
+
+The bookmark loads that picture: any page may read a picture's size across sites, without CORS.
+When the size does not match its own version, the bookmark turns the Help line in **⋯** green and puts a green dot on the round button.
+
+| Copy | Loads `version.svg` from | Help line opens |
+|---|---|---|
+| Orange and fixed bookmarks | The share site | The install page |
+| GitHub copy (`bookmarklet.txt`) | The repository (`bookmarklet/version.svg`) | The repository |
+| Extension | No check: the store updates it | — |
+
+</details>
+
+<a id="the-extension"></a>
+
+## 🧩 The extension
+
+`node bookmarklet/build.js` also builds the extension, into `extension/dist/chrome/` and `extension/dist/firefox/`.
+`node extension/build.js` builds it alone.
+
+| Browser | Load it |
+|---|---|
+| Chrome | `chrome://extensions` → turn on **Developer mode** → **Load unpacked** → `extension/dist/chrome/` |
+| Firefox 153+ | `about:debugging` → **This Firefox** → **Load Temporary Add-on** → `extension/dist/firefox/manifest.json` |
+
+It runs the same `core.js` as the bookmark, with its own platform part.
+
+| Part | File | Does |
+|---|---|---|
+| Platform part | `content.js` | Lossless pictures through `captureVisibleTab` (stored as PNG); skips the click that closes the popup, since it also lands on the page |
+| Background | `background.js` | Takes the pictures, saves files, runs the shortcut <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> (starts or closes the tool), and registers `restore.js` per allowed site |
+| Popup | `popup.html`, `popup.js` | Opens on an icon click and starts the tool; offers **Close the tool**; asks once per site whether pins may come back after a reload; lists every commented page from the extension's index |
+| Pins after a reload | `restore.js` | Runs on sites you allowed from the popup, and brings the tool back when the page has comments |
+| Saved pictures | `offscreen.html`, `offscreen.js` | Chrome only: makes the blob URLs for pictures saved as separate files |
+
+- Comments live in the page's own storage, so the bookmark and the extension see the same comments. Their share links open in either.
+- After a reload, sharp pictures need one click on the icon or the shortcut. That is the browser's rule.
+
+## 🔌 Server
 
 ```sh
 node server/server.js ~/projects/my-app        # or ~/page-comments-server.js, written by the install page's command
 ```
 
-## Test
+It listens on `127.0.0.1:4747` and needs Node 18+ and the `claude` CLI.
+How it is used: [Guide → Send to Claude](GUIDE.md#send-to-claude).
 
-`node --test` from the repository root runs every test (the server test starts the real server, so port 4747 must be free)
+## 🧪 Test
+
+```sh
+node --test
+```
+
+Run it from the repository root. It runs every test.
+The server test starts the real server on port 4747, and skips itself when that port is in use.
