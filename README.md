@@ -35,7 +35,7 @@
 
 ## 🚀 Three ways to use it
 
-| | <img src="docs/images/way-bookmark.svg" width="40" alt=""><br>**The bookmark** | <img src="docs/images/way-github.svg" width="40" alt=""><br>**Copy it from GitHub** | <img src="docs/images/way-extension.svg" width="40" alt=""><br>**The extension** |
+| | <img src="docs/images/head-bookmark.svg" width="400" alt=""><br>**The bookmark** | <img src="docs/images/head-github.svg" width="400" alt=""><br>**Copy it from GitHub** | <img src="docs/images/head-extension.svg" width="400" alt=""><br>**The extension** |
 |---|:---:|:---:|:---:|
 | **For** | Most people | Networks that reach only github.com | The sharpest pictures |
 | **Updates** | By itself | A dot tells you | Through the store |
@@ -73,20 +73,11 @@ Load it unpacked: see [Developing → The extension](docs/DEVELOPING.md#the-exte
   <img src="docs/images/toolbar.png" width="470" alt="Hover the round button and it grows into a bar of actions">
 </p>
 
-<table>
-  <tr>
-    <td width="50%" valign="top"><b>📌 Pins that stay</b><br><sub>Saved per page, back whenever you open the tool again.</sub></td>
-    <td width="50%" valign="top"><b>📸 Pictures</b><br><sub>Each comment can carry a numbered picture of what it points at.</sub></td>
-  </tr>
-  <tr>
-    <td valign="top"><b>🔲 More ways to point</b><br><sub>Select text, drag an area, or pick several things at once.</sub></td>
-    <td valign="top"><b>🧊 Freeze</b><br><sub>Keep a hover menu or tooltip still while you comment on it.</sub></td>
-  </tr>
-  <tr>
-    <td valign="top"><b>🔗 Share link</b><br><sub>Comments and small pictures travel inside the link itself.</sub></td>
-    <td valign="top"><b>🤖 Send to Claude Code</b><br><sub>On your own dev app, Claude edits the source. <a href="docs/GUIDE.md#send-to-claude">How</a></sub></td>
-  </tr>
-</table>
+<p align="center">
+  <img src="docs/images/features.svg" width="100%" alt="Pins that stay. Pictures. More ways to point. Freeze. Share link. Send to Claude Code.">
+</p>
+
+Send to Claude Code works on your own dev app only. [How it works](docs/GUIDE.md#send-to-claude)
 
 <details>
 <summary><b>⌨️ Keyboard shortcuts</b></summary>
