@@ -250,16 +250,21 @@ export const startPageComments = (platform) => {
     .snap input:checked { background: #2563eb; border-color: #2563eb; }
     .snap input:checked::before { transform: scale(1); }
     .snap input:focus-visible { outline: 2px solid #2563eb66; outline-offset: 2px; }
-    .snap.off { cursor: help; } .snap.off > input, .snap.off > span { opacity: .55; } .snap.off input { cursor: not-allowed; }
-    /* Why Add screenshot is off: a dark card above the tick, the width of the box. Its clear bottom border bridges the gap,
-       so the pointer can move onto it and select the chrome://flags address. */
-    .snap { position: relative; }
-    .shot-tip { position: absolute; left: -4px; right: -4px; bottom: 100%; border-bottom: 8px solid transparent; background: #18181b padding-box;
-                color: #e4e4e7; font: 400 12px/1.5 system-ui, sans-serif; padding: 10px 12px; border-radius: 8px; cursor: auto; user-select: text;
-                box-shadow: 0 8px 24px #0005; opacity: 0; visibility: hidden; transition: opacity .15s, visibility .15s; z-index: 1; }
-    .snap.off:hover .shot-tip { opacity: 1; visibility: visible; }
+    .snap { width: fit-content; } /* only the tick and its words, so the row around it stays free to hover */
+    .snap.off { cursor: default; } .snap.off > input, .snap.off > span:not(.shot-q) { opacity: .55; } .snap.off input { cursor: not-allowed; }
+    .shot-q { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; cursor: help; flex: none; outline: none;
+              background: #e4e4e7; color: #3f3f46; font: 700 10px/1 system-ui, sans-serif; }
+    .shot-q:hover, .shot-q:focus-visible { background: #18181b; color: #fff; }
+    /* Why Add screenshot is off: a dark card under the comment box (over it when the box is at the bottom of the screen),
+       so it never covers the text. It opens from the ? only, and stays a moment after the pointer leaves, so the pointer
+       can reach it to select the chrome://flags address. */
+    .shot-tip { position: absolute; left: 0; top: calc(100% + 8px); width: 100%; box-sizing: border-box; background: #18181b;
+                color: #e4e4e7; font: 400 12px/1.5 system-ui, sans-serif; padding: 10px 12px; border-radius: 10px; user-select: text;
+                box-shadow: 0 8px 24px #0005; opacity: 0; visibility: hidden; transition: opacity .15s .3s, visibility 0s .45s; }
+    .shot-tip::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 8px; } /* bridges the gap */
+    .pop.tip-up .shot-tip { top: auto; bottom: calc(100% + 8px); } .pop.tip-up .shot-tip::before { bottom: auto; top: 100%; }
+    .pop:has(.shot-q:hover, .shot-q:focus-visible, .shot-tip:hover) .shot-tip { opacity: 1; visibility: visible; transition-delay: 0s; }
     .shot-tip b { display: block; color: #fff; font-weight: 600; margin-bottom: 2px; }
-    .snap.below .shot-tip { bottom: auto; top: 100%; border-bottom: 0; border-top: 8px solid transparent; } /* no room above */
     .shot-tip p { margin: 6px 0 0; } .shot-tip ol { margin: 4px 0 0; padding-left: 18px; }
     .shot-tip code { font: 11px ui-monospace, monospace; color: #fff; background: #3f3f46; border-radius: 4px; padding: 1px 4px; overflow-wrap: anywhere; }
     button.b:disabled, button.b:disabled:hover { background: #f4f4f5; color: #a1a1aa; border-color: #f4f4f5; cursor: not-allowed; }
@@ -291,24 +296,31 @@ export const startPageComments = (platform) => {
   // Where the platform cannot take pictures (the bookmark on a plain-http page that is not localhost: browsers keep
   // screen capture for secure pages), the tick is off and says why, and how to allow it.
   const canShoot = platform.capture.available !== false;
+  let shotTip = null;
   if (!canShoot) {
     shotBox.disabled = true;
     shotLabel.classList.add('off');
     const code = (t) => h('code', { textContent: t });
-    shotLabel.append(h('span', { className: 'shot-tip', id: 'shot-tip', role: 'tooltip' },
+    shotTip = h('div', { className: 'shot-tip', id: 'shot-tip', role: 'tooltip' },
       h('b', { textContent: 'No pictures on this page' }),
       'It is plain http, and browsers allow screen capture only on https or localhost pages.',
       h('p', { textContent: 'To allow it in Chrome:' }),
       h('ol', {}, h('li', {}, 'Open ', code('chrome://flags/#unsafely-treat-insecure-origin-as-secure')),
         h('li', {}, 'Add ', code(location.origin), ', choose Enabled and relaunch.')),
-      h('p', { textContent: 'Or open your site as localhost or name.localhost, or use the page-comments extension.' })));
+      h('p', { textContent: 'Or open your site as localhost or name.localhost, or use the page-comments extension.' }));
+    // A span, not a button: a button inside the label would be a second control for it.
+    const q = h('span', { className: 'shot-q', textContent: '?', tabIndex: 0, ariaLabel: 'Why no pictures?' });
+    q.setAttribute('aria-describedby', 'shot-tip');
+    shotLabel.append(q);
     shotBox.setAttribute('aria-describedby', 'shot-tip');
-    // The box can sit at the top of the screen: then the card opens below the tick instead.
-    shotLabel.addEventListener('pointerenter', () =>
-      shotLabel.classList.toggle('below', shotLabel.getBoundingClientRect().top < shotLabel.lastChild.offsetHeight + 8));
+    shotBox.ariaLabel = 'Add screenshot'; // else its name takes in the ? too
+    // Under the box when it fits on the screen, else over it.
+    const aim = () => pop.classList.toggle('tip-up', pop.getBoundingClientRect().bottom + shotTip.offsetHeight + 16 > innerHeight);
+    q.addEventListener('pointerenter', aim);
+    q.addEventListener('focus', aim);
   }
   const pop = h('div', { className: 'card pop', hidden: true }, h('div', { className: 'head' }, kindEl, nameEl, byEl, navEl), textarea, shotLabel,
-    h('div', { className: 'row' }, h('span', { className: 'hint', textContent: 'Enter saves' }), deleteBtn, boxCopyBtn, cancelBtn, saveBtn), sideTab, side);
+    h('div', { className: 'row' }, h('span', { className: 'hint', textContent: 'Enter saves' }), deleteBtn, boxCopyBtn, cancelBtn, saveBtn), sideTab, side, shotTip ?? '');
   const toastEl = h('div', { className: 'card toast', hidden: true });
   const list = h('ol');
   // Jira and Confluence take text and pictures only in two pastes (tested): these copy one or the other.

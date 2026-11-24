@@ -2,6 +2,10 @@
 
 What changed for you in each version, newest first.
 
+## 1.9.12 — 2026-11-24
+
+- The card that explains a greyed-out Add screenshot now opens only from the small ? beside it, and it opens under the comment box (over it when the box is at the bottom of the screen), so it never covers what you are typing.
+
 ## 1.9.11 — 2026-11-24
 
 - Where Add screenshot is greyed out, hovering it now opens a clear card instead of the browser's plain tooltip: why there are no pictures on this page, and the two steps to allow them in Chrome. You can select the chrome://flags address and this page's address to copy them.
