@@ -93,8 +93,8 @@ export const startPageComments = (platform) => {
     .widget.open .items { max-width: 680px; opacity: 1; pointer-events: auto; animation: unclip 0s .35s forwards; }
     @keyframes unclip { to { overflow: visible; } } /* tooltips may leave the bar once it has finished growing */
     .main { position: relative; flex: none; width: 52px; height: 52px; border-radius: 50%; border: 0; padding: 0; cursor: pointer;
-            display: grid; place-items: center; color: #fff; background: #27272a; pointer-events: auto; touch-action: none;
-            box-shadow: 0 8px 24px #0006, 0 0 0 3px #ffffff33; transition: background .25s, transform .2s, box-shadow .2s; }
+            display: grid; place-items: center; color: #fff; background: #ea580c; pointer-events: auto; touch-action: none;
+            box-shadow: 0 8px 24px #ea580c66, 0 0 0 3px #ffffff44; transition: background .25s, transform .2s, box-shadow .2s; }
     .main:hover { transform: scale(1.06); }
     .main.on { background: #2563eb; box-shadow: 0 8px 24px #2563eb66, 0 0 0 3px #ffffff44; }
     .widget.open .main { box-shadow: none; }
@@ -107,7 +107,7 @@ export const startPageComments = (platform) => {
     .main.dragging .label { opacity: 0; }
     .main svg { width: 24px; height: 24px; }
     .badge { position: absolute; top: -4px; right: -4px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; border: 2px solid #fff;
-             background: #ea580c; color: #fff; font: 700 11px/18px system-ui, sans-serif; text-align: center; }
+             background: #18181b; color: #fff; font: 700 11px/18px system-ui, sans-serif; text-align: center; }
     .widget.open .badge { display: none; } /* the open bar shows the count on its Comments button */
     .dot { position: absolute; top: -2px; left: -2px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; background: #16a34a; }
     .act { position: relative; flex: none; min-width: 36px; height: 36px; border-radius: 10px; border: 0; padding: 0 9px; cursor: pointer;
