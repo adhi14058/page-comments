@@ -24,9 +24,9 @@ Commenting is on as soon as the tool opens.
 
 | Way | Open | Close |
 |---|---|---|
-| **Bookmark** | Click **🗨️ Page comments** | Click it again, or **⋯** → **Close** |
-| **Extension** | Click its icon, or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | **Close the tool** in its popup, <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>, or **⋯** → **Close** |
-| **Console** | Paste [client.js](https://page-comments.share.heyadhi.com/client.js) into DevTools, then run `window.__pageCommentsLatest()` | Run `window.__pageCommentsLatest()` again |
+| **Bookmark** | Click **🗨️ Page comments** | Click it again, the small **×** beside the round button, or **⋯** → **Close** |
+| **Extension** | Click its icon, or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | **Close the tool** in its popup, <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>, the small **×**, or **⋯** → **Close** |
+| **Console** | Paste [client.js](https://page-comments.heyadhi.com/client.js) into DevTools, then run `window.__pageCommentsLatest()` | Run `window.__pageCommentsLatest()` again |
 
 - A bookmark cannot run by itself after a reload. Click it again: the comments come back with their pins.
 - The extension can bring the pins back by itself, on sites you allow. See [The extension](#-the-extension).
@@ -54,6 +54,8 @@ Commenting is on as soon as the tool opens.
 - The hover details also go to Claude with **Send to Claude**.
 - A click elsewhere closes an empty comment box. A half-written comment is never thrown away.
 - Click a pin to edit or delete its comment.
+- **Frames.** Inside an embedded frame whose page comes from the same site (Storybook, an app that shows its pages in frames), you pick, comment and pin elements as on the page itself. <kbd>↑</kbd> goes out to the frame, and Copy names the frame.
+  A frame from another site is picked whole, like a picture. **Select an area** and **Freeze** also pick a frame whole.
 
 ## 📸 Pictures
 
@@ -79,15 +81,17 @@ The tick is remembered per site.
 
 | It shows | Meaning |
 |---|---|
-| **Blue** | Commenting: a click on the page picks what to comment on |
-| **Dark** | Browsing: the page works as usual, the pins stay |
-| **Orange badge** | How many comments this page has |
+| **Blue**, with the comment icon | Commenting: a click on the page picks what to comment on |
+| **Orange**, with the pointer icon | Browsing: the page works as usual, the pins stay |
+| **Dark badge** | How many comments this page has |
 | **Green dot** | A new version is out: open **⋯** and click the green Help line |
 
 - **Click** it to switch between commenting and browsing. Open popups close when browsing starts.
 - <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> (<kbd>⌥⇧C</kbd> on a Mac) switches too, from either mode.
 - <kbd>Esc</kbd> backs out one step at a time. Its last step ends commenting.
 - **Drag** it anywhere. The spot is saved per site.
+- Hovering it shows what a click and a drag do, and the key.
+- When an open comment box would cover it, it moves to the nearest free corner, and goes back when the box closes.
 
 **The bar.** Hover the round button and it grows into a bar toward the middle of the screen.
 Each action shows its name and key on hover.
@@ -100,7 +104,8 @@ Each action shows its name and key on hover.
 
 - **Clear all** takes two clicks within 3 seconds. Armed, it turns red and says how many it will clear.
 - **Send to Claude** shows only on your own dev app, while the local server runs. See [Send to Claude](#send-to-claude).
-- While commenting, a small card above the round button lists the main keys, one per row.
+- While the bar is open, a small **×** on the round button's outer side closes the tool in one click.
+- While commenting, a small card above the round button shows the main keys: <kbd>B</kbd> batch, <kbd>A</kbd> area, <kbd>F</kbd> freeze, <kbd>Esc</kbd> browse, <kbd>?</kbd> all keys.
 
 ## 🎯 More ways to point
 
@@ -152,7 +157,7 @@ You click, drag and right-click the picture just like the live page.
 - <kbd>F</kbd> or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> (<kbd>⌥⇧F</kbd>) freezes at once.
 - The bar's **Freeze: 3 s to open a menu first** counts down 3 seconds, so you can open the page's menu with the mouse first.
 - With the bookmark, the first press only starts tab sharing, because Chrome's prompt would close an open menu. Press again to freeze.
-- <kbd>Esc</kbd> or **Unfreeze** ends it.
+- <kbd>Esc</kbd> or **Unfreeze**, on the blue bar at the bottom of the screen, ends it.
 
 </details>
 
@@ -314,11 +319,11 @@ There are three bookmarks. They run the same tool.
 
 | | Orange bookmark | Fixed bookmark | GitHub copy |
 |---|---|---|---|
-| **Get it** | [Install page](https://page-comments.share.heyadhi.com/) | [Install page](https://page-comments.share.heyadhi.com/) | [`bookmarklet.txt`](../bookmarklet.txt) |
+| **Get it** | [Install page](https://page-comments.heyadhi.com/) | [Install page](https://page-comments.heyadhi.com/) | [`bookmarklet.txt`](../bookmarklet.txt) |
 | **For** | Most people | Workplaces that allow no outside scripts | Networks that reach only github.com |
 | **Loads code** | The published `client.js`, on each click | Never | Never |
 | **Updates** | By itself | Drag a newer one | Copy a newer one |
-| **Looks for new versions at** | The share site | The share site | The GitHub repository |
+| **Looks for new versions at** | The website | The website | The GitHub repository |
 | **Help line opens** | The install page | The install page | The repository |
 
 - The orange bookmark runs the copy it was built with when the site blocks outside scripts (CSP or Trusted Types: Gmail, GitHub, Jira), or when the load fails or takes over 3 seconds.
@@ -374,7 +379,7 @@ Browsers keep the clipboard and tab capture for secure pages: https, `localhost`
 | | Bookmark | Extension |
 |---|---|---|
 | **Copy** | Text and rich text (no combined picture for Slack) | Text and rich text, pictures inside |
-| **Add screenshot** | Off, greyed out. Its tooltip says why and how to allow it (`chrome://flags/#unsafely-treat-insecure-origin-as-secure`, or open the site as `localhost` / `name.localhost`) | Works |
+| **Add screenshot** | Off, greyed out. The small **?** beside it opens a card that says why and how to allow it (`chrome://flags/#unsafely-treat-insecure-origin-as-secure`, opening the site as `localhost` / `name.localhost`, or the extension) | Works |
 | **Copy pictures** | Not possible: use **Save pictures** | Not possible: use **Save pictures** |
 
 </details>

@@ -4,14 +4,14 @@ What changed for you in each version, newest first.
 
 ## 1.10.0 — 2026-11-25
 
-- Freeze's bar now sits at the bottom of the screen, like the Select several bar, so it stays clear of menus near the top (the things you freeze).
-- The small card of keys above the round button is compact: it shows Esc for going back to browsing (Alt+Shift+C stays in the full list of keys).
+- page-comments has a new website, and it now lives at page-comments.heyadhi.com: add the tool as the extension, a bookmark or a copy to paste, see how it works, try it right on the page, see what your browser will ask, and look up every key. It also shows this changelog. The old address forwards there, and bookmarks you already have keep working.
 - The round button is orange while you browse (it was black), and still blue while you comment. The comment count on it is now dark, so it shows on orange.
+- Hovering the round button now says what it does: a click switches between commenting and browsing, a drag moves it, and Alt+Shift+C does the same from the keyboard.
 - Close is one click: hovering the round button shows a small × on its outer side, away from the bar. The ⋯ list keeps Close too.
 - When a comment box opens over the round button, the button moves to the nearest free corner, and goes back when the box closes.
-- Hovering the round button now says what it does: a click switches between commenting and browsing, a drag moves it, and Alt+Shift+C does the same from the keyboard.
-- You can comment on things inside an embedded frame when its page comes from the same site (for example Storybook, or an app that shows its pages in frames): hover, pick, comment, pins after a reload, and ↑ out to the frame. Copy names the frame. Frames from other sites are picked whole.
-- You can comment on an embedded frame (an iframe, such as a video, a map or another page shown inside this one). Before, hovering it showed nothing and clicking it opened no comment box. It is picked whole, like a picture; while browsing it works as usual.
+- The small card of keys above the round button is compact: B batch, A area, F freeze, Esc back to browsing, and ? for all keys (Alt+Shift+C stays in the full list).
+- Freeze's bar now sits at the bottom of the screen, like the Select several bar, so it stays clear of menus near the top (the things you freeze).
+- You can comment on embedded frames (iframes, such as a video, a map or another page shown inside this one). Before, hovering one showed nothing and clicking it opened no comment box. When the frame's page comes from the same site (for example Storybook, or an app that shows its pages in frames), you pick, comment and pin the things inside it, and ↑ goes out to the frame. Copy names the frame. Frames from other sites are picked whole, like a picture.
 - At the right edge of a page, the details card over a highlighted element (D) no longer runs off the screen.
 - The card that explains a greyed-out Add screenshot now opens only from the small ? beside it, and it opens under the comment box (over it when the box is at the bottom of the screen), so it never covers what you are typing.
 

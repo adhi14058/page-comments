@@ -1,6 +1,7 @@
 // Builds the browser extension into extension/dist/chrome/ (load it with "Load unpacked" on chrome://extensions, with
 // Developer mode on) and extension/dist/firefox/ (about:debugging → Load Temporary Add-on → its manifest.json). content.js is core.js (the same tool as the bookmark) bundled with extension/content.js; the other
-// files are copied as they are. The version is the bookmark's (release.json): one version for both.
+// files are copied as they are. The version is release.json's extension version: the bookmark's, with a fourth number
+// added for a release that changed only the extension (see bookmarklet/version.js).
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');

@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://page-comments.share.heyadhi.com/"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fadhi14058%2Fpage-comments%2Fmain%2Frelease.json&query=%24.version&label=version&color=ea580c&style=flat-square" alt="Version"></a>
+  <a href="https://page-comments.heyadhi.com/changelog.html"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fadhi14058%2Fpage-comments%2Fmain%2Frelease.json&query=%24.version&label=version&color=ea580c&style=flat-square" alt="Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2563eb?style=flat-square" alt="MIT license"></a>
   <img src="https://img.shields.io/badge/account-none%20needed-16a34a?style=flat-square" alt="No account needed">
 </p>
@@ -39,7 +39,7 @@
 |---|:---:|:---:|:---:|
 | **For** | Most people | Networks that reach only github.com | The sharpest pictures |
 | **Updates** | By itself | A dot tells you | Through the store |
-| **Get it** | **[Install page →](https://page-comments.share.heyadhi.com/)** | **[bookmarklet.txt →](bookmarklet.txt)** | Coming soon |
+| **Get it** | **[Install page →](https://page-comments.heyadhi.com/)** | **[bookmarklet.txt →](bookmarklet.txt)** | Coming soon |
 
 All three run the same tool and share comments and share links.
 
