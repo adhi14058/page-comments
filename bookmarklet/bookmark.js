@@ -7,6 +7,8 @@ import { startPageComments } from '../core/core.js';
 // so later pictures need no prompt.
 let capture = null;
 const startCapture = async () => {
+  // Browsers offer tab capture only to secure pages (https, localhost); on a plain-http page it is missing.
+  if (!navigator.mediaDevices?.getDisplayMedia) throw new Error('this page is not https, so the bookmark cannot take pictures here (the extension can)');
   const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false, preferCurrentTab: true });
   const video = Object.assign(document.createElement('video'), { srcObject: stream, muted: true });
   await video.play();

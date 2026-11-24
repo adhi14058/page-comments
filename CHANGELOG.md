@@ -2,6 +2,11 @@
 
 What went out in each published version, newest first. `node bookmarklet/build.js` refuses to publish a new version without its entry here.
 
+## 1.9.5 — 2026-11-24
+
+- Copy works on pages that are not https (internal tools, staging servers, `.test` dev sites). It failed there with "Cannot read properties of undefined": browsers keep the clipboard for secure pages, so on those pages the tool now uses the browser's older copy command, which carries the text and the rich text with its pictures.
+- On such pages the bookmark now says plainly that it cannot take pictures there (the extension can), instead of an error.
+
 ## 1.9.4 — 2026-11-24
 
 - Pasted into a rich-text editor (Google Docs, email, Notion), each picture is labelled with its number only, since the comment's text is right above it. The combined picture (Slack) and the files from Save pictures keep the full "2 · comment" label.

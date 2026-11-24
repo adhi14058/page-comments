@@ -364,3 +364,17 @@ Comments stay in your browser. Nothing leaves it unless you copy, share or send.
 - The bookmark and the extension use the same storage, so they see the same comments. Share links open in either.
 - After a reload, elements are found again by their CSS selector.
   If the page changed and the selector no longer matches, the pin hides. The comment stays in the list and in Copy.
+
+<details>
+<summary><b>On pages that are not https</b></summary>
+<br>
+
+Browsers keep the clipboard and tab capture for secure pages (https and localhost). On a plain-http page, such as an internal tool, a staging server or a `.test` dev site:
+
+| | Bookmark | Extension |
+|---|---|---|
+| **Copy** | Text and rich text (no combined picture for Slack) | Text and rich text, pictures inside |
+| **Add screenshot** | Not possible: it says so | Works |
+| **Copy pictures** | Not possible: use **Save pictures** | Not possible: use **Save pictures** |
+
+</details>

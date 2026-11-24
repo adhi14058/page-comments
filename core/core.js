@@ -490,6 +490,31 @@ export const startPageComments = (platform) => {
   const tagOf = (pics, k) => (pics.length < 2 ? '' : k < 26 ? String.fromCharCode(97 + k) : '-' + (k + 1));
   // Comments with their number on this page; `only` narrows to some of them and keeps their numbers.
   const numbered = (only) => here().map((c, i) => ({ c, n: i + 1 })).filter((x) => !only || only.includes(x.c));
+  // Browsers give the clipboard API only to secure pages (https, localhost). On a plain-http page (an internal tool, a
+  // staging server, a .test dev site) it is missing, so copy through the older copy command there: it carries text and
+  // HTML (pictures ride inside the HTML), but no picture file.
+  const writeClipboard = async ({ text, html, png }) => {
+    if (navigator.clipboard) {
+      if (!html && !png) return navigator.clipboard.writeText(text);
+      const parts = {};
+      if (text != null) parts['text/plain'] = new Blob([text], { type: 'text/plain' });
+      if (html) parts['text/html'] = new Blob([html], { type: 'text/html' });
+      if (png) parts['image/png'] = png;
+      return navigator.clipboard.write([new ClipboardItem(parts)]);
+    }
+    if (text == null) throw new Error('this page is not https, so a picture cannot go on the clipboard: use Save pictures');
+    const put = (e) => {
+      e.preventDefault();
+      e.clipboardData.setData('text/plain', text);
+      if (html) e.clipboardData.setData('text/html', html);
+    };
+    document.addEventListener('copy', put, true);
+    try {
+      if (!document.execCommand('copy')) throw new Error('the browser refused to copy here');
+    } finally {
+      document.removeEventListener('copy', put, true);
+    }
+  };
   const dataUrl = (blob) => new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(blob); });
   // A screenshot with a dark band on top saying "2 · <comment>", so a picture still says which comment it belongs to
   // wherever it ends up (Slack, for one, shows all pictures after the text). numberOnly: just "2", for a rich-text paste,
@@ -933,7 +958,7 @@ export const startPageComments = (platform) => {
   sideTab.onclick = () => { setDetails(true); textarea.focus(); };
   sideHead.onclick = () => { setDetails(false); textarea.focus(); };
   copySelBtn.onclick = async () => {
-    try { await navigator.clipboard.writeText(draft.selector); toast('Copied ' + draft.selector, 2000); } catch (err) { toast('Could not copy (' + err.message + ')'); }
+    try { await writeClipboard({ text: draft.selector }); toast('Copied ' + draft.selector, 2000); } catch (err) { toast('Could not copy (' + err.message + ')'); }
     textarea.focus();
   };
   const editable = (t) => t && (t.isContentEditable || /^(input|textarea|select)$/i.test(t.tagName || ''));
@@ -1314,7 +1339,7 @@ export const startPageComments = (platform) => {
       menuItem('Keyboard shortcuts', '?', () => { closeMenu(); keysCard.hidden = false; }),
       menuItem('Copy selector', '', async () => {
         closeMenu();
-        try { await navigator.clipboard.writeText(t.selector); toast('Copied ' + t.selector, 2000); } catch (err) { toast('Could not copy (' + err.message + ')'); }
+        try { await writeClipboard({ text: t.selector }); toast('Copied ' + t.selector, 2000); } catch (err) { toast('Could not copy (' + err.message + ')'); }
       }),
     ].filter(Boolean));
     menu.style.left = Math.max(8, Math.min(x, innerWidth - menu.offsetWidth - 8)) + 'px';
@@ -1537,10 +1562,9 @@ export const startPageComments = (platform) => {
   const copyComments = async (only, textOnly) => copyItems(numbered(only), textOnly ? new Map() : await pageShots());
   const copyItems = async (items, found) => {
     const text = toText(items);
-    const parts = { 'text/plain': new Blob([text], { type: 'text/plain' }), 'text/html': new Blob([await toHtml(items, found)], { type: 'text/html' }) };
+    const html = await toHtml(items, found);
     const withPics = items.filter((x) => found.get(x.c));
-    if (withPics.length) parts['image/png'] = await contactSheet(withPics, found);
-    await navigator.clipboard.write([new ClipboardItem(parts)]);
+    await writeClipboard({ text, html, png: withPics.length && navigator.clipboard ? await contactSheet(withPics, found) : null });
     return `Copied ${items.length}${withPics.length ? ' + screenshots' : ''}`;
   };
   // Atlassian's editor (Jira, Confluence) takes a paste that holds an image file and HTML with an <img> for one copied
@@ -1696,7 +1720,7 @@ export const startPageComments = (platform) => {
         note = `, pictures left out (with them it would be ${(link.length / 1024).toFixed(0)} KB, too long for Slack)`;
         link = start + await pack(here().map((c) => ({ ...plain(c), ...(found.get(c) ? { hadPic: true } : {}) })));
       }
-      await navigator.clipboard.writeText(link);
+      await writeClipboard({ text: link });
       toast(`Copied a link with ${here().length} comment(s)${note}, ${(link.length / 1024).toFixed(1)} KB, as ${me} (Shift+S changes the name). Whoever opens it and clicks their bookmark sees them.`
         + (pageIsLocal ? ' This page is on your machine: only you can open it.' : ''), 7000);
     } catch (err) {
@@ -1728,7 +1752,7 @@ export const startPageComments = (platform) => {
     try {
       const found = await pageShots(), items = numbered().filter((x) => found.get(x.c));
       if (!items.length) return toast('No pictures on this page yet: tick Add screenshot on a comment.');
-      await navigator.clipboard.write([new ClipboardItem({ 'image/png': await contactSheet(items, found) })]);
+      await writeClipboard({ png: await contactSheet(items, found) });
       toast('Copied the pictures: paste them as a second paste.', 3000);
     } catch (err) {
       toast('Could not copy (' + err.message + ')');
