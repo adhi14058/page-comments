@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="popup.css">
+<script type="module" src="popup.js"></script>
+</head>
+<body>
+  <div class="top">
+    <div class="row"><b><img src="icons/icon-32.png" alt="">page-comments</b><span id="version" class="muted"></span></div>
+    <button id="start" class="primary"><span>Comment on this page</span><kbd id="key" hidden></kbd></button>
+    <p id="why" class="muted"></p>
+    <input id="search" type="search" placeholder="Search commented pages" aria-label="Search commented pages">
+  </div>
+  <div id="list" class="list"></div>
+</body>
+</html>

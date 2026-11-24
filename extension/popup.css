@@ -1,0 +1,26 @@
+/* The popup (layout A): start the tool here, and every page with comments, grouped by site. */
+* { box-sizing: border-box; }
+body { margin: 0; width: 340px; max-height: 560px; display: flex; flex-direction: column; font: 13px/1.45 system-ui, sans-serif; color: #18181b; background: #fff; }
+.top { padding: 12px; border-bottom: 1px solid #e4e4e7; display: grid; gap: 10px; }
+.row { display: flex; justify-content: space-between; align-items: center; }
+.row b { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.row img { width: 20px; height: 20px; }
+.muted { color: #71717a; font-size: 12px; margin: 0; }
+.primary { border: 0; border-radius: 10px; padding: 10px 14px; font: 600 14px system-ui, sans-serif; cursor: pointer; background: #2563eb; color: #fff;
+           display: flex; justify-content: space-between; align-items: center; }
+.primary:hover { background: #1d4ed8; }
+.primary:disabled { background: #a1a1aa; cursor: not-allowed; }
+.primary kbd { font: 600 11px ui-monospace, monospace; background: #1d4ed8; border-radius: 4px; padding: 2px 6px; }
+input { width: 100%; border: 1px solid #d4d4d8; border-radius: 8px; padding: 7px 10px; font: 13px system-ui, sans-serif; }
+input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px #2563eb33; }
+.list { overflow: auto; padding: 4px 8px 10px; scrollbar-width: thin; scrollbar-color: #d4d4d8 transparent; }
+.list::-webkit-scrollbar { width: 8px; } .list::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 4px; }
+.site { font: 700 11px system-ui, sans-serif; letter-spacing: .05em; text-transform: uppercase; color: #71717a; padding: 10px 4px 4px; display: flex; justify-content: space-between; }
+.pg { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border: 0; border-radius: 8px; background: none; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.pg:hover { background: #f4f4f5; }
+.pg.here { background: #eff6ff; } .pg.here small { color: #2563eb; }
+.pg > span:first-child { flex: 1; min-width: 0; }
+.pg b, .pg small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pg b { font-weight: 600; } .pg small { color: #71717a; }
+.cnt { flex: none; background: #ea580c; color: #fff; font: 700 11px/18px system-ui, sans-serif; min-width: 20px; padding: 0 6px; border-radius: 9px; text-align: center; }
+.empty { padding: 14px 6px; color: #71717a; }
