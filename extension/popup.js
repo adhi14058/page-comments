@@ -1,6 +1,9 @@
 // The popup. Opening it starts the tool on this tab (a second click on the icon leaves the tool alone: "Close the tool"
 // removes it), asks once per site for the permission that brings pins back after a reload, and lists every page with
-// comments, grouped by site. The list is the index content.js keeps.
+// comments, grouped by site. The list is the index content.js keeps. extension/build.js bundles it with the core's
+// pageKey, which names pages in that index.
+import { pageKey } from '../core/core.js';
+
 const api = globalThis.browser ?? chrome;
 const $ = (id) => document.getElementById(id);
 const el = (tag, props, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
@@ -51,7 +54,7 @@ const ago = (t) => {
   return d < 1 ? 'today' : d === 1 ? 'yesterday' : d < 7 ? `${d} days ago` : d < 14 ? 'last week' : `${Math.round(d / 7)} weeks ago`;
 };
 const { index = {} } = await api.storage.local.get('index');
-const here = url.split('#')[0];
+const here = pageKey(url);
 const draw = (filter = '') => {
   const f = filter.trim().toLowerCase();
   const pages = Object.entries(index).filter(([page, p]) => !f || page.toLowerCase().includes(f) || p.title.toLowerCase().includes(f));
@@ -64,9 +67,9 @@ const draw = (filter = '') => {
   $('list').replaceChildren(...(bySite.size ? [...bySite].flatMap(([host, list]) => [
     el('div', { className: 'site' }, el('span', { textContent: host }), el('span', { textContent: `${list.length} page${list.length === 1 ? '' : 's'}` })),
     ...list.map(([page, p]) => el('button', {
-      className: 'pg' + (page === here ? ' here' : ''), title: page,
-      onclick: () => (page === here ? close() : api.tabs.create({ url: page }).then(() => close())),
-    }, el('span', {}, el('b', { textContent: p.title }), el('small', { textContent: page === here ? `This page · ${p.count} comment${p.count === 1 ? '' : 's'}` : `${new URL(page).pathname} · ${ago(p.at)}` })),
+      className: 'pg' + (pageKey(page) === here ? ' here' : ''), title: page,
+      onclick: () => (pageKey(page) === here ? close() : api.tabs.create({ url: page }).then(() => close())),
+    }, el('span', {}, el('b', { textContent: p.title }), el('small', { textContent: pageKey(page) === here ? `This page · ${p.count} comment${p.count === 1 ? '' : 's'}` : `${new URL(page).pathname} · ${ago(p.at)}` })),
     el('span', { className: 'cnt', textContent: p.count }))),
   ]) : [el('p', { className: 'empty', textContent: f ? 'No commented page matches.' : 'Pages you comment on show up here.' })]));
 };

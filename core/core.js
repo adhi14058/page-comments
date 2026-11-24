@@ -30,6 +30,21 @@ export const shortSelector = (selector, keep = 3) => String(selector).split(FRAM
   return tail.length <= keep + 1 ? tail.join(' > ') : `${tail[0]} > … > ${tail.slice(-keep).join(' > ')}`;
 }).join(FRAME_SEP);
 
+// Query parameters that only say where a visitor came from: ad and email click ids, and analytics tags. They are no
+// part of which page it is, so the page key leaves them out. Compared without case. Only ever add to this list: keys
+// are compared after this cleaning on both sides, so a name added later still matches comments saved with it, while a
+// name taken out would hide every comment saved under a URL that has it.
+const TRACKING = /^(utm_\w+|fbclid|gclid|gclsrc|dclid|gbraid|wbraid|gad_source|gad_campaignid|msclkid|yclid|ysclid|twclid|ttclid|li_fat_id|epik|sccid|igshid|igsh|srsltid|mc_cid|mc_eid|mkt_tok|_hsenc|_hsmi|__hssc|__hstc|__hsfp|hsctatracking|oly_anon_id|oly_enc_id|vero_id|vero_conv|wickedid|rb_clickid|s_cid|_openstat|_gl|__s|ml_subscriber|ml_subscriber_hash|ss_email_id|bsft_uid|bsft_clkid|guce_referrer|guce_referrer_sig)$/i;
+// Which page a comment belongs to: the URL without its #hash (in-page anchors and routes in the hash are the same
+// page) and without tracking parameters (the same page opened from a newsletter or an ad). The rest of the query
+// stays as it is, byte for byte, since it often names the page (?id=42). Comments saved before tracking parameters
+// were left out still carry them in their key; comparing both sides through this function finds them.
+export const pageKey = (href) => {
+  const url = String(href).split('#')[0], q = url.indexOf('?');
+  if (q < 0) return url;
+  const kept = url.slice(q + 1).split('&').filter((p) => !TRACKING.test(p.split('=')[0]));
+  return url.slice(0, q) + (kept.length ? '?' + kept.join('&') : '');
+};
 
 // What a share link may carry of a comment. A link is someone else's data: fromLink keeps only comments of the right
 // shape, with strings where the tool reads text and plain numbers where it draws boxes, and only real colours (they
@@ -487,9 +502,9 @@ export const startPageComments = (platform) => {
   document.documentElement.appendChild(host);
 
   // Every comment remembers its page; the toolbar, list, pins, Copy, Send and Clear only see the current page's.
-  // The page is the URL without its #hash, so in-page anchor links do not hide the comments.
-  const pageOf = () => location.href.split('#')[0];
-  const here = () => comments.filter((c) => c.page === pageOf());
+  // The page is its key (see pageKey): comments saved under an older key of the same page show here too.
+  const pageOf = () => pageKey(location.href);
+  const here = () => { const page = pageOf(); return comments.filter((c) => pageKey(c.page) === page); };
 
   // Comments are saved in the site's localStorage so a reload keeps them; elements are found again by selector.
   const KEY = 'page-comments:v1';
@@ -1786,8 +1801,9 @@ export const startPageComments = (platform) => {
       return;
     }
     disarmClear();
-    for (const c of here()) if (c.shot) dropShot(c.id);
-    comments = comments.filter((c) => c.page !== pageOf());
+    const mine = new Set(here());
+    for (const c of mine) if (c.shot) dropShot(c.id);
+    comments = comments.filter((c) => !mine.has(c));
     closePop();
     render();
     flash(clearBtn, 'Cleared');

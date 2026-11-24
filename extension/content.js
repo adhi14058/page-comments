@@ -3,7 +3,7 @@
 // core.js into dist/<browser>/content.js. It runs in the extension's own isolated copy of the page's scripts: the page
 // cannot see or call it, but it shares the page's DOM, localStorage and IndexedDB, so comments made with the bookmark
 // show up here and the other way round.
-import { startPageComments } from '../core/core.js';
+import { startPageComments, pageKey } from '../core/core.js';
 
 const api = globalThis.browser ?? chrome;
 const html = document.documentElement;
@@ -35,9 +35,11 @@ const toBase64 = (bytes) => {
   return btoa(s);
 };
 
-// The list of all commented pages, shown in the popup. Pages without comments drop out.
+// The list of all commented pages, shown in the popup. Pages without comments drop out, and so do entries this page
+// had under an older key (one with tracking parameters, see pageKey): its count now covers their comments too.
 const remember = async ({ page, title, count }) => {
   const { index = {} } = await api.storage.local.get('index');
+  for (const p of Object.keys(index)) if (p !== page && pageKey(p) === page) delete index[p];
   if (count) index[page] = { title: title || page, count, at: Date.now() };
   else delete index[page];
   await api.storage.local.set({ index });

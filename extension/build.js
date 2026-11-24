@@ -1,13 +1,14 @@
 // Builds the browser extension into extension/dist/chrome/ (load it with "Load unpacked" on chrome://extensions, with
-// Developer mode on) and extension/dist/firefox/ (about:debugging → Load Temporary Add-on → its manifest.json). content.js is core.js (the same tool as the bookmark) bundled with extension/content.js; the other
-// files are copied as they are. The version is release.json's extension version: the bookmark's, with a fourth number
+// Developer mode on) and extension/dist/firefox/ (about:debugging → Load Temporary Add-on → its manifest.json). content.js is core.js (the same tool as the bookmark) bundled with extension/content.js;
+// restore.js and popup.js are bundled with the core's pageKey, so they name pages as the tool does; the other files
+// are copied as they are. The version is release.json's extension version: the bookmark's, with a fourth number
 // added for a release that changed only the extension (see bookmarklet/version.js).
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const SRC = __dirname;
-const FILES = ['background.js', 'restore.js', 'offscreen.html', 'offscreen.js', 'popup.html', 'popup.css', 'popup.js'];
+const FILES = ['background.js', 'offscreen.html', 'offscreen.js', 'popup.html', 'popup.css'];
 
 const manifest = (version, browser) => ({
   manifest_version: 3,
@@ -30,14 +31,19 @@ const manifest = (version, browser) => ({
   ...(browser === 'firefox' ? { browser_specific_settings: { gecko: { id: 'page-comments@heyadhi.com', strict_min_version: '153.0', data_collection_permissions: { required: ['none'] } } } } : {}),
 });
 
+// The popup is a module script (it awaits at the top level), the page scripts are plain ones.
+const bundle = (file, format = 'iife') => execFileSync('npx', ['-y', 'esbuild@0.28.2', file, '--bundle', `--format=${format}`], { cwd: __dirname, encoding: 'utf8' });
+
 module.exports = (version) => {
-  const content = execFileSync('npx', ['-y', 'esbuild@0.28.2', 'content.js', '--bundle', '--format=iife'], { cwd: __dirname, encoding: 'utf8' });
+  const content = bundle('content.js'), restore = bundle('restore.js'), popup = bundle('popup.js', 'esm');
   if (!content.includes('__PAGE_COMMENTS_VERSION__')) throw new Error('core.js lost its __PAGE_COMMENTS_VERSION__ placeholder');
   for (const browser of ['chrome', 'firefox']) {
     const out = path.join(SRC, 'dist', browser);
     fs.rmSync(out, { recursive: true, force: true });
     fs.mkdirSync(path.join(out, 'icons'), { recursive: true });
     fs.writeFileSync(path.join(out, 'content.js'), content.replace('__PAGE_COMMENTS_VERSION__', version));
+    fs.writeFileSync(path.join(out, 'restore.js'), restore);
+    fs.writeFileSync(path.join(out, 'popup.js'), popup);
     // The offscreen page exists only for Chrome's service worker (see background.js).
     for (const f of FILES.filter((f) => browser === 'chrome' || !f.startsWith('offscreen'))) fs.copyFileSync(path.join(SRC, f), path.join(out, f));
     for (const s of [16, 32, 48, 128]) fs.copyFileSync(path.join(__dirname, '..', 'core', 'icons', `icon-${s}.png`), path.join(out, 'icons', `icon-${s}.png`));

@@ -367,6 +367,7 @@ Comments stay in your browser. Nothing leaves it unless you copy, share or send.
 - Comments are saved in the site's own `localStorage`, so a reload keeps them. Pictures are in the site's IndexedDB.
 - The site's own scripts could read them. Clearing the site's data deletes them.
 - The bookmark and the extension use the same storage, so they see the same comments. Share links open in either.
+- Each comment belongs to its page: the address without its `#` part and without tracking parameters (`utm_…`, `fbclid`, `gclid` and the like). The same page opened from a newsletter or an ad shows the same comments. Any other part of the query counts: `?id=1` and `?id=2` are two pages.
 - After a reload, elements are found again by their CSS selector.
   If the page changed and the selector no longer matches, the pin hides. The comment stays in the list and in Copy.
 
