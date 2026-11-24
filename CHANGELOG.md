@@ -4,6 +4,7 @@ What changed for you in each version, newest first.
 
 ## 1.9.12 — 2026-11-24
 
+- Close is one click: hovering the round button shows a small × on its outer side, away from the bar. The ⋯ list keeps Close too.
 - When a comment box opens over the round button, the button moves to the nearest free corner, and goes back when the box closes.
 - Hovering the round button now says what it does: a click switches between commenting and browsing, a drag moves it, and Alt+Shift+C does the same from the keyboard.
 - You can comment on things inside an embedded frame when its page comes from the same site (for example Storybook, or an app that shows its pages in frames): hover, pick, comment, pins after a reload, and ↑ out to the frame. Copy names the frame. Frames from other sites are picked whole.

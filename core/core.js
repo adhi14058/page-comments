@@ -76,6 +76,13 @@ export const startPageComments = (platform) => {
     /* The toolbar is a pill dock: on hover the round button grows into a bar (modes | outputs | ⋯), toward the middle of
        the screen (.left: it opens to the right). The ⋯ opens a list of the rarer actions with names and keys. */
     .widget { position: fixed; width: 0; height: 0; }
+    .quick-close { position: absolute; top: -11px; left: 34px; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%; display: grid;
+                   place-items: center; background: #18181b; color: #e4e4e7; cursor: pointer; pointer-events: auto; box-shadow: 0 2px 8px #0005, 0 0 0 1px #ffffff26;
+                   opacity: 0; visibility: hidden; transition: opacity .15s, visibility .15s, background .15s; }
+    .quick-close svg { width: 10px; height: 10px; }
+    .quick-close:hover { background: #dc2626; color: #fff; }
+    .widget.left .quick-close { left: auto; right: 34px; }
+    .widget.open .quick-close, .quick-close:focus-visible { opacity: 1; visibility: visible; }
     .bar { position: absolute; top: -26px; right: -26px; display: flex; align-items: center; border-radius: 30px; pointer-events: auto;
             transition: background .2s, box-shadow .2s, padding .2s; }
     .widget.left .bar { right: auto; left: -26px; flex-direction: row-reverse; }
@@ -402,7 +409,9 @@ export const startPageComments = (platform) => {
   const items = h('div', { className: 'items' }, areaBtn, batchBtn, freezeBtn, sep(), clearBtn, listBtn, copyBtn, shareBtn, sendBtn, sep(), moreBtn);
   const keyStrip = h('div', { className: 'keystrip', hidden: true },
     ...[['B', 'batch'], ['A', 'area'], ['F', 'freeze'], [ALT_SHIFT + 'C', 'browse'], ['?', 'all keys']].map(([k, what]) => h('span', { className: k === '?' ? 'all' : '' }, h('kbd', { textContent: k }), what)));
-  const widget = h('div', { className: 'widget' }, moreList, keyStrip, h('div', { className: 'bar' }, items, main));
+  // Close in one click: a small × on the round button's outer side, away from the bar, while the bar is open.
+  const quickClose = h('button', { className: 'quick-close', ariaLabel: 'Close page-comments' }, svg('svg', { viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'aria-hidden': 'true' }, svg('path', { d: 'M2 2l8 8M10 2l-8 8' })));
+  const widget = h('div', { className: 'widget' }, moreList, keyStrip, quickClose, h('div', { className: 'bar' }, items, main));
   const dock = h('div', { className: 'dock' }, panel, toastEl);
   const areaLayer = h('div', { className: 'area-layer', hidden: true });
   const areaBox = h('div', { className: 'area-box', hidden: true });
@@ -2044,7 +2053,7 @@ export const startPageComments = (platform) => {
     host.remove();
     delete window.__pageComments;
   };
-  closeBtn.onclick = destroy;
+  closeBtn.onclick = quickClose.onclick = destroy;
   window.__pageComments = destroy;
   // The page's own DOM is the one thing the bookmark (page scripts) and the extension (its own isolated scripts) share.
   document.documentElement.dataset.pageComments = platform.name;
