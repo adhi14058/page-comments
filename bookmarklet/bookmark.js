@@ -9,7 +9,13 @@ let capture = null;
 const startCapture = async () => {
   // Browsers offer tab capture only to secure pages (https, localhost); on a plain-http page it is missing.
   if (!navigator.mediaDevices?.getDisplayMedia) throw new Error('this page is not https, so the bookmark cannot take pictures here (the extension can)');
-  const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false, preferCurrentTab: true });
+  // Once sharing is allowed, Chrome by default "focuses the captured tab": it activates the window again while its
+  // prompt is still closing, and keyboard focus can stay with the browser instead of returning to the page, so no
+  // key reaches the tool until the next click on the page. The captured tab is this one, so there is nothing to
+  // switch to: ask to keep the focus here. It has to be asked right as the promise resolves, before anything else runs.
+  const controller = typeof CaptureController === 'function' ? new CaptureController() : undefined;
+  const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false, preferCurrentTab: true, controller });
+  try { controller?.setFocusBehavior('focus-capturing-application'); } catch {} // throws where it is not offered (a screen, not a tab)
   const video = Object.assign(document.createElement('video'), { srcObject: stream, muted: true });
   await video.play();
   stream.getVideoTracks()[0].addEventListener('ended', () => { capture = null; });

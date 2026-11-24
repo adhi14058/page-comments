@@ -299,7 +299,7 @@ export const startPageComments = (platform) => {
     .menu hr { border: 0; border-top: 1px solid #3f3f46; margin: 4px 2px; }
     /* Freeze: the picture of the screen at the moment of freezing, shown over the page. Its bar sits at the bottom, like
        the Select several bar: menus and tooltips, the things people freeze, mostly open near the top. */
-    .freeze-layer { position: fixed; inset: 0; pointer-events: auto; cursor: crosshair; }
+    .freeze-layer { position: fixed; inset: 0; pointer-events: auto; cursor: pointer; } /* as on the live page while commenting */
     .freeze-layer canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
     .freeze-bar { position: absolute; left: 50%; bottom: 18px; translate: -50% 0; display: flex; gap: 10px; align-items: center; background: #0284c7; color: #fff;
                   padding: 6px 6px 6px 14px; border-radius: 999px; font-weight: 600; box-shadow: 0 6px 18px #0005; cursor: default; white-space: nowrap; }
@@ -910,8 +910,12 @@ export const startPageComments = (platform) => {
   // are picked one by one. Every other one (another origin, a sandbox, a frame running its own copy of the tool) lets
   // the pointer through to this page while commenting (a stylesheet object, which page CSP rules do not block), and the
   // embed under the pointer becomes the target, to be picked whole like a picture.
+  // The same stylesheet makes the cursor the pointing hand over the whole page while commenting, since any click
+  // picks what it is on; the page's own text and link cursors would say otherwise. Our UI hangs off <html>, outside
+  // <body>, so it keeps its own cursors (and Area mode its crosshair).
   const EMBEDS = 'iframe, frame, embed, object', FRAMES = 'iframe, frame', LINKED = 'data-page-comments-frame';
-  const embedRule = `iframe:not([${LINKED}]), frame:not([${LINKED}]), embed, object { pointer-events: none !important; }`;
+  const embedRule = `iframe:not([${LINKED}]), frame:not([${LINKED}]), embed, object { pointer-events: none !important; }
+    html, body, body *, body *::before, body *::after { cursor: pointer !important; }`;
   const embedSheet = new CSSStyleSheet();
   embedSheet.replaceSync(embedRule);
   const sheets = new Map([[document, embedSheet]]); // a stylesheet object serves one page: each linked frame has its own
@@ -1423,11 +1427,9 @@ export const startPageComments = (platform) => {
     closeMenu();
     if (unsaved()) return textarea.focus();
     closePop();
-    if (!platform.capture.ready()) {
-      // Chrome's "Share this tab?" prompt would close an open menu, so the first freeze only starts sharing.
-      try { await platform.capture.start(); } catch (err) { return toast('Freeze needs screen sharing: ' + (err.name === 'NotAllowedError' ? 'it was not allowed.' : err.message)); }
-      return toast('Screen sharing is on. Open the menu or tooltip again, then freeze.');
-    }
+    // Chrome's "Share this tab?" prompt closes any open menu or tooltip, so once sharing is allowed the freeze counts
+    // down, as the Freeze button does, to give time to open it again.
+    if (!platform.capture.ready()) return freezeLater();
     host.style.visibility = 'hidden'; // out of the recording and of the picture
     try {
       const { entries, byEl } = record();
@@ -1464,14 +1466,15 @@ export const startPageComments = (platform) => {
     hl.hidden = true;
   };
   unfreezeBtn.onclick = (e) => { e.stopPropagation(); unfreeze(); };
-  // The countdown switches to browsing, so the page's own right-click menu and hovers work until the freeze.
+  // Freezes after a countdown, asking for screen sharing first when needed. The countdown switches to browsing, so the
+  // page's own right-click menu and hovers work until the freeze.
   let countdown = 0;
-  freezeBtn.onclick = async () => {
-    if (frozen) return unfreeze();
+  const freezeLater = async () => {
     if (countdown) return;
     if (!platform.capture.ready()) {
       try { await platform.capture.start(); } catch (err) { return toast('Freeze needs screen sharing: ' + (err.name === 'NotAllowedError' ? 'it was not allowed.' : err.message)); }
     }
+    if (countdown || frozen) return; // a second press while the prompt showed
     setCommenting(false);
     let left = 3;
     toast(`Freezing in ${left}… open the menu or hover the tooltip now`, 1100);
@@ -1482,6 +1485,7 @@ export const startPageComments = (platform) => {
       freeze();
     }, 1000);
   };
+  freezeBtn.onclick = () => (frozen ? unfreeze() : freezeLater());
   // The frozen picture: hover shows recorded elements, a click comments on one, a drag on an area, right-click opens the menu.
   let hoveredEntry = null;
   freezeLayer.onpointermove = (e) => {
