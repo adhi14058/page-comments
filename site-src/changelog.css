@@ -1,0 +1,24 @@
+/* The changelog page: one entry per release, newest first, on a rail. build.js writes the entries from CHANGELOG.md. */
+.top { margin-top: 58px; background: var(--ink); color: #fafafa; } /* starts under the top bar, which is always there */
+.top .intro { max-width: 820px; margin: 0 auto; padding: 36px 24px 56px; }
+.top h1 { font: 850 clamp(40px, 7vw, 64px)/1 system-ui, sans-serif; letter-spacing: -.04em; margin: 0 0 12px; }
+.top p { margin: 0; color: #d4d4d8; font-size: 17px; }
+.top .ver { background: #ea580c22; border-color: #ea580c66; color: #fdba74; }
+.log { max-width: 820px; margin: 0 auto; padding: 48px 24px 40px; position: relative; }
+.rel { position: relative; padding: 0 0 34px 34px; scroll-margin-top: 82px; }
+/* The rail and each release's dot on it. */
+.rel::before { content: ''; position: absolute; left: 7px; top: 14px; bottom: -14px; width: 2px; background: #e4e4e7; }
+.rel:last-child::before { display: none; }
+.rel::after { content: ''; position: absolute; left: 0; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid #d4d4d8; }
+.rel:first-child::after { background: var(--orange); border-color: var(--orange); box-shadow: 0 0 0 4px #ea580c26; }
+.rel:target::after { border-color: var(--orange); }
+.rel header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.pill { font: 700 14px ui-monospace, monospace; color: var(--ink); background: #fff; border: 1px solid #d4d4d8; border-radius: 999px; padding: 3px 12px; text-decoration: none; }
+.rel:first-child .pill { color: #fff; background: var(--orange); border-color: var(--orange); }
+.latest { font: 650 12px system-ui, sans-serif; color: #9a3412; background: #ffedd5; border-radius: 999px; padding: 2px 9px; }
+time { font-size: 14px; color: var(--muted); }
+.rel ul { margin: 0; padding: 14px 18px 14px 34px; background: #fff; border: 1px solid var(--line); border-radius: 14px; font-size: 15px; line-height: 1.55; color: #27272a; }
+.rel li { margin: 6px 0; } .rel li::marker { color: #a1a1aa; }
+.rel code { font: 13px ui-monospace, monospace; background: #f4f4f5; border-radius: 4px; padding: 1px 5px; }
+footer { padding: 30px 0 60px; }
+@media (max-width: 560px) { .rel { padding-left: 26px; } .rel ul { padding: 12px 14px 12px 28px; font-size: 14.5px; } }

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YourApp pricing</title>
+<meta name="robots" content="noindex"> <!-- a made-up page for the install page's demo frame, not a page to find -->
+<link rel="icon" href="data:,"> <!-- the made-up app has no icon; this stops a /favicon.ico request when it is opened on its own -->
+<!-- The playground's made-up site. It is its own page, shown in a frame, so the tool runs on it and not on the install page. -->
+<style>
+  * { box-sizing: border-box; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+  ::selection { background: #c2410c; color: #fff; } /* the site's orange, as on its other pages */
+  [hidden] { display: none !important; } /* the http note sets display: flex, which would otherwise beat hidden */
+  /* Thin scrollbars in this page's slate colours, like the rest of the site's. */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; } ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+  html, body { height: 100%; }
+  body { margin: 0; font: 15px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0f172a; background: linear-gradient(180deg, #f8fafc, #eef2ff);
+         display: flex; flex-direction: column; }
+  nav { display: flex; align-items: center; gap: 18px; padding: 12px 22px; font-size: 14px; color: #475569; border-bottom: 1px solid #e2e8f0; background: #ffffffb3; }
+  nav b { color: #1e1b4b; font-size: 16px; margin-right: auto; }
+  nav a { color: inherit; text-decoration: none; } nav a.on { color: #4f46e5; font-weight: 600; }
+  /* A hover menu that closes when the pointer leaves: what Freeze is for. */
+  .menu { position: relative; }
+  .menu ul { display: none; position: absolute; left: -12px; top: 100%; z-index: 2; min-width: 160px; margin: 0; padding: 6px; list-style: none; font-size: 13.5px;
+             background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 10px 24px #0f172a1f; }
+  .menu:hover ul, .menu:focus-within ul { display: block; }
+  .menu li { margin: 0; padding: 6px 10px; border-radius: 6px; } .menu li:hover { background: #eef2ff; color: #4f46e5; }
+  main { flex: 1; display: grid; place-content: center; padding: 22px 22px 28px; text-align: center; }
+  h1 { margin: 0; font: 800 28px/1.15 system-ui, sans-serif; letter-spacing: -.02em; color: #1e1b4b; }
+  .sub { margin: 6px 0 22px; color: #475569; }
+  /* Three plans, so Select several (B) has more than one thing to pick. */
+  .plans { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: stretch; }
+  .plan { position: relative; width: 200px; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px 18px 16px; text-align: left;
+          display: flex; flex-direction: column; }
+  .plan.pro { border: 2px solid #6366f1; box-shadow: 0 12px 30px #6366f122; }
+  .badge { position: absolute; top: -12px; left: 16px; font: 700 11px system-ui, sans-serif; color: #fff; background: #6366f1; border-radius: 999px; padding: 3px 10px; }
+  .name { font-size: 17px; }
+  .price { margin: 6px 0 10px; font: 800 32px/1 system-ui, sans-serif; letter-spacing: -.03em; }
+  .price span { font: 500 15px system-ui, sans-serif; color: #64748b; letter-spacing: 0; }
+  ul { margin: 0 0 16px; flex: 1; padding-left: 18px; font-size: 14.5px; color: #334155; } li { margin: 4px 0; }
+  .chat { width: 100%; max-width: 460px; margin: 22px auto 0; text-align: left; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 10px 12px 12px;
+          box-shadow: 0 6px 18px #0f172a0d; }
+  .chat-h { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin: 0 0 6px; font-size: 13px; color: #64748b; }
+  .chat-h b { color: #1e1b4b; font-size: 14px; }
+  .msg { min-height: 64px; max-height: 150px; overflow: auto; border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px 10px; font-size: 13.5px; outline: none; }
+  .msg:focus { border-color: #6366f1; box-shadow: 0 0 0 3px #6366f126; }
+  .msg:empty::before { content: 'Paste here: Ctrl+V or \2318 V'; color: #94a3b8; }
+  .msg h3 { margin: 6px 0 2px; font-size: 15px; } .msg p { margin: 3px 0; } .msg img { max-width: 100%; height: auto; border-radius: 6px; }
+  .hint { margin: 6px 0 0; font-size: 12px; color: #64748b; }
+  kbd { font: 600 11px ui-monospace, monospace; border: 1px solid #cbd5e1; border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; background: #f8fafc; }
+  /* Only on a plain-http address: the bookmark cannot take pictures there, so only text can paste. */
+  .pics { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0 0; padding: 7px 10px; border-radius: 8px; font-size: 12.5px; line-height: 1.4; color: #92400e;
+          background: #fffbeb; border: 1px solid #fde68a; }
+  .pics svg { width: 15px; height: 15px; flex: none; margin-top: 1px; }
+  .plan button { width: 100%; font: 650 14px system-ui, sans-serif; color: #4f46e5; background: #eef2ff; border: 0; border-radius: 10px; padding: 10px; cursor: pointer; }
+  .plan.pro button { color: #fff; background: #4f46e5; }
+</style>
+<nav><b>YourApp</b><span class="menu"><a href="#">Features ▾</a><ul><li>Dashboards</li><li>Automations</li><li>Integrations</li></ul></span><a class="on" href="#">Pricing</a><a href="#">Log in</a></nav>
+<main>
+  <h1>Simple pricing</h1>
+  <p class="sub">Start free. Upgrade when you grow.</p>
+  <div class="plans">
+    <div class="plan">
+      <b class="name">Free</b>
+      <p class="price">$0<span> / month</span></p>
+      <ul><li>3 projects</li><li>1 GB storage</li></ul>
+      <button type="button">Start free</button>
+    </div>
+    <div class="plan pro">
+      <span class="badge">Most popular</span>
+      <b class="name">Pro</b>
+      <p class="price">$29<span> / month</span></p>
+      <ul><li>Unlimited projects</li><li>50 GB storage</li><li>Priority support</li></ul>
+      <button type="button">Start 14-day trial</button>
+    </div>
+    <div class="plan">
+      <b class="name">Team</b>
+      <p class="price">$79<span> / month</span></p>
+      <ul><li>Everything in Pro</li><li>5 seats</li><li>Shared billing</li></ul>
+      <button type="button">Talk to us</button>
+    </div>
+  </div>
+  <!-- A chat composer stands for wherever a teammate pastes. The tool runs on this page, so a click here while commenting
+       starts a comment: Esc, until the round button turns orange, switches the tool to browsing first. -->
+  <section class="chat">
+    <p class="chat-h"><b>Message your team</b><span>#design</span></p>
+    <div class="msg" contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" aria-label="Message your team"></div>
+    <p class="hint">After pressing <kbd>C</kbd>, press <kbd>Esc</kbd> until the round button turns orange, then click here and paste.</p>
+    <p class="pics" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span>Pictures and Freeze work on the real (https) site; this test address only allows text.</span></p>
+  </section>
+</main>
+<script>
+  // Browsers let a page capture the screen only on https or localhost; on a plain-http test address the tool copies text only.
+  document.querySelector('.pics').hidden = isSecureContext;
+</script>
+</html>

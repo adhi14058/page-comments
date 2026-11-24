@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page Comments — comment on any web page, hand it to Claude Code</title>
+<meta name="description" content="Point at anything on any web page and say what should change: numbered pins, screenshots and element details. Hand it to Claude Code, Slack, Jira or a teammate. Free bookmarklet, no account.">
+<link rel="canonical" href="{{home}}">
+<meta name="theme-color" content="#18181b">
+<script src="theme.js"></script>
+<!-- favicon.ico for browsers and tools without SVG icons; sizes="32x32" lets the others pick the SVG. -->
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<!-- The link preview in Slack, X, LinkedIn, chat apps. The picture has no version in it, so it never goes stale. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Page Comments">
+<meta property="og:title" content="Page Comments: point at any web page, say what should change">
+<meta property="og:description" content="Numbered pins, screenshots and element details on any website. Hand them to Claude Code, Slack, Jira or a teammate. Free and open source, no account.">
+<meta property="og:url" content="{{home}}">
+<meta property="og:image" content="{{home}}img/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Page Comments on a pricing page: numbered comment pins, the round button and its keys, beside the words: point at anything on a web page and say what should change.">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", "@id": "{{home}}#website", "name": "Page Comments", "url": "{{home}}", "inLanguage": "en",
+      "description": "Point at anything on any web page and say what should change, then hand it to Claude Code, Slack, Jira or a teammate." },
+    { "@type": "SoftwareApplication", "@id": "{{home}}#app", "name": "Page Comments", "url": "{{home}}",
+      "description": "A visual feedback tool for any website: point at anything on a page, comment with numbered pins, screenshots and element details (size, colours, font, selector), and hand it to Claude Code, Slack, Jira or a teammate. Runs as a bookmarklet or a browser extension; nothing leaves the browser unless you copy, share or send it.",
+      "applicationCategory": "DeveloperApplication", "operatingSystem": "Chrome, Firefox, any browser with a bookmarks bar",
+      "softwareVersion": "{{version}}", "releaseNotes": "{{home}}changelog.html", "downloadUrl": "{{home}}",
+      "image": "{{home}}img/og.png", "screenshot": "{{home}}img/clip-share-poster.png",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }, "isAccessibleForFree": true,
+      "license": "https://opensource.org/licenses/MIT",
+      "author": { "@type": "Person", "name": "Adhi Narayan B", "url": "https://github.com/adhi14058" },
+      "sameAs": ["https://github.com/adhi14058/page-comments"] },
+    { "@type": "SoftwareSourceCode", "name": "page-comments", "codeRepository": "https://github.com/adhi14058/page-comments",
+      "programmingLanguage": "JavaScript", "license": "https://opensource.org/licenses/MIT", "targetProduct": { "@id": "{{home}}#app" } }
+  ]
+}
+</script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="index.css">
+
+<!-- The bar's bookmark gets the hero bookmark's link when the page loads (index.js), so the page carries it once. -->
+<nav class="bnav" aria-label="Site">
+  <div class="bnav-in">
+    <a class="bnav-brand" href="#top"><img src="img/icon.svg" alt="">Page Comments</a>
+    <a class="ver bnav-ver" href="changelog.html" title="What's new">{{version}}</a>
+    <button class="bnav-menu" type="button" aria-expanded="false" aria-controls="bnav-links"><span class="bnav-now">Sections</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <div class="bnav-links" id="bnav-links"><a href="#story">How it works</a><a href="#play">Try it</a><a href="#ref">Reference</a></div>
+    <div class="bnav-act">
+      <span class="bnav-hint" data-for="bookmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 20V4M5 11l7-7 7 7"/></svg>Drag it to your bookmarks bar</span>
+      <a class="bookmark bnav-chip" data-for="bookmark"><svg class="pci" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8l-5 4v-4H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7.4 5.2L12.16 17.44L13.86 12.51L18.79 10.81Z"/></svg>Page comments</a>
+      <button class="copybig bnav-copy" type="button" data-from=".bmwrap .bookmark" data-for="copy" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>Copy: updates itself</button>
+      <a class="bnav-get ext" href="#top" data-for="extension" hidden>Get the extension<span class="soon2">soon</span></a>
+    </div>
+    <a class="bnav-gh" href="https://github.com/adhi14058/page-comments" aria-label="Page Comments on GitHub" title="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg></a>
+    <span class="bnav-theme-slot" aria-hidden="true"></span>
+  </div>
+</nav>
+
+<header class="hero" id="top" data-way="bookmark">
+  <div class="drop"><p class="msg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 20V4M5 11l7-7 7 7"/></svg><span>Your bookmarks bar is right above this line</span><small class="kb">No bar? Press <kbd class="mod">Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd></small></p><b class="landed" aria-hidden="true"><svg class="pci" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8l-5 4v-4H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7.4 5.2L12.16 17.44L13.86 12.51L18.79 10.81Z"/></svg>Page comments</b></div>
+  <div class="hero-grid">
+    <div class="intro">
+      <p class="eyebrow"><img src="img/icon.svg" alt="">Free and open source</p>
+      <h1>Page Comments</h1>
+      <p class="tagline">Point at anything on a web page and say what should change. Hand it to a teammate, Slack, Jira or Claude Code.</p>
+      <ul class="pts">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Pins that stay</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Pictures</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>Share links</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>No account</li>
+      </ul>
+      <!-- The product at a glance: the poster rests; hover, focus or a tap plays the clip. -->
+      <figure class="mini" tabindex="0" aria-label="A short clip of the tool: point at a price, comment, a numbered pin stays">
+        <div class="mini-bar"><i></i><i></i><i></i><span>yourapp.com/pricing</span></div>
+        <img src="img/demo-poster.png" data-clip="img/demo.gif" alt="" width="1020" height="510">
+        <span class="mini-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5l11 7-11 7z"/></svg>Hover to play</span>
+      </figure>
+    </div>
+    <div class="install">
+    <p class="ask" id="ask">How do you want to add it?</p>
+    <div class="ways" role="radiogroup" aria-labelledby="ask">
+      <button role="radio" data-way="extension" aria-checked="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M9 3h6v3a2 2 0 1 0 4 0h2v6h-3a2 2 0 1 0 0 4h3v5H3V10h3a2 2 0 1 0 0-4H3V3h6z"/></svg>Extension<small>Chrome, Firefox</small></button>
+      <button role="radio" data-way="bookmark" aria-checked="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Bookmark<small>Drag it to the bar</small></button>
+      <button role="radio" data-way="copy" aria-checked="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>Copy &amp; paste<small>Paste it as a bookmark</small></button>
+    </div>
+    <p class="who" aria-live="polite"></p>
+      <h2 class="act">Drag this up.</h2>
+    <div class="pane" data-pane="extension" hidden>
+      <div class="stores">
+        <button data-store="chrome" class="store"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 3h6v3a2 2 0 1 0 4 0h2v6h-3a2 2 0 1 0 0 4h3v5H3V10h3a2 2 0 1 0 0-4H3V3h6z"/></svg>Add to Chrome<span class="soon">coming soon</span></button>
+        <button data-store="firefox" class="store"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 3h6v3a2 2 0 1 0 4 0h2v6h-3a2 2 0 1 0 0 4h3v5H3V10h3a2 2 0 1 0 0-4H3V3h6z"/></svg>Add to Firefox<span class="soon">coming soon</span></button>
+      </div>
+      <p class="not-yet" hidden>Not in the stores yet. <button data-go="bookmark">Take the bookmark for now.</button></p>
+      <p class="why">Sharpest pictures. Pins come back after a reload, on sites you allow. The newest version, even on strict sites.</p>
+    </div>
+
+    <div class="pane" data-pane="bookmark">
+      <span class="bmwrap">
+        <a class="bookmark" href='{{bookmark}}'><svg class="pci" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8l-5 4v-4H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7.4 5.2L12.16 17.44L13.86 12.51L18.79 10.81Z"/></svg>Page comments</a></span>
+      <p class="then">Then click it on any page. It updates itself. <a class="ver" href="changelog.html">Bookmark {{version}}</a></p>
+      <div class="alt">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/></svg>
+        <p><b>Workplace blocks outside scripts?</b><span>Drag this one instead. It never fetches code from the internet, so it never updates itself.</span></p>
+        <a class="bookmark fixed" href='{{bookmarkFixed}}'><svg class="pci" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8l-5 4v-4H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7.4 5.2L12.16 17.44L13.86 12.51L18.79 10.81Z"/></svg>Page comments (fixed)</a>
+      </div>
+    </div>
+
+    <div class="pane" data-pane="copy" hidden>
+      <!-- Each button says on hover or focus how its bookmark gets its code. Both tips open above their button (index.js
+           turns one below where above would cover the other button or leave the screen). -->
+      <div class="copyrow">
+      <span class="tipwrap up"><button class="copybig" aria-describedby="tip-auto" data-from=".bmwrap .bookmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>Copy: updates itself</button><span class="tip" role="tooltip" id="tip-auto"><b>Updates itself.</b> Each click loads the newest code from <code>{{siteHost}}</code>. Where a site blocks that, it runs the copy kept inside the bookmark.</span></span>
+      <span class="tipwrap up"><button class="copybig fixed" aria-describedby="tip-fixed" data-from=".bookmark.fixed" data-done="Copied. Paste it."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/></svg>Copy: fixed version</button><span class="tip" role="tooltip" id="tip-fixed"><b>Never updates.</b> Everything it runs is inside the bookmark itself: it never fetches code from the internet. For workplaces that block outside scripts.</span></span>
+      </div>
+      <div class="cp-anim" aria-hidden="true">
+        <div class="cp-win">
+          <div class="cp-tool"><i></i><i></i><i></i><span>yourapp.com/pricing</span></div>
+          <div class="cp-bar"><span>📁 Docs</span><span>📁 Mail</span><span class="cp-new"><svg class="pci" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8l-5 4v-4H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7.4 5.2L12.16 17.44L13.86 12.51L18.79 10.81Z"/></svg>Page comments</span></div>
+          <div class="cp-page"><i></i><i></i><i></i></div>
+        </div>
+        <ul class="cp-menu"><li>Add page…</li><li>Add folder…</li><li>Show bookmarks bar</li></ul>
+        <div class="cp-dlg"><b>Add bookmark</b>
+          <label>Name <span class="cp-field cp-name"><span>Page comments</span></span></label>
+          <label>URL <span class="cp-field cp-url"><span>javascript:(()=&gt;{const s=document.createElement('script')…</span></span></label>
+          <span class="cp-btns"><span>Cancel</span><span class="cp-save">Save</span></span>
+          <span class="cp-keys"><span class="mod">Ctrl</span> + V</span></div>
+        <span class="cp-click"></span>
+        <svg class="cp-ptr" viewBox="0 0 24 24"><path d="M4 2l15 11-6.5 1 3.8 7.2-2.6 1.3-3.8-7.2L5 20z"/></svg>
+      </div>
+      <ol class="csteps">
+        <li><span>Right-click the bookmarks bar. Choose <b>Add page…</b> <i>(Firefox: Add Bookmark…)</i></span></li>
+        <li><span>Name it <b>Page comments</b>.</span></li>
+        <li><span>Paste into <b>URL</b>. Save.</span></li>
+      </ol>
+      <p class="gh">Can't open this page at work? Copy <a href="https://github.com/adhi14058/page-comments/blob/main/bookmarklet.txt">bookmarklet.txt</a> from GitHub.</p>
+    </div>
+
+    <!-- The questions a browser may ask, for each way, have a section of their own further down. -->
+    <div class="updline" data-for="bookmark copy" hidden>
+      <span class="upd-main"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8l-5 4v-4H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg><i></i></span>
+      <span><b>Green dot on the round button?</b> A newer version is out. Open <b>⋯</b>, click the green line, then add the new bookmark. <a href="changelog.html">What's new</a></span>
+    </div>
+    <p class="phone only-phone">On a phone? Open this page on a computer to add it.</p>
+    </div>
+  </div>
+</header>
+
+<section id="story">
+  <div class="wrap shead"><div><h2>How it works</h2><p class="lead" style="margin:0">Swipe, or use the arrows.</p></div>
+    <div class="arws"><button class="arw" data-dir="-1" aria-label="Previous step">‹</button><button class="arw" data-dir="1" aria-label="Next step">›</button></div></div>
+  <div class="row" tabindex="0" aria-label="Steps">
+<article class="scard"><div class="m clipv has-img"><img src="img/hover.webp" alt="A pricing page with the tool open: the label on the Start 14-day trial button reads button.btn, 244 × 42, its font and its colour #4f46e5" loading="lazy"></div><div class="t"><h3><small>1</small>Point</h3><p>Hover anything. Its tag, size and colour show up. <kbd>D</kbd> adds more.</p></div></article>
+      <article class="scard"><div class="m clipv has-img"><img src="img/demo-poster.png" data-clip="img/demo.gif" alt="A short clip: hovering a pricing page shows each part&#39;s tag and size, then a comment on the price, Make the price bigger, is saved as pin 3" loading="lazy"></div><div class="t"><h3><small>2</small>Comment</h3><p>Click it, type, press <kbd>Enter</kbd>. A numbered pin stays.</p></div></article>
+      <article class="scard"><div class="m clipv has-img"><img src="img/clip-several-poster.png" data-clip="img/clip-several.gif" alt="A short clip: three plan cards picked with B get one comment, Add a yearly price to each plan" loading="lazy"></div><div class="t"><h3><small>3</small>Select several, or an area</h3><p><kbd>B</kbd> picks several things for one comment. <kbd>A</kbd> drags an area.</p></div></article>
+      <article class="scard"><div class="m clipv has-img"><img src="img/clip-freeze-poster.png" data-clip="img/clip-freeze.gif" alt="A short clip: the Product menu is opened, F freezes the page, and the menu item Offline sync gets a comment" loading="lazy"></div><div class="t"><h3><small>4</small>Freeze</h3><p>Hover menus vanish. <kbd>F</kbd> keeps them still.</p></div></article>
+      <article class="scard"><div class="m clipv has-img"><img src="img/list.webp" alt="The comments list on a pricing page: three numbered comments, with Copy text, Copy pictures and Save pictures" loading="lazy"></div><div class="t"><h3><small>5</small>The comments list</h3><p><kbd>L</kbd> shows every comment on this page.</p></div></article>
+      <article class="scard"><div class="m clipv has-img contain"><img src="img/handover.svg" alt="Your comments go three ways: copied to Slack, Jira, Google Docs or email; a share link to a teammate; sent to Claude Code on a local page" loading="lazy"></div><div class="t"><h3><small>6</small>Hand it on</h3><p><kbd>C</kbd> copies text and pictures. Paste into Claude Code, Slack, Jira or email.</p></div></article>
+      <article class="scard"><div class="m clipv has-img"><img src="img/clip-share-poster.png" data-clip="img/clip-share.gif" alt="A short clip: a share link opens Sam&#39;s comments in Jo&#39;s browser, pinned on the same page" loading="lazy"></div><div class="t"><h3><small>7</small>Share link</h3><p><kbd>S</kbd> copies a link. Whoever opens it and starts the tool sees your comments, with your name.</p></div></article>
+      <article class="scard"><div class="m clipv has-img"><img src="img/clip-send-poster.png" data-clip="img/clip-send.gif" alt="A short clip: Send to Claude on a local page; Claude Code edits the source and the page reloads with the bigger price" loading="lazy"></div><div class="t"><h3><small>8</small>Send to Claude <span class="tag">only on local pages</span></h3><p>On your own dev app, Claude Code edits the source.</p></div></article>
+  </div>
+  <div class="dots" aria-label="Steps"></div>
+</section>
+
+<section class="play" id="play" aria-labelledby="play-h">
+  <div class="play-head"><h2 id="play-h">Try it right here</h2><p>The real tool, on a made-up page. Small pop-ups show you each step.</p></div>
+  <div class="play-left">
+    <div class="coach-start">
+      <div class="coach-card"><b>Six steps, about a minute</b><p>Point, comment, select several, select an area, freeze, copy.</p>
+        <button class="start" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg><span>Start the tool</span></button></div>
+    </div>
+    <!-- The pop-ups come before the demo, so Shift+Tab from the demo reaches Skip and Back at once. -->
+    <div class="coach" role="dialog" aria-labelledby="coach-t" hidden>
+      <div class="coach-top"><span class="coach-pill"></span><b class="coach-t" id="coach-t"></b></div>
+      <p class="coach-x"></p>
+      <div class="coach-nav"><button type="button" class="coach-back">Back</button><button type="button" class="coach-skip">Skip</button></div>
+      <i class="coach-arrow" aria-hidden="true"></i>
+    </div>
+    <div class="coach-done" hidden>
+      <div class="coach-card"><b>That's the whole idea.</b><p>Press <kbd>Esc</kbd> until the round button turns orange, then click the message box and paste: that is what your team or Claude Code gets.</p>
+        <div class="row2"><a href="#top">Add it to your browser</a><button type="button" class="again">Do it again</button></div></div>
+    </div>
+    <p class="coach-live vh" aria-live="polite"></p>
+    <div class="app" id="app">
+      <div class="app-bar"><i></i><i></i><i></i><span>yourapp.com/pricing</span></div>
+      <iframe class="app-frame" data-src="playground.html" title="A made-up pricing page to try the tool on"></iframe>
+    </div>
+  </div>
+  <!-- Phones and touch screens: the demo needs a keyboard and room for the tool's bars, so clips of the same steps instead. -->
+  <div class="play-phone">
+    <p class="phone-note">The live demo needs a keyboard. Open this page on a computer to try it. Here is what it looks like:</p>
+    <article class="scard"><div class="m clipv has-img"><img src="img/demo-poster.png" data-clip="img/demo.gif" alt="A short clip: hovering a pricing page shows each part&#39;s tag and size, then a comment on the price, Make the price bigger, is saved as pin 3" loading="lazy"></div><div class="t"><h3>Point and comment</h3><p>Hover anything, click it, type, press <kbd>Enter</kbd>. A numbered pin stays.</p></div></article>
+    <article class="scard"><div class="m clipv has-img"><img src="img/clip-several-poster.png" data-clip="img/clip-several.gif" alt="A short clip: three plan cards picked with B get one comment, Add a yearly price to each plan" loading="lazy"></div><div class="t"><h3>Select several, or an area</h3><p><kbd>B</kbd> picks several things for one comment. <kbd>A</kbd> drags an area.</p></div></article>
+    <article class="scard"><div class="m clipv has-img"><img src="img/clip-freeze-poster.png" data-clip="img/clip-freeze.gif" alt="A short clip: the Product menu is opened, F freezes the page, and the menu item Offline sync gets a comment" loading="lazy"></div><div class="t"><h3>Freeze</h3><p>Hover menus vanish. <kbd>F</kbd> keeps them still, so you can comment on them.</p></div></article>
+    <article class="scard"><div class="m clipv has-img contain"><img src="img/handover.svg" alt="Your comments go three ways: copied to Slack, Jira, Google Docs or email; a share link to a teammate; sent to Claude Code on a local page" loading="lazy"></div><div class="t"><h3>Copy</h3><p><kbd>C</kbd> copies text and pictures. Paste into Claude Code, Slack, Jira or email.</p></div></article>
+  </div>
+</section>
+<main class="wrap">
+  <section class="band" id="ref">
+    <h2>Reference</h2>
+    <p class="lead">For later.</p>
+    <div class="ref">
+      <div class="card kcard"><h3>Keyboard shortcuts</h3><p>While commenting. Press one: its row lights up.</p>
+        <div class="kgrid"><div><section class="kg"><h4>Point</h4><div class="krow" data-k="↑ ↓"><span><kbd>↑</kbd> / <kbd>↓</kbd></span><span>parent / inner element</span></div><div class="krow" data-k="Enter"><span><kbd>Enter</kbd></span><span>comment on it</span></div><div class="krow" data-k="D"><span><kbd>D</kbd></span><span>details: colours, font, spacing</span></div><div class="krow" data-k="F"><span><kbd>F</kbd></span><span>freeze menus and tooltips</span></div></section><section class="kg"><h4>Select</h4><div class="krow" data-k="B"><span><kbd>B</kbd></span><span>select several, one comment</span></div><div class="krow" data-k="Shift"><span><kbd>Shift+click</kbd></span><span>select several, from this one</span></div><div class="krow" data-k="A"><span><kbd>A</kbd></span><span>drag an area</span></div></section></div><div><section class="kg"><h4>Act</h4><div class="krow" data-k="C"><span><kbd>C</kbd></span><span>copy all comments</span></div><div class="krow" data-k="S"><span><kbd>S</kbd></span><span>share link (Shift+S: your name)</span></div><div class="krow" data-k="L"><span><kbd>L</kbd></span><span>comments list</span></div></section><section class="kg"><h4>Modes</h4><div class="krow" data-k="Esc"><span><kbd>Esc</kbd></span><span>back out</span></div><div class="krow" data-k="Alt+Shift+C"><span><kbd>Alt+Shift+C</kbd></span><span>comment / browse, in any mode</span></div><div class="krow" data-k="Alt+Shift+F"><span><kbd>Alt+Shift+F</kbd></span><span>freeze, in any mode</span></div></section></div></div>
+        <p class="krow ktip" data-k="?">Forgot one? Press <kbd>?</kbd> while commenting: the tool shows this list on the page.</p></div>
+    <div class="card send" id="send">
+      <div class="send-intro"><h3>Send to Claude <span class="tag">only on local pages</span></h3>
+        <p>A small server on your computer hands your comments and pictures to Claude Code, which edits your app's source. Needs Node 18+ and Claude Code (the <code>claude</code> command).</p></div>
+      <ol class="srv">
+        <li>
+          <div class="srv-head"><span class="n">1</span><b>Save the server</b><span class="what">Paste this into a terminal (bash or zsh). Paste it again when Page Comments updates.</span></div>
+          <div class="srv-code"><div class="bar"><i></i><i></i><i></i><span>~/page-comments-server.js</span><button class="copy2" data-copy="srv-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span>Copy</span></button></div>
+            <pre><code id="srv-text">{{serverCode}}</code></pre><button class="more">Show all {{serverLines}} lines</button></div>
+        </li>
+        <li>
+          <div class="srv-head"><span class="n">2</span><b>Start it in your project</b>
+            <button class="copy2 right" data-copy="start-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span>Copy</span></button></div>
+          <div class="cmd"><code id="start-text">node ~/page-comments-server.js <span class="arg">~/projects/my-app</span></code></div>
+          <p class="srv-hint">Change the path to the folder of the app you're commenting on.</p>
+        </li>
+      </ol>
+      <p class="safe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>The server refuses every other site, so no website can make Claude edit your code.</p>
+    </div>
+    </div>
+      <div class="card know"><h3>Good to know</h3><ul>
+        <li>The round button is blue while you comment and orange while you browse. Click it to switch, drag it to move. The small × beside it closes the tool.</li>
+        <li>A bookmark does not run by itself after a reload. Click it again: your comments come back.</li>
+        <li>Comments live in the site's own storage. Clearing its data deletes them.</li>
+        <li>If an element is gone, its pin hides. The comment stays in the list.</li>
+        <li>Frames from the same site work too: comment on what they show.</li></ul></div>
+  </section>
+</main>
+<footer class="foot">
+  <div class="foot-in">
+    <div class="foot-brand">
+      <a class="foot-name" href="#top"><img src="img/icon.svg" alt="" width="30" height="30">Page Comments</a>
+      <p>Point at anything on a web page and say what should change.</p>
+    </div>
+    <nav class="foot-cols" aria-label="Footer">
+      <div><h4>Get it</h4><a href="#top" data-go="bookmark">Bookmark</a><a href="#top" data-go="copy">Copy &amp; paste</a><a href="#top" data-go="extension">Extension <span class="soon2">soon</span></a></div>
+      <div><h4>Docs</h4><a href="https://github.com/adhi14058/page-comments/blob/main/docs/GUIDE.md">Guide</a><a href="changelog.html">Changelog</a><a href="https://github.com/adhi14058/page-comments">GitHub</a></div>
+      <div><h4>Version</h4><a class="ver" href="changelog.html">Bookmark {{version}}</a><a class="ver" href="changelog.html">Extension {{extVersion}}</a><span class="foot-note">The bookmark updates itself.</span></div>
+    </nav>
+  </div>
+  <div class="foot-bottom"><a href="https://github.com/adhi14058/page-comments/blob/main/LICENSE">MIT license</a><span>Made by <a href="https://heyadhi.com">heyadhi</a></span></div>
+</footer>
+<a class="goup" href="#top" aria-label="Back to the top" title="Back to the top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></a>
+<script src="nav.js"></script>
+<script src="index.js"></script>
+<script src="play.js"></script>
+</html>

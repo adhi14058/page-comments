@@ -1,0 +1,405 @@
+/* The theme switch, top right under the bookmarks-bar line. */
+.theme-btn { position: fixed; top: 58px; right: 16px; z-index: 40; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+             background: #27272a; color: #fafafa; border: 1px solid #3f3f46; box-shadow: 0 6px 18px #0004; }
+.theme-btn:hover { border-color: var(--orange); color: #fdba74; }
+.theme-btn svg { width: 18px; height: 18px; }
+
+/* One set of surfaces for both themes, darkest to lightest in dark mode:
+   page < band (How it works, footer) < hero < card. The hero is a dark band in both themes; in dark mode the page
+   under it is darker still, and the glow and the border keep the hero apart from it. */
+:root { --page: #fafaf9; --band: #f3f2f0; --band-line: #e7e5e4; --card: #fff; --card-sunk: #f4f4f5; --text: #18181b; --text-2: #3f3f46;
+        --hero: #18181b; --glow: #ea580c26; --lift: 0 1px 2px #0000000a, 0 14px 34px -18px #00000033; }
+html.dark { color-scheme: dark;
+            --page: #0b0b0e; --band: #131317; --band-line: #24242a; --card: #1c1c21; --card-sunk: #141418; --text: #f4f4f5; --text-2: #d4d4d8;
+            --muted: #a1a1aa; --line: #2c2c33; --sb: #3f3f46; --sb-hover: #52525b;
+            --hero: #19191e; --glow: #ea580c33; --lift: inset 0 1px 0 #ffffff0d, 0 1px 2px #0008, 0 18px 40px -18px #000; }
+
+/* Dark: the parts that are not plain surfaces or text. */
+html.dark .hero { border-bottom: 1px solid #ffffff14; }
+html.dark h2, html.dark .scard h3, html.dark .card h3, html.dark .srv-head b { color: var(--text); }
+html.dark kbd { background: #27272a; color: #e4e4e7; border-color: #52525b; }
+/* Links in running text only: buttons, pills and brand links keep their own colours. */
+html.dark .card a, html.dark .rel ul a, html.dark body > footer:not(.foot) a:not(.ver) { color: #60a5fa; }
+html.dark .hero .updline a { color: #86efac; }
+html.dark .hero .gh a { color: #fdba74; }
+html.dark .ver { background: #ea580c22; border-color: #ea580c66; color: #fdba74; }
+html.dark .scard .m.contain img { background: #fafafa; }
+html.dark .arw { border-color: #3f3f46; }
+html.dark .copy2 { border-color: #3f3f46; }
+html.dark .copy2:hover { color: #fdba74; }
+html.dark .copy2.done { background: #14532d; border-color: #166534; color: #bbf7d0; }
+html.dark .srv-head .n { background: #ea580c26; }
+html.dark .srv-code, html.dark .srv .cmd { border-color: #2c2c33; background: #111114; }
+html.dark .srv-code::after { background: linear-gradient(transparent, #111114 75%); }
+html.dark .scard .tag, html.dark .card h3 .tag { color: #fca5a5; background: #450a0a; border-color: #7f1d1d; }
+html.dark .kg h4 { color: #fdba74; }
+/* The playground's app stands for someone's light website, so it stays light. In dark mode it sits in a dark browser
+   window, dimmed a little, so it reads as a framed screen instead of a white glare. */
+html.dark .app { background: #232329; padding: 0 8px 8px; box-shadow: 0 0 0 1px #34343c, 0 24px 60px -20px #000; }
+html.dark .app-bar { background: transparent; border-bottom: 0; padding: 10px 6px; }
+html.dark .app-bar i { background: #4a4a52; }
+html.dark .app-bar span { background: #16161a; color: #a1a1aa; }
+html.dark .app-frame { border-radius: 11px; filter: brightness(.9); }
+/* Footer. */
+html.dark .foot a:not(.ver) { color: #a1a1aa; } html.dark .foot a:not(.ver):hover { color: #fdba74; }
+/* Changelog page. */
+html.dark .rel ul { background: var(--card); border-color: var(--line); color: var(--text-2); }
+html.dark .rel::before { background: var(--line); }
+html.dark .rel:not(:first-child)::after { background: var(--page); border-color: #52525b; }
+html.dark .pill { background: var(--card); color: #e4e4e7; border-color: #3f3f46; }
+html.dark .rel code { background: #27272a; }
+html.dark .latest { color: #fed7aa; background: #7c2d1255; }
+html.dark time { color: var(--muted); }
+/* Parts both pages share: the bookmarks, keys, commands and the update note. The theme tokens at the top set the colours. */
+:root { --orange: #ea580c; --blue: #2563eb; --green: #16a34a; --ink: #18181b; --muted: #52525b; --line: #e4e4e7; --sb: #d4d4d8; --sb-hover: #a1a1aa; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+* { scrollbar-width: thin; scrollbar-color: var(--sb) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--sb); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--sb-hover); }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+img { max-width: 100%; height: auto; display: block; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+/* Selected text in the site's orange. The darker shade keeps white text readable (about 5:1), in both themes. */
+::selection { background: #c2410c; color: #fff; }
+kbd { font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; background: #fff; color: var(--ink); border: 1px solid #d4d4d8; border-bottom-width: 2px;
+      border-radius: 5px; padding: 3px 6px; white-space: nowrap; display: inline-block; }
+
+/* The bookmarks. Chrome names a dragged bookmark after the link text, so the grip comes from CSS. */
+.bookmark { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font: 650 16px/1 system-ui, sans-serif; text-decoration: none;
+            background: var(--orange); color: #fff; cursor: grab; box-shadow: 0 8px 22px #ea580c55; transition: transform .15s, box-shadow .15s; white-space: nowrap; }
+.bookmark::before { content: '⠿'; opacity: .7; letter-spacing: -2px; }
+.bookmark:hover { transform: translateY(-2px) rotate(-1deg); box-shadow: 0 12px 28px #ea580c77; }
+.bookmark:active { cursor: grabbing; }
+/* The project's icon (img/icon.svg) drawn inline, so each chip can colour it: an orange bubble with a white cursor on dark
+   chips; on a coloured chip the bubble turns white and the cursor takes the chip's colour. It carries no text, so a
+   dragged bookmark is named by its words alone. */
+.pci { width: 1.15em; height: 1.15em; flex: none; vertical-align: -.2em; }
+.pci path:first-child { fill: var(--pci-bubble, var(--orange)); } .pci path:last-child { fill: var(--pci-cursor, #fff); }
+.bookmark, .cp-new { --pci-bubble: #fff; --pci-cursor: var(--orange); }
+.hero .alt .bookmark.fixed { --pci-cursor: var(--blue); }
+.landed .pci, .cp-new .pci { margin-right: 5px; } /* these two are not flex rows, so no gap */
+.bookmark.fixed { background: #fff; color: var(--ink); border: 1px solid #d4d4d8; box-shadow: none; padding: 8px 14px; font-size: 14px; border-radius: 10px; }
+.bookmark.fixed:hover { box-shadow: 0 6px 16px #0001; }
+.ver { font: 600 12px ui-monospace, monospace; color: var(--orange); background: #fff7ed; border: 1px solid #fed7aa; border-radius: 999px; padding: 2px 8px; }
+
+/* The update note: the round button with its green dot, and the green line in its ⋯ list. */
+.upd-main { position: relative; flex: none; width: 36px; height: 36px; border-radius: 50%; background: #27272a; color: #fff; display: grid; place-items: center; }
+.upd-main svg { width: 18px; height: 18px; }
+.upd-main i { position: absolute; top: -2px; left: -2px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; background: var(--green); }
+
+/* A command on one line. */
+.cmd { display: flex; align-items: center; gap: 8px; background: #18181b; border-radius: 12px; padding: 8px 8px 8px 14px; }
+.cmd code { flex: 1; overflow-x: auto; white-space: nowrap; font: 13px ui-monospace, monospace; color: #fdba74; scrollbar-color: #3f3f46 transparent; }
+
+/* Keys: the tool's own list. A row lights while its key is pressed. */
+.krow { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: center; padding: 6px 8px; border-radius: 8px; font-size: 14px; }
+.krow.lit { animation: lit 1.2s ease-out; }
+@keyframes lit { 0%, 30% { background: #ea580c22; box-shadow: inset 0 0 0 1px var(--orange); } 100% { background: transparent; } }
+
+/* Phones have no bookmarks bar: say so instead of offering a drag that cannot work. */
+.only-phone { display: none; }
+@media (hover: none) and (pointer: coarse), (max-width: 560px) { .only-phone { display: block; } }
+@media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } html { scroll-behavior: auto; } }
+/* Page, hero, install panes, story cards, Reference cards and footer. */
+body { margin: 0; background: var(--page); color: var(--text); font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+a { color: var(--blue); }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+h2 { font: 800 clamp(28px, 4vw, 40px)/1.1 system-ui, sans-serif; letter-spacing: -.03em; margin: 0 0 8px; }
+.lead { color: var(--muted); margin: 0 0 26px; font-size: 17px; }
+section.band { padding: 96px 0 0; }
+
+/* Hero. The browser's own bars sit just above the page, so the page's top edge is the line to aim at. */
+/* A warm glow behind the install panel lifts the hero off the page in both themes. */
+.hero { background: radial-gradient(900px 520px at 78% 0%, var(--glow), transparent 70%), var(--hero); color: #fafafa; position: relative; padding-bottom: 120px; --sb: #3f3f46; }
+.drop { height: 46px; border-bottom: 2px dashed var(--orange); background: repeating-linear-gradient(90deg, #ea580c14 0 14px, transparent 14px 28px);
+        display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 12px; font: 600 14px system-ui, sans-serif; color: #fdba74; text-align: center; }
+/* The drop line flashes when the drag demo lands its ghost, not on its own clock. */
+.drop { position: relative; }
+.drop .msg { margin: 0; display: flex; align-items: center; gap: 10px; transition: opacity .3s; }
+.drop.hit.cover .msg { opacity: 0; } /* only where the chip would sit on the words */
+/* Bookmark way, two columns: the words keep to the left, so the slot above the button stays clear. */
+@media (min-width: 981px) { .hero[data-way=bookmark] .drop { justify-content: flex-start; padding-left: 28px; } }
+.drop.hit { animation: hit 1.8s ease-out; }
+@keyframes hit { 0% { background-color: #ea580c55; border-bottom-color: #fdba74; } 100% { background-color: transparent; } }
+.drop svg { width: 16px; height: 16px; flex: none; }
+.hero[data-way=extension] .drop { justify-content: flex-end; padding-right: 64px; }
+.brand { display: inline-flex; gap: 8px; align-items: center; font: 650 15px system-ui, sans-serif; color: #a1a1aa; }
+.brand img { width: 20px; }
+
+.hero h1 { font: 850 clamp(46px, 9vw, 92px)/.95 system-ui, sans-serif; letter-spacing: -.045em; margin: 26px 0 26px; }
+.pane { min-height: 190px; }
+.pane .then { margin: 22px 0 0; color: #d4d4d8; font-size: 17px; }
+.then .ver, .hero .ver { background: #ea580c22; border-color: #ea580c66; color: #fdba74; }
+.hero .bookmark.fixed { background: #27272a; color: #e4e4e7; border-color: #52525b; }
+.phone { color: #fdba74; font-size: 14px; margin: 16px 0 0; }
+
+/* Extension pane: the store buttons as they will look, marked as coming soon. */
+.stores { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.store { position: relative; display: inline-flex; align-items: center; gap: 10px; font: 650 17px system-ui, sans-serif; border-radius: 14px; padding: 14px 22px; cursor: pointer; border: 0; }
+.store.first { background: #fafafa; color: var(--ink); box-shadow: 0 10px 30px #0006; font-size: 18px; padding: 16px 26px; }
+.store.second { background: transparent; color: #e4e4e7; border: 1px solid #52525b; }
+.store svg { width: 22px; height: 22px; }
+.store .soon { position: absolute; top: -10px; right: -10px; font: 700 11px system-ui, sans-serif; background: var(--orange); color: #fff; border-radius: 999px; padding: 2px 8px; }
+.why { margin: 22px auto 0; color: #d4d4d8; font-size: 16px; max-width: 46ch; }
+.not-yet { margin: 14px 0 0; font-size: 14px; color: #fdba74; }
+.not-yet button { font: inherit; color: #fff; background: none; border: 0; text-decoration: underline; cursor: pointer; padding: 0; }
+
+/* Bookmark pane: the button to drag up to the bar. */
+.bmwrap { position: relative; display: inline-block; }
+.hero .bmwrap .bookmark { font-size: 19px; padding: 16px 26px; border-radius: 14px; position: relative; z-index: 1; }
+
+/* Copy & paste pane. */
+.copybig { display: inline-flex; align-items: center; gap: 10px; font: 650 18px system-ui, sans-serif; background: var(--orange); color: #fff; border: 0; border-radius: 14px;
+           padding: 16px 26px; cursor: pointer; box-shadow: 0 8px 22px #ea580c55; }
+.copybig svg { width: 20px; height: 20px; }
+/* The fixed bookmark's button, in the blue the fixed bookmark has everywhere, beside the orange one. A step smaller, with
+   a shorter "copied" line, so the two stay on one line in the install panel (they wrap on phones). */
+.copyrow { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.copyrow .copybig:not(.fixed) { padding-inline: 22px; } /* room for both labels, "Copy: updates itself" and "Copy: fixed version", on one row */
+.copybig.fixed { background: var(--blue); box-shadow: 0 8px 22px #2563eb55; font-size: 15px; gap: 8px; padding: 14px 16px; }
+.copybig.done { background: var(--green); box-shadow: 0 8px 22px #16a34a55; }
+/* Copy & paste: each button's tooltip, on hover or keyboard focus. Light, so it stands out on the dark install panel in
+   both themes. Above its button (.up), or below where index.js says so. */
+.tipwrap { position: relative; display: inline-flex; }
+.tip { position: absolute; left: 50%; top: calc(100% + 12px); translate: -50% 0; z-index: 5; width: max-content; max-width: min(300px, 86vw);
+       padding: 10px 13px; border-radius: 12px; background: #fafafa; color: #3f3f46; font: 500 13.5px/1.45 system-ui, sans-serif; text-align: left;
+       box-shadow: 0 16px 36px #000b, 0 0 0 1px #0000001a; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .15s, visibility .15s; }
+.tipwrap.up .tip { top: auto; bottom: calc(100% + 12px); }
+.tip b { color: #18181b; }
+.tip code { font: 600 12.5px ui-monospace, monospace; color: #c2410c; overflow-wrap: anywhere; }
+/* The arrow, and a bridge over the gap so the pointer can move onto the tip to read it without it closing. */
+.tip::after { content: ''; position: absolute; left: 50%; bottom: 100%; translate: -50% 0; border: 7px solid transparent; border-bottom-color: #fafafa; }
+.tipwrap.up .tip::after { bottom: auto; top: 100%; border-bottom-color: transparent; border-top-color: #fafafa; }
+.tip::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 14px; }
+.tipwrap.up .tip::before { bottom: auto; top: 100%; }
+@media (hover: hover) { .tipwrap:hover .tip { opacity: 1; visibility: visible; pointer-events: auto; } }
+.tipwrap:has(:focus-visible) .tip { opacity: 1; visibility: visible; pointer-events: auto; }
+.tipwrap.hush .tip { opacity: 0; visibility: hidden; pointer-events: none; } /* Esc closed it (index.js) */
+.csteps { list-style: none; counter-reset: s; margin: 26px auto 0; padding: 0; display: grid; gap: 10px; max-width: 440px; text-align: left; }
+.csteps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: baseline; color: #e4e4e7; }
+.csteps li::before { content: counter(s); width: 24px; height: 24px; border-radius: 50%; background: #ea580c33; color: #fdba74; font: 700 13px/24px system-ui, sans-serif; text-align: center; }
+.csteps b { color: #fff; } .csteps i { color: #a1a1aa; font-style: normal; }
+.gh { margin: 22px 0 0; font-size: 13px; color: #a1a1aa; } .gh a { color: #fdba74; }
+
+/* Story cards. */
+.scard { flex: none; background: var(--card); border: 1px solid var(--line); box-shadow: var(--lift); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; }
+.scard .m { aspect-ratio: 16 / 10; overflow: hidden; background: var(--card-sunk); border-bottom: 1px solid var(--line); }
+.scard .m img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.scard .m.contain img { object-fit: contain; background: #fff; }
+.scard .t { padding: 16px 20px 20px; }
+.scard h3 { margin: 0 0 4px; font: 750 22px/1.2 system-ui, sans-serif; letter-spacing: -.02em; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.scard h3 small { font-size: 14px; color: var(--orange); }
+.scard p { margin: 0; color: var(--text-2); }
+.scard .tag { font: 600 12px system-ui, sans-serif; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 999px; padding: 1px 9px; }
+
+.ref { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; }
+.card { background: var(--card); box-shadow: var(--lift); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+.card h3 { font: 750 20px system-ui, sans-serif; margin: 0 0 4px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.card h3 .tag { font: 600 12px system-ui, sans-serif; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 999px; padding: 1px 9px; }
+.card > p { margin: 0 0 12px; font-size: 14.5px; color: var(--text-2); }
+.card .cmd { margin-bottom: 12px; }
+.card ul { margin: 0; padding-left: 18px; font-size: 14.5px; color: var(--text-2); } .card li { margin: 5px 0; }
+.card + .card { margin-top: 20px; }
+footer { padding: 70px 0 60px; text-align: center; color: var(--muted); font-size: 14px; }
+footer a { margin: 0 10px; }
+
+@media (max-width: 900px) { .ref { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) {
+  .drop { font-size: 12.5px; } .hero { padding-bottom: 90px; }
+  .hero[data-way=extension] .drop { justify-content: center; padding-right: 12px; }
+}
+
+/* Bookmark way: a ghost of the button dragged up to the top line (driven by index.js), and the chip it leaves there. */
+.landed { position: absolute; left: 0; top: 50%; translate: 0 -50%; font: 600 13px/1 system-ui, sans-serif; color: #fafafa; background: #3f3f46; border: 1px solid #71717a;
+          border-radius: 7px; padding: 6px 10px; white-space: nowrap; opacity: 0; transition: opacity .4s; }
+.drop.hit .landed { opacity: 1; animation: pop .35s ease-out; }
+@keyframes pop { from { scale: .6; } 60% { scale: 1.08; } }
+.hero .bmwrap .bookmark.dragghost { position: absolute; left: 0; top: 0; z-index: 30; pointer-events: none; transform-origin: 50% 50%; box-shadow: 0 18px 40px #0009; }
+/* The ghost flies at half the button's size, so its pointer is drawn twice as large to stay a normal pointer's size on screen. */
+.dragghost .gptr { position: absolute; left: 24px; top: 28px; width: 40px; height: 40px; fill: #fff; stroke: #18181b; stroke-width: 1.2; stroke-linejoin: round; }
+/* The picture the browser shows while a real button is dragged: a half-size copy (index.js sets its zoom), kept off screen. */
+/* The first selector outranks the hero button's position: relative, which the copy of that button would inherit. */
+.hero .bmwrap .bookmark.dragimg, .bookmark.dragimg { position: fixed; left: 0; top: -200px; box-shadow: none; pointer-events: none; }
+
+/* Copy & paste way: a looping drawing of right-click, Add page, name, paste, Save. 10 s per loop; the steps below light in step. */
+.cp-anim { --t: 10s; position: relative; width: 440px; height: 200px; margin: 22px auto 0; text-align: left; font: 12px/1.3 system-ui, sans-serif; color: #d4d4d8; }
+.cp-win { position: absolute; inset: 0; border-radius: 12px; overflow: hidden; background: #131316; border: 1px solid #3f3f46; }
+.cp-tool { height: 30px; display: flex; align-items: center; gap: 5px; padding: 0 10px; background: #27272a; }
+.cp-tool i { width: 8px; height: 8px; border-radius: 50%; background: #52525b; }
+.cp-tool span { margin-left: 8px; flex: 1; background: #18181b; border-radius: 6px; padding: 2px 10px; color: #a1a1aa; font-size: 11px; }
+.cp-bar { height: 26px; display: flex; align-items: center; gap: 6px; padding: 0 10px; background: #232326; border-bottom: 1px solid #3f3f46; }
+.cp-bar span { padding: 2px 7px; border-radius: 5px; color: #d4d4d8; font-size: 11.5px; white-space: nowrap; }
+.cp-bar .cp-new { background: #ea580c; color: #fff; opacity: 0; animation: cp-new var(--t) infinite; }
+.cp-page { padding: 18px 22px; display: grid; gap: 10px; } .cp-page i { height: 10px; border-radius: 5px; background: #27272a; } .cp-page i:nth-child(2) { width: 70%; } .cp-page i:nth-child(3) { width: 45%; }
+.cp-menu { position: absolute; left: 236px; top: 46px; margin: 0; padding: 4px; list-style: none; width: 150px; background: #2b2b30; border: 1px solid #52525b; border-radius: 8px;
+           box-shadow: 0 10px 24px #0008; opacity: 0; animation: cp-menu var(--t) infinite; }
+.cp-menu li { padding: 3px 8px; border-radius: 5px; white-space: nowrap; }
+.cp-menu li:first-child { animation: cp-pick var(--t) infinite; }
+.cp-dlg { position: absolute; left: 70px; top: 64px; width: 300px; padding: 10px 12px; display: grid; gap: 6px; background: #2b2b30; border: 1px solid #52525b; border-radius: 10px;
+          box-shadow: 0 14px 30px #000a; animation: cp-dlg var(--t) infinite; }
+.cp-dlg b { color: #fafafa; font-size: 12.5px; }
+.cp-dlg label { display: grid; grid-template-columns: 36px 1fr; align-items: center; color: #a1a1aa; }
+.cp-field { height: 22px; display: flex; align-items: center; padding: 0 7px; border-radius: 5px; background: #18181b; border: 1px solid #52525b; color: #fafafa; overflow: hidden; white-space: nowrap; }
+.cp-field span { overflow: hidden; text-overflow: ellipsis; }
+.cp-name { animation: cp-focus-name var(--t) infinite; } .cp-name span { animation: cp-type var(--t) infinite steps(13); }
+.cp-url { animation: cp-focus-url var(--t) infinite; } .cp-url span { color: #fdba74; animation: cp-paste var(--t) infinite; }
+.cp-btns { display: flex; gap: 6px; justify-content: flex-end; }
+.cp-btns span { padding: 3px 12px; border-radius: 6px; border: 1px solid #52525b; } .cp-btns .cp-save { background: #2563eb; border-color: #2563eb; color: #fff; animation: cp-save var(--t) infinite; }
+.cp-keys { position: absolute; right: 12px; top: 8px; font: 700 11px system-ui, sans-serif; color: #18181b; background: #fdba74; border-radius: 6px; padding: 3px 7px;
+           box-shadow: 0 4px 12px #0007; opacity: 0; animation: cp-keys var(--t) infinite; }
+.cp-ptr { position: absolute; left: 0; top: 0; width: 20px; height: 20px; fill: #fff; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: round; translate: 326px 160px;
+          animation: cp-ptr var(--t) infinite; filter: drop-shadow(0 2px 3px #0008); }
+.cp-click { position: absolute; left: 0; top: 0; width: 24px; height: 24px; margin: -12px 0 0 -12px; border-radius: 50%; border: 2px solid #fdba74; opacity: 0; animation: cp-click var(--t) infinite; }
+/* Without motion (the shared reduced-motion rule stops every animation) the drawing rests on the filled dialog. */
+@keyframes cp-ptr { 0% { translate: 330px 160px; } 8%, 17% { translate: 262px 44px; } 22%, 27% { translate: 300px 56px; } 33%, 47% { translate: 210px 104px; }
+  52%, 62% { translate: 210px 134px; } 67%, 71% { translate: 326px 160px; } 80%, 100% { translate: 330px 160px; } }
+@keyframes cp-click { 0%, 9% { opacity: 0; translate: 262px 44px; scale: .4; } 10% { opacity: 1; translate: 262px 44px; scale: .4; } 15% { opacity: 0; translate: 262px 44px; scale: 1.4; }
+  26% { opacity: 0; translate: 302px 58px; scale: .4; } 27% { opacity: 1; translate: 302px 58px; scale: .4; } 31% { opacity: 0; translate: 302px 58px; scale: 1.4; }
+  69% { opacity: 0; translate: 328px 162px; scale: .4; } 70% { opacity: 1; translate: 328px 162px; scale: .4; } 74%, 100% { opacity: 0; translate: 328px 162px; scale: 1.4; } }
+@keyframes cp-menu { 0%, 11% { opacity: 0; translate: 0 -4px; } 13%, 28% { opacity: 1; translate: 0 0; } 30%, 100% { opacity: 0; } }
+@keyframes cp-pick { 0%, 19% { background: transparent; color: inherit; } 21%, 100% { background: #ea580c; color: #fff; } }
+@keyframes cp-dlg { 0%, 29% { opacity: 0; scale: .96; } 32%, 71% { opacity: 1; scale: 1; } 74%, 100% { opacity: 0; scale: .96; } }
+@keyframes cp-type { 0%, 35% { clip-path: inset(0 100% 0 0); } 47%, 100% { clip-path: inset(0 0 0 0); } }
+@keyframes cp-focus-name { 0%, 32% { border-color: #52525b; } 33%, 50% { border-color: #ea580c; } 51%, 100% { border-color: #52525b; } }
+@keyframes cp-focus-url { 0%, 51% { border-color: #52525b; } 52%, 66% { border-color: #ea580c; } 67%, 100% { border-color: #52525b; } }
+@keyframes cp-keys { 0%, 54% { opacity: 0; scale: .7; } 56%, 63% { opacity: 1; scale: 1; } 65%, 100% { opacity: 0; scale: 1; } }
+@keyframes cp-paste { 0%, 57% { opacity: 0; } 59%, 100% { opacity: 1; } }
+@keyframes cp-save { 0%, 69% { filter: none; } 70%, 72% { filter: brightness(1.35); } 73%, 100% { filter: none; } }
+@keyframes cp-new { 0%, 73% { opacity: 0; scale: .5; } 76% { opacity: 1; scale: 1.1; } 78%, 95% { opacity: 1; scale: 1; } 100% { opacity: 0; } }
+.csteps li { border-radius: 10px; padding: 4px 6px; margin: -4px -6px; }
+.cp-anim ~ .csteps li:nth-child(1) { animation: cs1 10s infinite; }
+.cp-anim ~ .csteps li:nth-child(2) { animation: cs2 10s infinite; }
+.cp-anim ~ .csteps li:nth-child(3) { animation: cs3 10s infinite; }
+@keyframes cs1 { 0%, 30% { background: #ea580c26; } 32%, 100% { background: transparent; } }
+@keyframes cs2 { 0%, 31% { background: transparent; } 33%, 50% { background: #ea580c26; } 52%, 100% { background: transparent; } }
+@keyframes cs3 { 0%, 51% { background: transparent; } 53%, 80% { background: #ea580c26; } 82%, 100% { background: transparent; } }
+@media (max-width: 560px) { .cp-anim { zoom: .7; } }
+
+/* Playground: the made-up site lives in a frame, so the tool runs on it and nowhere else on this page. */
+.app-frame { display: block; width: 100%; height: 640px; border: 0; background: #f8fafc; }
+
+/* Bookmark way: the fixed bookmark as a clear second choice, in its own card, in the site's blue so it never reads as the
+   orange one. The icon sits beside the title and the
+   sentence, which get the card's full width, so each reads as one line; the button has its own row under the words. */
+.alt { margin: 24px auto 0; max-width: 500px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px 14px; align-items: center; text-align: left;
+       background: #18181b; border: 1px solid #3f3f46; border-radius: 16px; padding: 16px 18px; }
+.alt > svg { width: 36px; height: 36px; padding: 8px; border-radius: 10px; color: #93c5fd; background: #2563eb26; }
+.alt p { margin: 0; display: grid; gap: 2px; font-size: 14px; line-height: 1.4; color: #a1a1aa; } .alt b { color: #fafafa; font-size: 15px; }
+.hero .alt .bookmark.fixed { grid-column: 2; justify-self: start; background: var(--blue); color: #fff; border: 1.5px solid var(--blue); border-radius: 10px; padding: 9px 14px;
+                             font-size: 14px; box-shadow: 0 6px 18px #2563eb55; }
+.hero .alt .bookmark.fixed:hover { border-color: #93c5fd; box-shadow: 0 10px 24px #2563eb77; }
+@media (max-width: 420px) { .hero .alt .bookmark.fixed { grid-column: 1 / -1; justify-self: center; } }
+
+
+/* Keyboard shortcuts: four small groups in two columns, keycaps in one column per group. */
+.kgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+.kg + .kg { margin-top: 16px; }
+.kg h4 { margin: 0 0 4px; font: 700 11px/1 system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); }
+/* Each group is a grid and its rows share its columns, so a group's keycaps line up at the width of its widest key. */
+.kg { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 12px; }
+.kg h4 { grid-column: 1 / -1; }
+.kg .krow { grid-column: 1 / -1; grid-template-columns: subgrid; gap: 0 12px; padding: 6px; margin: 0 -6px; font-size: 13.5px; line-height: 1.35; border: 0; }
+.kg .krow kbd { font-size: 11px; padding: 2px 5px; }
+@media (max-width: 480px) { .kgrid { grid-template-columns: minmax(0, 1fr); } .kgrid > div + div { margin-top: 12px; } }
+
+/* Footer: the brand, three short columns, and one line under them. */
+.foot { margin-top: 90px; border-top: 1px solid var(--band-line); background: var(--band); color: var(--muted); font-size: 14px; text-align: left; padding: 0; }
+.foot a { margin: 0; color: inherit; text-decoration: none; } .foot a:hover { color: var(--orange); }
+.foot-in { max-width: 1100px; margin: 0 auto; padding: 48px 24px 36px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px 56px; }
+.foot-name { display: inline-flex; align-items: center; gap: 10px; font: 800 20px system-ui, sans-serif; letter-spacing: -.02em; color: var(--text) !important; }
+.foot-name img { width: 30px; }
+.foot-brand p { margin: 10px 0 0; max-width: 34ch; }
+.foot-cols { display: grid; grid-template-columns: repeat(3, auto); gap: 24px 56px; }
+.foot-cols div { display: grid; gap: 8px; align-content: start; justify-items: start; }
+.foot h4 { margin: 0 0 2px; font: 700 12px system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--text); }
+.foot .soon2 { font: 700 10px system-ui, sans-serif; color: #fff; background: var(--orange); border-radius: 999px; padding: 1px 6px; vertical-align: 1px; }
+.foot .ver { font-size: 13px; padding: 3px 10px; color: var(--orange); } .foot-note { font-size: 13px; }
+.foot-bottom { max-width: 1100px; margin: 0 auto; padding: 16px 24px 28px; border-top: 1px solid var(--band-line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; }
+.foot-bottom a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 760px) { .foot-in { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 480px) { .foot-cols { grid-template-columns: repeat(2, auto); gap: 24px 40px; } }
+.kcard { display: flex; flex-direction: column; }
+.kcard .ktip { display: block; margin: auto 0 0; padding: 12px 8px 4px; border-top: 1px solid var(--line); border-radius: 0; font-size: 13px; color: var(--muted); }
+.kcard .kgrid { margin-bottom: 14px; }
+
+/* The top bar. On the install page it is hidden while the install card is on screen and slides in once the card
+   scrolls away (html.past), or when a key reaches it; on the changelog (.always) it is always there. */
+.bnav { position: fixed; z-index: 39; inset: 0 0 auto; height: 58px; translate: 0 -110%;
+        background: color-mix(in srgb, var(--page) 84%, transparent); backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4);
+        border-bottom: 1px solid var(--line); box-shadow: 0 10px 30px -22px #0008; font: 600 14px/1 system-ui, sans-serif; color: var(--text-2);
+        transition: translate .35s cubic-bezier(.2,.8,.2,1); }
+html.past .bnav, .bnav.always, .bnav:focus-within { translate: 0 0; }
+/* With the bookmark way picked, the bar's top edge is the drop line again: the bookmarks bar is right above it. */
+html:has(.hero[data-way=bookmark]) .bnav::before { content: ''; position: absolute; inset: 0 0 auto; height: 2px;
+        background: repeating-linear-gradient(90deg, var(--orange) 0 8px, transparent 8px 14px); }
+.bnav-in { height: 100%; display: flex; align-items: center; gap: 6px; padding: 0 16px 0 20px; }
+.bnav-brand { display: inline-flex; align-items: center; gap: 9px; color: var(--text); text-decoration: none; font: 800 16px system-ui, sans-serif; letter-spacing: -.02em; white-space: nowrap; }
+.bnav-brand img { width: 26px; height: 26px; }
+.bnav-ver { margin-left: 4px; text-decoration: none; }
+.bnav-links { display: flex; gap: 2px; margin-left: 22px; }
+.bnav-links a { position: relative; padding: 10px 12px; color: inherit; text-decoration: none; border-radius: 8px; white-space: nowrap; }
+.bnav-links a:hover { color: var(--text); background: var(--card-sunk); }
+.bnav-links a::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: 3px; height: 2px; border-radius: 2px; background: var(--orange);
+                       scale: 0 1; transition: scale .25s cubic-bezier(.2,.8,.2,1); }
+.bnav-links a[aria-current] { color: var(--text); }
+.bnav-links a[aria-current]::after { scale: 1 1; }
+.bnav-act { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.bnav-hint { display: inline-flex; align-items: center; gap: 6px; color: var(--orange); font-size: 13px; white-space: nowrap; }
+html.dark .bnav-hint { color: #fdba74; }
+.bnav-hint svg { width: 15px; height: 15px; animation: nudge 1.6s ease-in-out infinite; }
+@keyframes nudge { 50% { translate: 0 -3px; } }
+.bnav .bnav-chip { font-size: 14px; padding: 9px 15px; border-radius: 10px; }
+.bnav .bnav-chip:not(.dragimg) { box-shadow: 0 6px 16px #ea580c44; }
+.bnav .bnav-copy { font-size: 14px; padding: 9px 15px; border-radius: 10px; gap: 8px; box-shadow: none; }
+.bnav .bnav-copy svg { width: 16px; height: 16px; }
+.bnav-get { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 10px; white-space: nowrap; text-decoration: none; }
+.bnav-get.ext { background: var(--text); color: var(--page); }
+.bnav-get.ext .soon2 { font: 700 10px system-ui, sans-serif; color: #fff; background: var(--orange); border-radius: 999px; padding: 2px 7px; }
+.bnav-get.home { background: var(--orange); color: #fff; }
+.bnav-gh { display: grid; place-items: center; width: 38px; height: 38px; margin-left: 6px; border-radius: 10px; color: var(--text-2); }
+.bnav-gh:hover { color: var(--text); background: var(--card-sunk); }
+.bnav-gh svg { width: 20px; height: 20px; }
+/* The page's one theme switch (theme.js) floats under the drop line while the bar is away, and glides up into this
+   slot, the bar's last place, when the bar comes in. */
+.bnav-theme-slot { width: 40px; height: 40px; flex: none; margin-left: 4px; }
+.theme-btn { transition: top .35s cubic-bezier(.2,.8,.2,1), background .2s, color .2s, border-color .2s; }
+html.past .theme-btn, html:has(.bnav.always) .theme-btn, html:has(.bnav:focus-within) .theme-btn { top: 9px; }
+html.past:not(.dark) .theme-btn, html:not(.dark):has(.bnav.always) .theme-btn, html:not(.dark):has(.bnav:focus-within) .theme-btn {
+  background: var(--card); color: var(--text); border-color: var(--line); box-shadow: none; }
+.bnav-menu { display: none; align-items: center; gap: 6px; margin-left: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; padding: 9px 12px; border-radius: 10px; cursor: pointer; }
+.bnav-menu svg { width: 14px; height: 14px; transition: rotate .2s; }
+.bnav.open .bnav-menu svg { rotate: 180deg; }
+@media (max-width: 1120px) { .bnav-hint { display: none !important; } }
+@media (max-width: 900px) { .bnav-ver { display: none; } .bnav-links { margin-left: 8px; } }
+/* Phones and narrow windows: no bookmarks bar to drag to, so the bar keeps only the sections, as a list. 820 px: with
+   four section links, the full bar needs 797 px with the bookmark chip and 812 px with "Get the extension" (measured).
+   A range, not max-width: with display scaling a window can be 820.3 px wide. */
+@media (width < 821px) {
+  .bnav-act, .bnav-gh { display: none !important; }
+  html:has(.hero[data-way=bookmark]) .bnav::before { display: none; }
+  .bnav-theme-slot { margin-left: auto; }
+  .bnav-brand { font-size: 0; gap: 0; }
+  .bnav-menu { display: inline-flex; }
+  .bnav-links { display: none; position: absolute; top: calc(100% + 8px); left: 12px; right: 12px; margin: 0; flex-direction: column; padding: 6px;
+                background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 18px 40px -12px #0007; }
+  .bnav.open .bnav-links { display: flex; }
+  .bnav-links a { padding: 14px; }
+  .bnav-links a::after { display: none; }
+  .bnav-links a[aria-current] { color: #c2410c; background: #ea580c14; }
+  html.dark .bnav-links a[aria-current] { color: #fdba74; background: #ea580c22; }
+}
+
+/* Go up: bottom right, the usual corner, once the bar is in. A page-comments tool run on this page keeps its own round
+   button there by default; while it does, this one takes the bottom-left corner (nav.js). */
+.goup { position: fixed; z-index: 39; right: 20px; bottom: 20px; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center;
+        background: var(--card); color: var(--text); box-shadow: 0 10px 26px -10px #0007, 0 0 0 1px var(--line);
+        opacity: 0; pointer-events: none; transform: translateY(14px);
+        transition: opacity .2s, transform .25s cubic-bezier(.2,.8,.2,1), color .2s; }
+html.past .goup, .goup:focus-visible { opacity: 1; pointer-events: auto; transform: none; }
+.goup:hover { color: var(--orange); }
+.goup svg { width: 20px; height: 20px; }
+.goup.swap { right: auto; left: 20px; }
+@media (prefers-reduced-motion: reduce) { .bnav, .bnav *, .bnav *::after, .goup, .theme-btn { transition: none !important; animation: none !important; } }
