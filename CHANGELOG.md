@@ -2,6 +2,10 @@
 
 What changed for you in each version, newest first.
 
+## 1.9.8 — 2026-11-24
+
+- Comments on a frozen menu or tooltip keep the spaces between its words. A menu item read "Offline syncKeeps working" once the menu had closed; it now reads "Offline sync Keeps working".
+
 ## 1.9.7 — 2026-11-24
 
 - Copy and Send to Claude describe where each element sits in a short form: its nearest id and the last few steps, instead of a long chain of nested elements. Pins still find their element as before.

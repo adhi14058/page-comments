@@ -570,6 +570,18 @@ export const startPageComments = (platform) => {
     }
     return parts.join(' > ');
   };
+  // The words an element shows. innerText follows the layout, but for an element that is not rendered right now (a menu
+  // that closed after a freeze) it falls back to textContent, which runs block children together ("Offline syncKeeps
+  // working"); join its text pieces with spaces instead.
+  const textOf = (el) => {
+    if (el.getClientRects().length) return el.innerText;
+    const words = [], walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    while (walk.nextNode()) {
+      const t = walk.currentNode.data.trim();
+      if (t && !/^(SCRIPT|STYLE|TEMPLATE)$/.test(walk.currentNode.parentNode.nodeName)) words.push(t);
+    }
+    return words.join(' ');
+  };
   const clip = (s, n) => (s = (s || '').replace(/\s+/g, ' ').trim()).length > n ? s.slice(0, n) + '…' : s;
   // What a person would call the pick: a count, the selected words, or the element's own text or label.
   // Readers of the box, the list and pasted tickets get this; the selector stays for Claude.
@@ -578,7 +590,7 @@ export const startPageComments = (platform) => {
     if (d.area) return { kind: 'region', name: `${d.items.length} element${d.items.length === 1 ? '' : 's'}` };
     if (d.selectedText) return { kind: 'text', name: `“${clip(d.selectedText, 60)}”` };
     const el = d.el, kind = el ? el.tagName.toLowerCase() : ((d.html || '').match(/^<([\w-]+)/) || [, 'element'])[1];
-    const label = clip(el ? el.innerText || ['aria-label', 'alt', 'title', 'placeholder'].map((a) => el.getAttribute(a)).find(Boolean) : d.text, 60);
+    const label = clip(el ? textOf(el) || ['aria-label', 'alt', 'title', 'placeholder'].map((a) => el.getAttribute(a)).find(Boolean) : d.text, 60);
     return { kind, name: label ? `“${label}”` : kind };
   };
   // SVG elements have a non-string className.
@@ -885,7 +897,7 @@ export const startPageComments = (platform) => {
     const r = rec ? rec.rect : el.getBoundingClientRect();
     return {
       id: newId(), comment, selectedText, el, page: pageOf(), dx: Math.max(0, x - r.left), dy: Math.max(0, y - r.top),
-      selector: d.selector, text: clip(el.innerText, 200), html: clip(el.outerHTML, 400), info: rec ? rec.info : inspect(el), ...(rec ? { frozen: true } : {}),
+      selector: d.selector, text: clip(textOf(el), 200), html: clip(el.outerHTML, 400), info: rec ? rec.info : inspect(el), ...(rec ? { frozen: true } : {}),
     };
   };
   const save = async () => {
@@ -1082,7 +1094,7 @@ export const startPageComments = (platform) => {
       area: { dx: Math.round(u.left - ar.left), dy: Math.round(u.top - ar.top), w: Math.round(u.right - u.left), h: Math.round(u.bottom - u.top) },
       items: list.map((t) => (t.box
         ? { selector: t.selector, box: t.box, text: clip(`area ${t.box.w}×${t.box.h} over: ${t.items.map((it) => it.text).join(' | ')}`, 160) }
-        : { selector: t.selector, text: clip(t.el.innerText, 80) })),
+        : { selector: t.selector, text: clip(textOf(t.el), 80) })),
       picks: list,
     }, u.left, u.bottom);
   };
@@ -1162,7 +1174,7 @@ export const startPageComments = (platform) => {
       const { anchor, tops } = insideArea({ left: r.left, top: r.top, right, bottom });
       const a = anchor.getBoundingClientRect();
       const box = { dx: Math.round(r.left - a.left), dy: Math.round(r.top - a.top), w: Math.round(r.width), h: Math.round(r.height) };
-      const items = tops.slice(0, 12).map((el) => ({ selector: selectorOf(el), text: clip(el.innerText, 80) }));
+      const items = tops.slice(0, 12).map((el) => ({ selector: selectorOf(el), text: clip(textOf(el), 80) }));
       if (batchOn) { areaBox.hidden = true; return togglePick({ el: anchor, selector: selectorOf(anchor), box, items }, r.left, bottom); }
       openPop({ el: anchor, selector: selectorOf(anchor), area: box, items }, r.left, bottom);
     };
@@ -1308,7 +1320,7 @@ export const startPageComments = (platform) => {
       while (anchorEl && !frozen.byEl.has(anchorEl)) anchorEl = anchorEl.parentElement;
       const anchor = anchorEl ? frozen.byEl.get(anchorEl) : frozen.entries[0];
       const area = { dx: Math.round(r.left - anchor.rect.left), dy: Math.round(r.top - anchor.rect.top), w: Math.round(r.width), h: Math.round(r.height) };
-      const items = tops.slice(0, 12).map((en) => ({ selector: en.selector, text: clip(en.el.innerText, 80) }));
+      const items = tops.slice(0, 12).map((en) => ({ selector: en.selector, text: clip(textOf(en.el), 80) }));
       if (batchOn || m.shiftKey) {
         areaBox.hidden = true;
         return togglePick({ el: anchor.el, selector: anchor.selector, entry: anchor, fixed: true, rect: { ...box, width: r.width, height: r.height }, box: area, items }, r.left, box.bottom);
