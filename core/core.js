@@ -145,14 +145,14 @@ export const startPageComments = (platform) => {
     .more-list .label kbd { flex: none; align-self: flex-start; }
     /* While commenting, the main keys sit in a small card above the round button (below it near the top), one per row,
        so people learn them. It never takes clicks, and it steps aside for anything else of ours that opens near it. */
-    .keystrip { position: absolute; right: -26px; bottom: 36px; display: grid; grid-template-columns: auto auto; gap: 5px 10px; align-items: center;
-                white-space: nowrap; pointer-events: none; background: #fff; color: #3f3f46; border-radius: 12px; padding: 10px 12px;
+    .keystrip { position: absolute; right: -26px; bottom: 36px; display: grid; grid-template-columns: auto auto; gap: 4px 8px; align-items: center;
+                white-space: nowrap; pointer-events: none; background: #fff; color: #3f3f46; border-radius: 10px; padding: 8px 10px;
                 font: 500 12px system-ui, sans-serif; box-shadow: 0 10px 30px #0005; }
     .widget.left .keystrip { right: auto; left: -26px; }
     .widget.top .keystrip { bottom: auto; top: 36px; }
     .keystrip span { display: contents; }
     .keystrip kbd { justify-self: start; font: 600 10.5px/1 ui-monospace, monospace; color: #18181b; background: #f4f4f5; border: 1px solid #d4d4d8;
-                    border-bottom-width: 2px; border-radius: 4px; padding: 3px 5px; }
+                    border-bottom-width: 2px; border-radius: 4px; padding: 2px 5px; }
     .keystrip .all { color: #71717a; }
     .more-list .label kbd { color: #71717a; border-color: #d4d4d8; background: #fafafa; }
     /* Clear all sits in the bar; armed (one more click clears) it turns red and keeps its label showing. */
@@ -407,8 +407,9 @@ export const startPageComments = (platform) => {
   const moreList = h('div', { className: 'more-list' }, h('div', { className: 'grp', textContent: 'More' }), detailsAct, keysAct, infoLink,
     closeBtn);
   const items = h('div', { className: 'items' }, areaBtn, batchBtn, freezeBtn, sep(), clearBtn, listBtn, copyBtn, shareBtn, sendBtn, sep(), moreBtn);
+  // The card shows only while commenting, where Esc is the short way to browsing (Alt+Shift+C stays in the full list).
   const keyStrip = h('div', { className: 'keystrip', hidden: true },
-    ...[['B', 'batch'], ['A', 'area'], ['F', 'freeze'], [ALT_SHIFT + 'C', 'browse'], ['?', 'all keys']].map(([k, what]) => h('span', { className: k === '?' ? 'all' : '' }, h('kbd', { textContent: k }), what)));
+    ...[['B', 'batch'], ['A', 'area'], ['F', 'freeze'], ['Esc', 'browse'], ['?', 'all keys']].map(([k, what]) => h('span', { className: k === '?' ? 'all' : '' }, h('kbd', { textContent: k }), what)));
   // Close in one click: a small × on the round button's outer side, away from the bar, while the bar is open.
   const quickClose = h('button', { className: 'quick-close', ariaLabel: 'Close page-comments' }, svg('svg', { viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'aria-hidden': 'true' }, svg('path', { d: 'M2 2l8 8M10 2l-8 8' })));
   const widget = h('div', { className: 'widget' }, moreList, keyStrip, quickClose, h('div', { className: 'bar' }, items, main));
