@@ -1,0 +1,362 @@
+/* The install page (index.html). site.css holds the parts the changelog page shares. */
+.ask { margin: 30px 0 14px; font: 650 20px/1.3 system-ui, sans-serif; color: #fafafa; }
+.ways { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; max-width: 600px; margin: 0 auto; }
+.ways button { display: grid; justify-items: center; gap: 6px; padding: 16px 10px 14px; border-radius: 16px; cursor: pointer; font: 650 16px system-ui, sans-serif;
+               color: #d4d4d8; background: #232326; border: 1px solid #3f3f46; transition: border-color .15s, background .15s, transform .15s; position: relative; }
+.ways button svg { width: 28px; height: 28px; color: #a1a1aa; }
+.ways button small { font: 500 12.5px system-ui, sans-serif; color: #a1a1aa; }
+.ways button:hover { border-color: #71717a; transform: translateY(-1px); }
+.ways button[aria-checked=true] { background: #ea580c1f; border: 2px solid var(--orange); padding: 15px 9px 13px; color: #fff; box-shadow: 0 0 0 4px #ea580c26; }
+.ways button[aria-checked=true] svg { color: #fdba74; }
+.ways button[aria-checked=true] small { color: #fed7aa; }
+.ways button[aria-checked=true]::after { content: ''; position: absolute; left: 50%; bottom: -12px; translate: -50% 0; border: 7px solid transparent; border-top-color: var(--orange); }
+.who { margin: 18px auto 0; font-size: 15px; color: #d4d4d8; min-height: 1.6em; }
+.hero h1 { font-size: clamp(32px, 5.4vw, 54px); letter-spacing: -.035em; margin: 34px 0 22px; color: #fafafa; }
+a.ver { text-decoration: none; } a.ver:hover { border-color: var(--orange); }
+
+/* The update note, only under the ways that need it: a green dot drawn as the tool draws it. */
+.updline { display: flex; gap: 12px; align-items: center; justify-content: center; margin: 24px auto 0; max-width: 560px; text-align: left; font-size: 14px; color: #d4d4d8;
+           background: #16a34a14; border: 1px solid #16a34a55; border-radius: 12px; padding: 10px 14px; }
+.updline .upd-main { border: 1px solid #52525b; }
+.updline b { color: #fff; } .updline a { color: #86efac; white-space: nowrap; }
+
+/* Reference: keys and Send to Claude side by side, Good to know in its own row below. */
+.ref { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.know { margin-top: 20px; } .know ul { columns: 2; column-gap: 36px; } .know li { break-inside: avoid; margin: 0 0 8px; }
+.send-intro { display: flex; gap: 10px 24px; flex-wrap: wrap; justify-content: space-between; align-items: baseline; }
+.send-intro p { margin: 0; font-size: 14px; color: var(--text-2); max-width: 62ch; }
+.srv { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.srv > li { min-width: 0; }
+.srv-head { display: flex; align-items: center; gap: 4px 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.srv-head .n { width: 28px; height: 28px; border-radius: 50%; background: #fff7ed; color: var(--orange); font: 700 14px/28px system-ui, sans-serif; text-align: center; flex: none; }
+.srv-head b { font-size: 16px; } .srv-head span.what { font-size: 13.5px; color: var(--muted); }
+/* The Copy buttons sit in the dark code bar and command row. */
+.srv-code .bar .copy2 { margin-left: auto; padding: 3px 10px; font-size: 12px; color: #e4e4e7; background: #27272a; border-color: #3f3f46; }
+.srv-head .copy2.right { margin-left: auto; }
+.srv-code .bar .copy2:hover { color: #fdba74; border-color: #fdba74; }
+.srv-code .bar .copy2.done { color: #bbf7d0; background: #14532d; border-color: #166534; }
+.copy2 { display: inline-flex; align-items: center; gap: 6px; font: 600 13px system-ui, sans-serif; color: var(--text); background: var(--card); border: 1px solid #d4d4d8; border-radius: 9px;
+         padding: 6px 12px; cursor: pointer; }
+.copy2 svg { width: 15px; height: 15px; } .copy2:hover { border-color: var(--orange); color: #c2410c; }
+.copy2.done { color: #15803d; border-color: #86efac; background: #f0fdf4; }
+.srv-code { position: relative; border-radius: 14px; background: #131316; border: 1px solid #27272a; overflow: hidden; }
+.srv-code .bar { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: #1c1c20; border-bottom: 1px solid #27272a; font: 12px ui-monospace, monospace; color: #a1a1aa; }
+.srv-code .bar i { width: 9px; height: 9px; border-radius: 50%; background: #3f3f46; }
+.srv-code .bar span { margin-left: 6px; }
+.srv-code pre { margin: 0; padding: 14px 16px 18px; max-height: 112px; overflow: auto; font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; color: #e4e4e7; tab-size: 2;
+                scrollbar-color: #3f3f46 transparent; }
+.srv-code pre::-webkit-scrollbar-thumb { background: #3f3f46; } .srv-code pre::-webkit-scrollbar-thumb:hover { background: #52525b; }
+.srv-code.open pre { max-height: none; }
+/* The fade says there is more below; Show all removes it. */
+.srv-code::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 70px; pointer-events: none; background: linear-gradient(transparent, #131316 75%); }
+.srv-code.open::after { display: none; }
+.srv-code .more { position: absolute; left: 50%; bottom: 10px; translate: -50% 0; z-index: 1; font: 600 13px system-ui, sans-serif; color: #fafafa; background: #27272a;
+                  border: 1px solid #3f3f46; border-radius: 999px; padding: 6px 16px; cursor: pointer; }
+.srv-code .more:hover { background: #3f3f46; }
+.srv-code.open .more { position: static; translate: none; display: block; margin: 0 auto 14px; }
+/* Syntax colours, set at build time by highlight.js (keyword, string, regex, number, call, builtin, property, heredoc marker). */
+.k { color: #c792ea; } .s { color: #c3e88d; } .r, .n { color: #f78c6c; } .f { color: #82aaff; } .b { color: #ffcb6b; } .p { color: #f0f0f0; } .m { color: #71717a; }
+.srv .cmd { background: #131316; border: 1px solid #27272a; padding: 12px 16px; }
+.srv .cmd code { color: #e4e4e7; } .srv .cmd .arg { color: #fdba74; border-bottom: 1px dashed #fdba74; }
+.srv .srv-hint { margin: 6px 0 0; font-size: 13.5px; color: var(--muted); }
+.send .safe { margin: 14px 0 0; font-size: 13.5px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.send .safe svg { width: 16px; height: 16px; flex: none; color: var(--green); }
+
+/* How it works: a row of story cards. */
+.shead { display: flex; align-items: end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+.shead h2 { margin: 0; }
+.arws { display: flex; gap: 8px; }
+.arw { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--text); font: 400 26px/1 system-ui, sans-serif; cursor: pointer; padding: 0 0 3px; }
+.arw:hover:not(:disabled) { border-color: var(--orange); color: var(--orange); }
+.arw:disabled { opacity: .35; cursor: default; }
+/* The active card sits in the middle; the side padding lets the first and last cards reach the middle too, so card i
+   is centred exactly at scrollLeft = i × step. */
+.row { --card: min(540px, 80vw);
+       display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory;
+       padding: 4px calc(50% - var(--card) / 2) 18px; overscroll-behavior-x: contain; }
+.row .scard { width: var(--card); scroll-snap-align: center; opacity: .55; transition: opacity .25s; }
+.row .scard.on { opacity: 1; }
+.row .scard.side { cursor: pointer; } .row .scard.side:hover { opacity: .8; }
+/* How it works sits on its own band, so the page reads as sections in both themes. */
+#story { margin-top: 0; padding: 72px 0 56px; background: var(--band); border-block: 1px solid var(--band-line); }
+.dots { display: flex; gap: 6px; margin-top: 12px; justify-content: center; }
+.dots button { width: 8px; height: 8px; padding: 0; border-radius: 99px; border: 0; background: var(--sb); cursor: pointer; transition: width .2s, background .2s; }
+.dots button.on { width: 24px; background: var(--orange); }
+
+
+/* The playground: the made-up app, full width, with the real tool running in it. One pop-up at a time sits over it and
+   shows the next step (play.js). */
+.play { max-width: 1160px; margin: 96px auto 0; padding: 0 24px; display: grid; gap: 16px; }
+.play-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px 24px; flex-wrap: wrap; }
+.play-head h2 { margin: 0; }
+.play-head p { margin: 0; color: var(--muted); font-size: 17px; }
+.play-left { position: relative; }
+.app { align-self: start; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 24px 60px -24px #0004, 0 0 0 1px #0000001a; color: #0f172a; }
+.app-bar { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; }
+.app-bar i { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; }
+.app-bar span { margin-left: 8px; background: #fff; border-radius: 6px; padding: 1px 10px; font-size: 12px; color: #64748b; }
+.start { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; font: 700 18px system-ui, sans-serif; color: #fff; background: var(--blue); border: 0;
+         border-radius: 14px; padding: 16px; cursor: pointer; box-shadow: 0 10px 24px #2563eb44; }
+.start svg { width: 18px; height: 18px; }
+/* One pop-up at a time, layered over the frame from this page. */
+.coach { position: absolute; left: 0; top: 0; z-index: 3; width: 220px; padding: 12px 14px 10px; border-radius: 14px; font-size: 14px; line-height: 1.45;
+         background: var(--card); color: var(--text); border: 1px solid var(--line); box-shadow: 0 18px 40px -12px #0007, 0 2px 6px #0002;
+         transition: translate .28s cubic-bezier(.2, .8, .2, 1), border-color .2s; }
+.coach-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.coach-pill { font: 700 11.5px system-ui, sans-serif; color: #c2410c; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+.coach-t { font-size: 15px; }
+.coach-x { margin: 0; color: var(--text-2); }
+.coach-x kbd { padding: 2px 5px; font-size: 11.5px; }
+.coach-nav { display: flex; justify-content: space-between; margin-top: 10px; }
+.coach-nav button { font: 600 13px system-ui, sans-serif; color: var(--text-2); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 4px 12px; cursor: pointer; }
+.coach-nav button:hover:not(:disabled) { border-color: var(--orange); color: var(--orange); }
+.coach-nav button:disabled { opacity: .4; cursor: default; }
+.coach.ok { border-color: var(--green); }
+.coach.ok .coach-t { color: var(--green); }
+.coach.ok .coach-t::before { content: '✓ '; }
+/* The arrow: a turned square on the edge facing the target; its inner half hides the card's border there. */
+.coach-arrow { position: absolute; width: 14px; height: 14px; background: var(--card); border: 1px solid var(--line); rotate: 45deg; transition: top .28s, left .28s; }
+.coach.ok .coach-arrow { border-color: var(--green); }
+.coach[data-side=left] .coach-arrow { right: -8px; top: calc(var(--at) - 7px); border-left-color: transparent; border-bottom-color: transparent; }
+.coach[data-side=right] .coach-arrow { left: -8px; top: calc(var(--at) - 7px); border-right-color: transparent; border-top-color: transparent; }
+.coach[data-side=above] .coach-arrow { bottom: -8px; left: calc(var(--at) - 7px); border-left-color: transparent; border-top-color: transparent; }
+.coach[data-side=below] .coach-arrow { top: -8px; left: calc(var(--at) - 7px); border-right-color: transparent; border-bottom-color: transparent; }
+
+/* Before Start (and after the tool closes): a light veil over the demo with one card. */
+.coach-start { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; border-radius: 18px; background: #0f172a33; }
+.coach-card { width: min(360px, calc(100% - 32px)); padding: 22px; border-radius: 16px; text-align: center; background: var(--card); color: var(--text);
+              border: 1px solid var(--line); box-shadow: 0 24px 60px -16px #0008; }
+.coach-card b { display: block; font-size: 18px; }
+.coach-card p { margin: 6px 0 16px; color: var(--text-2); font-size: 14.5px; }
+/* Done: a card in the demo's bottom-left corner, without a veil, so the page stays usable. That corner is clear of the
+   tool's parts: its button sits bottom right, the Select several bar bottom centre, the Freeze bar top centre. */
+.coach-done { position: absolute; left: 16px; bottom: 16px; z-index: 3; width: min(350px, calc(100% - 32px)); }
+.coach-done .coach-card { width: auto; border-color: var(--green); }
+.coach-done .row2 { display: flex; gap: 10px; justify-content: center; }
+.coach-done a, .coach-done button { white-space: nowrap; font: 650 14px system-ui, sans-serif; border-radius: 10px; padding: 9px 14px; cursor: pointer; text-decoration: none; }
+.coach-done a { color: #fff; background: var(--orange); }
+.coach-done button { color: var(--text); background: transparent; border: 1px solid var(--line); }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+html.dark .coach-pill { color: #fdba74; background: #ea580c22; border-color: #ea580c66; }
+html.dark .coach, html.dark .coach-card { box-shadow: 0 18px 40px -12px #000, 0 0 0 1px #ffffff14; }
+@media (prefers-reduced-motion: reduce) { .coach, .coach-arrow { transition: none; } }
+@media (max-width: 900px) { .ref { grid-template-columns: minmax(0, 1fr); } .know ul { columns: 1; } }
+@media (max-width: 700px) { #story { margin-top: 64px; padding-top: 48px; } .row { --card: 78vw; gap: 14px; } .arws { display: none; } }
+@media (max-width: 560px) {
+  .ask { font-size: 17px; margin-top: 22px; }
+  .ways { gap: 6px; } .ways button { padding: 12px 4px 10px; font-size: 14px; } .ways button[aria-checked=true] { padding: 11px 3px 9px; }
+  .ways button svg { width: 24px; height: 24px; } .ways button small { display: none; }
+  .updline { align-items: flex-start; }
+}
+
+/* The hero: the product on the left, the install panel on the right. */
+.hero { padding-bottom: 80px; }
+.hero-grid { max-width: 1180px; margin: 0 auto; padding: 64px 32px 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 540px); gap: 64px; align-items: start; }
+/* The product hero: eyebrow, name, one value line, four points in a 2×2, and the clip in a small browser window.
+   Both sides stay put at the top while the install panel changes height with the way. */
+.intro { padding-top: 12px; min-width: 0; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 5px 14px 5px 6px; border-radius: 999px; font: 650 13px system-ui, sans-serif;
+           letter-spacing: .01em; color: #fed7aa; background: #ea580c1a; border: 1px solid #ea580c4d; }
+.eyebrow img { width: 22px; height: 22px; }
+.hero .intro h1 { white-space: nowrap; font: 850 clamp(40px, 4.8vw, 66px)/1 system-ui, sans-serif; letter-spacing: -.045em; margin: 18px 0 16px; color: #fafafa; }
+.tagline { margin: 0 0 24px; max-width: 40ch; font-size: clamp(17px, 1.55vw, 19px); line-height: 1.5; color: #d4d4d8; }
+.pts { list-style: none; margin: 0 0 28px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, max-content)); gap: 12px 28px; }
+.pts li { display: flex; align-items: center; gap: 10px; font: 600 15px system-ui, sans-serif; color: #f4f4f5; white-space: nowrap; }
+.pts svg { width: 32px; height: 32px; flex: none; padding: 7px; border-radius: 9px; color: #fdba74; background: #ea580c1f; border: 1px solid #ea580c40; }
+.mini { position: relative; margin: 0; max-width: 500px; border-radius: 14px; overflow: hidden; background: #f8fafc; border: 1px solid #3f3f46;
+        box-shadow: 0 24px 60px #0008, 0 0 0 1px #0004; cursor: pointer; }
+.mini-bar { display: flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; background: #27272a; border-bottom: 1px solid #3f3f46; }
+.mini-bar i { width: 8px; height: 8px; border-radius: 50%; background: #52525b; }
+.mini-bar span { margin-left: 8px; flex: 1; max-width: 220px; background: #18181b; border-radius: 6px; padding: 1px 10px; font: 11px system-ui, sans-serif; color: #a1a1aa; }
+.mini img { width: 100%; aspect-ratio: 2 / 1; object-fit: cover; }
+.mini-play { position: absolute; right: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 6px; font: 650 12.5px system-ui, sans-serif; color: #fff;
+             background: #18181bd9; border-radius: 999px; padding: 6px 12px 6px 9px; transition: opacity .2s; pointer-events: none; }
+.mini-play svg { width: 13px; height: 13px; color: #fdba74; }
+.mini.playing .mini-play { opacity: 0; }
+.install { background: #1f1f23; border: 1px solid #34343a; border-radius: 24px; padding: 28px 26px 26px; text-align: center; box-shadow: 0 40px 90px #0007; }
+.install .ask { margin: 0 0 14px; }
+.install .act { font: 800 32px/1.1 system-ui, sans-serif; letter-spacing: -.03em; margin: 26px 0 20px; color: #fafafa; }
+.install .pane { min-height: 0; }
+.drop .kb { margin-left: 14px; font: 500 13px system-ui, sans-serif; color: #fed7aa; opacity: .85; }
+.drop kbd { background: #27272a; color: #fafafa; border-color: #52525b; }
+.hero[data-way=extension] .drop .kb { display: none; }
+/* The arrows and dots move the story row; its own scrollbar only cluttered the page. */
+.row { scrollbar-width: none; } .row::-webkit-scrollbar { display: none; }
+/* Reference: both cards start on the same line. */
+.ref > .card + .card { margin-top: 0; }
+@media (max-width: 980px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 36px; padding-top: 44px; }
+  .intro { text-align: center; padding-top: 0; } .tagline { margin-inline: auto; } .pts { justify-content: center; } .mini { margin-inline: auto; }
+}
+@media (max-width: 860px) { .play { margin-top: 64px; } }
+@media (max-width: 560px) {
+  .pts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; text-align: left; }
+  .pts li { font-size: 14px; gap: 8px; white-space: normal; line-height: 1.25; } .pts svg { width: 30px; height: 30px; padding: 6px; }
+}
+@media (max-width: 560px) { .drop .kb { display: none; } .install { padding: 22px 14px; } .install .act { font-size: 26px; } }
+/* The top bar covers the top 58 px, so a section link lands just under it. */
+#story, #play, #ref { scroll-margin-top: 72px; }
+
+/* Phones and touch screens: clips instead of the demo (play.js, same query, and why 667 px). */
+.play-phone { display: none; }
+@media (width < 668px), (hover: none) and (pointer: coarse) {
+  .play-left, .play-head p { display: none; }
+  .play-phone { display: grid; gap: 16px; }
+  .phone-note { margin: 0; color: var(--muted); font-size: 16px; }
+}
+
+/* What your browser asks: a section of its own, after Try it. The hero keeps one link down to it. */
+.asks-link { display: flex; width: fit-content; align-items: center; gap: 6px; margin: 22px auto 0; font: 600 14px system-ui, sans-serif; color: #a1a1aa; text-decoration: none; }
+.asks-link svg { width: 15px; height: 15px; transition: translate .2s; }
+.asks-link:hover { color: #fdba74; } .asks-link:hover svg { translate: 0 2px; }
+#asks { scroll-margin-top: 72px; }
+.asks-sec { margin-top: 96px; padding: 72px 0 64px; background: var(--band); border-block: 1px solid var(--band-line); }
+.asks-sec .ahead { display: flex; align-items: end; justify-content: space-between; gap: 18px 24px; flex-wrap: wrap; margin-bottom: 28px; }
+.asks-sec .ahead .lead { margin: 0; }
+/* The way tabs: the same three ways as the hero. */
+.asks-sec .wtabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--lift); }
+.asks-sec .wtabs button { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 0; border-radius: 10px; background: none; color: var(--muted); font: 650 14.5px system-ui, sans-serif; cursor: pointer; white-space: nowrap; }
+.asks-sec .wtabs button svg { width: 18px; height: 18px; }
+.asks-sec .wtabs button:hover { color: var(--text); }
+.asks-sec .wtabs button[aria-selected=true] { background: var(--orange); color: #fff; }
+/* A card's moment line, over its title. */
+.asks-sec .scard h3 { font-size: 19px; }
+.asks-sec .scard .t { padding: 14px 18px 18px; }
+.asks-sec .scard p { font-size: 15px; line-height: 1.55; }
+.asks-sec .scard .when { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font: 700 12.5px system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--orange); }
+html.dark .asks-sec .scard .when { color: #fdba74; }
+.asks-sec .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--orange); color: #fff; font: 700 12px/1 system-ui, sans-serif; flex: none; letter-spacing: 0; }
+/* Never asks. */
+.asks-sec .never { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--lift); padding: 18px 20px; }
+.asks-sec .never h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font: 750 19px system-ui, sans-serif; letter-spacing: -.02em; }
+.asks-sec .never h3 svg { width: 26px; height: 26px; padding: 5px; border-radius: 50%; background: #16a34a; color: #fff; }
+.asks-sec .never ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.asks-sec .never li { display: flex; gap: 12px; align-items: flex-start; color: var(--text-2); font-size: 15px; line-height: 1.5; }
+.asks-sec .never li > svg { width: 34px; height: 34px; flex: none; padding: 8px; border-radius: 10px; color: var(--orange); background: #ea580c14; border: 1px solid #ea580c33; }
+html.dark .asks-sec .never li > svg { color: #fdba74; }
+.asks-sec .never b { color: var(--text); }
+.asks-sec .afoot { margin-top: 28px; text-align: center; }
+.asks-sec .trust { display: inline-flex; align-items: center; gap: 10px; margin: 0; padding: 10px 18px; border-radius: 999px; background: var(--card); border: 1px solid var(--line);
+         font: 650 16px system-ui, sans-serif; color: var(--text); }
+.asks-sec .trust svg { width: 20px; height: 20px; color: #16a34a; flex: none; }
+@media (max-width: 860px) { .asks-sec { margin-top: 64px; padding: 48px 0 44px; } }
+@media (max-width: 560px) {
+  .asks-sec .wtabs { width: 100%; } .asks-sec .wtabs button { flex: 1; justify-content: center; padding: 9px 6px; font-size: 13.5px; } .asks-sec .wtabs button svg { display: none; }
+  .asks-sec .trust { border-radius: 16px; font-size: 15px; text-align: left; }
+}
+/* The way's three moments side by side, joined by a line; then the other browsers and what never asks. */
+.asks-sec .tl { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; position: relative; }
+.asks-sec .tl > li { display: flex; } .asks-sec .tl .scard { flex: 1; }
+.asks-sec .more { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 20px; margin-top: 20px; align-items: start; }
+.asks-sec .more .never.wide { grid-column: 1 / -1; }
+.asks-sec .more .never.wide ul { grid-template-columns: 1fr 1fr; gap: 12px 28px; }
+.asks-sec .ffc { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+.asks-sec .ffc .m { border-bottom: 0; border-right: 1px solid var(--line); }
+.asks-sec .ffc .t { align-self: center; }
+@media (max-width: 980px) { .asks-sec .tl { grid-template-columns: minmax(0, 1fr); max-width: 560px; margin: 0 auto; }
+  .asks-sec .more { grid-template-columns: minmax(0, 1fr); max-width: 560px; margin-inline: auto; } .asks-sec .more .never.wide ul { grid-template-columns: 1fr; }
+  .asks-sec .ffc { grid-template-columns: minmax(0, 1fr); } .asks-sec .ffc .m { border-right: 0; border-bottom: 1px solid var(--line); } }
+
+/* Drawings of the browser's own questions. Not screenshots: page tools cannot capture browser UI. Words we know for
+   sure are written out; words that differ between browser versions are grey bars. Everything is sized in em from the
+   drawing's width (container units), so the same drawing works as a small card and as a large stage. */
+.asks-sec .art { container-type: inline-size; position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--card-sunk); }
+.asks-sec .art .bw { position: absolute; inset: 7% 6% -8%; font-size: max(7px, 2.35cqw); }
+.asks-sec .art .ill { position: absolute; top: 8px; left: 10px; z-index: 5; font: 650 11px/1 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase;
+            color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 8px; }
+
+/* The browser window. Chrome and Firefox follow the page's theme, as the real ones follow the computer's. */
+.asks-sec .bw { --fr: #dfe3e7; --tb: #fff; --pg: #fff; --ln: #e8eaed; --tx: #1f1f1f; --sub: #5f6368; --dl: #fff; --pri: #0b57d0; --pri-t: #fff; --bd: #c4c7c5; --sk: #1f1f1f2e;
+      display: flex; flex-direction: column; border-radius: .9em .9em 0 0; overflow: hidden; background: var(--fr); color: var(--tx);
+      box-shadow: 0 0 0 1px #0000001a, 0 1.4em 3em -1.2em #0005; font-family: system-ui, sans-serif; }
+html.dark .asks-sec .bw { --fr: #1f1f1f; --tb: #35363a; --pg: #28282c; --ln: #3c3c41; --tx: #e3e3e3; --sub: #9aa0a6; --dl: #2d2e31; --pri: #a8c7fa; --pri-t: #062e6f; --bd: #5f6368; --sk: #ffffff2e; }
+.asks-sec .bw.ff { --fr: #f0f0f4; --tb: #f9f9fb; --dl: #fff; --pri: #0061e0; --bd: #cfcfd8; }
+html.dark .asks-sec .bw.ff { --fr: #1c1b22; --tb: #2b2a33; --dl: #42414d; --pri: #00ddff; --pri-t: #15141a; --bd: #5b5b66; }
+.asks-sec .bw-top { display: flex; align-items: center; gap: .55em; padding: .65em .9em; background: var(--tb); border-bottom: 1px solid var(--ln); }
+.asks-sec .bw-top > i { width: .7em; height: .7em; border-radius: 50%; background: var(--bd); flex: none; }
+.asks-sec .omni { flex: 1; display: flex; align-items: center; gap: .5em; height: 2.2em; margin-left: .6em; padding: 0 1em; border-radius: 999px; background: var(--fr); font-size: .95em; color: var(--sub); }
+.asks-sec .bw.ff .omni { border-radius: .45em; }
+.asks-sec .omni svg { width: 1.1em; height: 1.1em; flex: none; }
+.asks-sec .tbi { width: 1.9em; height: 1.9em; border-radius: 50%; display: grid; place-items: center; color: var(--sub); flex: none; }
+.asks-sec .tbi svg { width: 1.2em; height: 1.2em; }
+.asks-sec .tbi.on { background: var(--fr); color: var(--tx); box-shadow: 0 0 0 .16em #ea580c; }
+.asks-sec .bmbar { display: flex; gap: 1em; padding: .4em 1em; background: var(--tb); border-bottom: 1px solid var(--ln); font-size: .9em; color: var(--sub); }
+.asks-sec .bmbar b { display: inline-flex; align-items: center; gap: .4em; font-weight: 600; color: var(--tx); padding: .15em .6em; border-radius: 999px; background: var(--fr); }
+.asks-sec .bmbar .pci { width: 1.1em; height: 1.1em; }
+/* The page under the question: a few lines and blocks, nothing readable. */
+.asks-sec .bw-page { flex: 1; position: relative; background: var(--pg); padding: 1.6em 2em; display: grid; align-content: start; gap: .8em; }
+.asks-sec .bw-page .pl { display: block; height: .75em; border-radius: 99px; background: var(--ln); }
+.asks-sec .bw-page .pl.h { height: 1.5em; width: 45%; }
+.asks-sec .bw-page .blk { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; margin-top: .6em; }
+.asks-sec .bw-page .blk i { height: 6em; border-radius: .6em; background: var(--ln); }
+.asks-sec .dimmed .bw-page::after { content: ''; position: absolute; inset: 0; background: #0000000f; }
+html.dark .asks-sec .dimmed .bw-page::after { background: #0000004d; }
+/* The tool's round button and a pin, so a page reads as "the tool is running here". */
+.asks-sec .rb { position: absolute; right: 1.4em; bottom: 9%; width: 3em; height: 3em; border-radius: 50%; background: #18181b; box-shadow: 0 .4em 1em #0004; display: grid; place-items: center; }
+.asks-sec .rb::after { content: ''; width: 1.1em; height: 1.1em; background: #ea580c; clip-path: polygon(0 0, 100% 0, 100% 75%, 45% 75%, 15% 100%, 15% 75%, 0 75%); border-radius: 2px; }
+.asks-sec .pin { position: absolute; width: 1.8em; height: 1.8em; border-radius: 50% 50% 50% 0; background: #ea580c; color: #fff; display: grid; place-items: center; font: 700 .9em/1 system-ui, sans-serif; rotate: -45deg; }
+.asks-sec .pin span { rotate: 45deg; }
+
+/* Grey bars: words that differ between browser versions. */
+.asks-sec .sk { display: inline-block; vertical-align: middle; height: .62em; border-radius: 99px; background: var(--sk); }
+.asks-sec .sk.l { display: block; margin: .35em 0; }
+
+/* A browser dialog. */
+.asks-sec .dlg { position: absolute; z-index: 2; background: var(--dl); color: var(--tx); border-radius: .9em; padding: 1.1em 1.2em 1em; box-shadow: 0 0 0 1px #00000014, 0 1em 2.6em -.4em #0006; }
+html.dark .asks-sec .dlg { box-shadow: 0 0 0 1px #ffffff14, 0 1em 2.6em -.4em #000; }
+.asks-sec .dlg-h { display: flex; align-items: center; gap: .6em; font-size: 1.2em; font-weight: 600; margin: 0 0 .5em; }
+.asks-sec .dlg-h img { width: 1.5em; height: 1.5em; }
+.asks-sec .dlg ul { margin: .5em 0 0; padding-left: 1.3em; }
+.asks-sec .btns { display: flex; justify-content: flex-end; gap: .6em; margin-top: 1em; }
+.asks-sec .btn { display: inline-flex; align-items: center; justify-content: center; min-width: 5.5em; height: 2.3em; padding: 0 1.1em; border-radius: 999px; font-weight: 600; font-size: .95em;
+       border: 1px solid var(--bd); color: var(--pri); }
+.asks-sec .btn.pri { background: var(--pri); border-color: var(--pri); color: var(--pri-t); }
+.asks-sec .btn .sk { background: currentColor; opacity: .45; }
+.asks-sec .ff .btn { border-radius: .35em; color: var(--tx); background: var(--fr); border: 0; }
+.asks-sec .ff .btn.pri { background: var(--pri); color: var(--pri-t); }
+/* The part to look for: an orange ring, and a short note beside it on large drawings. */
+.asks-sec .hi { position: relative; border-radius: .35em; box-shadow: 0 0 0 .2em #ea580c, 0 0 0 .55em #ea580c33; }
+.asks-sec .note { position: absolute; z-index: 4; display: none; max-width: 13em; padding: .45em .75em; border-radius: .6em; background: #ea580c; color: #fff; font: 650 1em/1.3 system-ui, sans-serif; box-shadow: 0 .6em 1.4em -.4em #0007; }
+.asks-sec .note::before { content: ''; position: absolute; width: .8em; height: .8em; background: inherit; rotate: 45deg; }
+.asks-sec .note.l::before { left: -.35em; top: calc(50% - .4em); } .asks-sec .note.r::before { right: -.35em; top: calc(50% - .4em); } .asks-sec .note.t::before { top: -.35em; left: 1.4em; }
+@container (min-width: 560px) { .asks-sec .note { display: block; } }
+
+/* Chrome's install box hangs under the address bar. */
+.asks-sec .cr-install { top: 3.4em; left: 22%; width: 22em; }
+.asks-sec .cr-install .hi { display: inline-block; padding: .1em .35em; margin-left: -.35em; }
+/* Chrome's "Share this tab?" box, centered at the top of the page. */
+.asks-sec .cr-share { top: 3.4em; left: 50%; translate: -50% 0; width: 24em; }
+.asks-sec .cr-share .dlg-h { font-size: 1.35em; margin-bottom: .2em; }
+.asks-sec .cr-share .dlg-h.hi { display: inline-flex; padding: .1em .4em; margin-left: -.4em; }
+.asks-sec .thumb { margin-top: .8em; aspect-ratio: 16 / 7; border-radius: .5em; border: .2em solid var(--pri); background: var(--pg); padding: .7em; display: grid; gap: .4em; align-content: start; }
+.asks-sec .thumb i { height: .5em; border-radius: 99px; background: var(--ln); } .asks-sec .thumb i:first-child { width: 40%; height: .8em; } .asks-sec .thumb i:nth-child(2) { width: 80%; } .asks-sec .thumb i:nth-child(3) { width: 60%; }
+.asks-sec .again { position: absolute; z-index: 3; top: .55em; left: 3.2em; width: 1.9em; height: 1.9em; border-radius: 50%; display: grid; place-items: center; background: #ea580c; color: #fff; }
+.asks-sec .again svg { width: 1.1em; height: 1.1em; }
+/* Firefox's question hangs from the left end of its address bar, with a list of windows and screens. */
+.asks-sec .ff-pick { top: 3.3em; left: 7%; width: 23em; border-radius: .6em; }
+.asks-sec .ff-pick::before { content: ''; position: absolute; top: -.45em; left: 1.6em; width: .9em; height: .9em; background: inherit; rotate: 45deg; box-shadow: -1px -1px 0 #00000014; }
+.asks-sec .ff-pick .dlg-h svg { width: 1.6em; height: 1.6em; flex: none; color: var(--sub); }
+.asks-sec .pick { margin-top: .7em; border: 1px solid var(--bd); border-radius: .4em; overflow: hidden; font-size: .95em; }
+.asks-sec .pick div { display: flex; align-items: center; gap: .6em; padding: .55em .7em; }
+.asks-sec .pick div + div { border-top: 1px solid var(--ln); }
+.asks-sec .pick svg { width: 1.3em; height: 1.3em; flex: none; color: var(--sub); }
+.asks-sec .pick .no { color: var(--sub); text-decoration: line-through; }
+/* The extension's own window, from its toolbar icon: its real words. */
+.asks-sec .pop { top: 3.2em; right: 4%; width: 22em; padding: 0; border-radius: .7em; overflow: hidden; font-size: 1em; background: #fff; color: #18181b; }
+.asks-sec .pop .ptop { padding: .9em; display: grid; gap: .75em; border-bottom: 1px solid #e4e4e7; }
+.asks-sec .pop .prow { display: flex; justify-content: space-between; align-items: center; gap: .5em; }
+.asks-sec .pop .prow b { display: flex; align-items: center; gap: .55em; font-size: 1.05em; }
+.asks-sec .pop .prow img { width: 1.5em; height: 1.5em; }
+.asks-sec .pop .mut { color: #71717a; font-size: .9em; }
+.asks-sec .pop .run { display: flex; align-items: center; gap: .5em; } .asks-sec .pop .run i { width: .6em; height: .6em; border-radius: 50%; background: #16a34a; }
+.asks-sec .pop .pb { font: 600 .9em system-ui, sans-serif; border-radius: .6em; padding: .45em .75em; background: #f4f4f5; }
+.asks-sec .pop .keep { display: flex; justify-content: space-between; align-items: center; gap: .5em; background: #eff6ff; border-radius: .75em; padding: .6em .6em .6em .75em; font-size: .9em; }
+.asks-sec .pop .keep span:first-child { line-height: 1.35; }
+.asks-sec .pop .keep .b2 { display: flex; gap: .2em; flex: none; }
+.asks-sec .pop .keep .pb { background: none; color: #52525b; } .asks-sec .pop .keep .pb.go { background: #2563eb; color: #fff; }
+.asks-sec .pop .srch { border: 1px solid #d4d4d8; border-radius: .6em; padding: .5em .75em; color: #a1a1aa; font-size: .95em; }
+/* "Nothing to answer": the page as it is, with a calm green mark. */
+.asks-sec .calm { position: absolute; z-index: 2; left: 50%; top: 48%; translate: -50% -50%; display: flex; align-items: center; gap: .6em; white-space: nowrap;
+        padding: .8em 1.3em .8em 1em; border-radius: 999px; background: var(--dl); color: var(--tx); font: 650 1.25em/1 system-ui, sans-serif;
+        box-shadow: 0 0 0 1px #16a34a55, 0 1em 2.4em -.6em #0005; }
+.asks-sec .calm svg { width: 1.5em; height: 1.5em; padding: .25em; border-radius: 50%; background: #16a34a; color: #fff; }

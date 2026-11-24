@@ -1,8 +1,8 @@
 {
-  "version": "1.9.11",
-  "hash": "f6d7b47bc836d441655e5c7eac2b5cb13a7820827a3899d5adc01a12bbcb4691",
+  "version": "1.10.0",
+  "hash": "097a4c2b3bce379ff65e48892ced66f868d71559f73e46bfff369aa712a198e0",
   "extension": {
-    "version": "1.9.11",
-    "hash": "3731ae9b16ea9a2c96fc5e493605ad355da26aa9d5d971062f240d293299fb98"
+    "version": "1.10.0",
+    "hash": "8eedb997cd81a87ea73df27aecfd8368c50c50eac246cdcc2a8ee5e2aa474b9e"
   }
 }

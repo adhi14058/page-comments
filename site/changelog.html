@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What's new in Page Comments · Changelog</title>
+<meta name="description" content="Release notes for Page Comments, the free tool for commenting on any web page: what changed in each version of the bookmarklet and the browser extension, newest first.">
+<link rel="canonical" href="https://page-comments.heyadhi.com/changelog.html">
+<meta name="theme-color" content="#18181b">
+<script src="theme.js"></script>
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Page Comments">
+<meta property="og:title" content="What's new in Page Comments">
+<meta property="og:description" content="Every Page Comments release, newest first: what changed in the bookmarklet and the browser extension.">
+<meta property="og:url" content="https://page-comments.heyadhi.com/changelog.html">
+<meta property="og:image" content="https://page-comments.heyadhi.com/img/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Page Comments on a pricing page: numbered comment pins, the round button and its keys, beside the words: point at anything on a web page and say what should change.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="changelog.css">
+
+<nav class="bnav always" aria-label="Site">
+  <div class="bnav-in">
+    <a class="bnav-brand" href="./"><img src="img/icon.svg" alt="">Page Comments</a>
+    <a class="ver bnav-ver" href="#top" title="What's new">1.10.0</a>
+    <button class="bnav-menu" type="button" aria-expanded="false" aria-controls="bnav-links"><span class="bnav-now">Sections</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <div class="bnav-links" id="bnav-links"><a href="./#story">How it works</a><a href="./#play">Try it</a><a href="./#asks">What it asks</a><a href="./#ref">Reference</a></div>
+    <div class="bnav-act"><a class="bnav-get home" href="./">Get it</a></div>
+    <a class="bnav-gh" href="https://github.com/adhi14058/page-comments" aria-label="Page Comments on GitHub" title="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg></a>
+    <span class="bnav-theme-slot" aria-hidden="true"></span>
+  </div>
+</nav>
+<header class="top" id="top">
+  <div class="intro"><h1>What's new</h1><p>Every release, newest first. The latest is <span class="ver">Bookmark 1.10.0</span> <span class="ver">Extension 1.10.0</span></p></div>
+</header>
+<main class="log">
+  <article class="rel" id="v1.10.0">
+    <header><a class="pill" href="#v1.10.0">1.10.0</a><span class="latest">Latest</span><time datetime="2026-11-25">25 Nov 2026</time></header>
+    <ul><li>page-comments has a new website, and it now lives at page-comments.heyadhi.com: add the tool as the extension, a bookmark or a copy to paste, see how it works, try it right on the page, see what your browser will ask, and look up every key. It also shows this changelog. The old address forwards there, and bookmarks you already have keep working.</li><li>The round button is orange while you browse (it was black), and still blue while you comment. The comment count on it is now dark, so it shows on orange.</li><li>Hovering the round button now says what it does: a click switches between commenting and browsing, a drag moves it, and Alt+Shift+C does the same from the keyboard.</li><li>Close is one click: hovering the round button shows a small × on its outer side, away from the bar. The ⋯ list keeps Close too.</li><li>When a comment box opens over the round button, the button moves to the nearest free corner, and goes back when the box closes.</li><li>The small card of keys above the round button is compact: B batch, A area, F freeze, Esc back to browsing, and ? for all keys (Alt+Shift+C stays in the full list).</li><li>Freeze's bar now sits at the bottom of the screen, like the Select several bar, so it stays clear of menus near the top (the things you freeze).</li><li>You can comment on embedded frames (iframes, such as a video, a map or another page shown inside this one). Before, hovering one showed nothing and clicking it opened no comment box. When the frame's page comes from the same site (for example Storybook, or an app that shows its pages in frames), you pick, comment and pin the things inside it, and ↑ goes out to the frame. Copy names the frame. Frames from other sites are picked whole, like a picture.</li><li>At the right edge of a page, the details card over a highlighted element (D) no longer runs off the screen.</li><li>The card that explains a greyed-out Add screenshot now opens only from the small ? beside it, and it opens under the comment box (over it when the box is at the bottom of the screen), so it never covers what you are typing.</li></ul>
+  </article>
+  <article class="rel" id="v1.9.11">
+    <header><a class="pill" href="#v1.9.11">1.9.11</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Where Add screenshot is greyed out, hovering it now opens a clear card instead of the browser's plain tooltip: why there are no pictures on this page, and the two steps to allow them in Chrome. You can select the chrome://flags address and this page's address to copy them.</li></ul>
+  </article>
+  <article class="rel" id="v1.9.10">
+    <header><a class="pill" href="#v1.9.10">1.9.10</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>On pages where the bookmark cannot take pictures (plain http that is not localhost), Add screenshot is greyed out, and its tooltip says why and how to allow it in Chrome. Local sites named <code>localhost</code>, <code>127.0.0.1</code> or <code>name.localhost</code> take pictures as usual.</li></ul>
+  </article>
+  <article class="rel" id="v1.9.9">
+    <header><a class="pill" href="#v1.9.9">1.9.9</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Copy pictures works on pages that are not https too. The pictures paste into Google Docs and email; Slack needs an https page for pictures.</li></ul>
+  </article>
+  <article class="rel" id="v1.9.8">
+    <header><a class="pill" href="#v1.9.8">1.9.8</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Comments on a frozen menu or tooltip keep the spaces between its words. A menu item read "Offline syncKeeps working" once the menu had closed; it now reads "Offline sync Keeps working".</li></ul>
+  </article>
+  <article class="rel" id="v1.9.7">
+    <header><a class="pill" href="#v1.9.7">1.9.7</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Copy and Send to Claude describe where each element sits in a short form: its nearest id and the last few steps, instead of a long chain of nested elements. Pins still find their element as before.</li></ul>
+  </article>
+  <article class="rel" id="v1.9.6">
+    <header><a class="pill" href="#v1.9.6">1.9.6</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Copy and Send to Claude carry less noise. Each element keeps its size, colours and font. Padding and corner radius show only when they are set. The contrast score is no longer copied; you still see it while you comment.</li></ul>
+  </article>
+  <article class="rel" id="v1.9.5">
+    <header><a class="pill" href="#v1.9.5">1.9.5</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Copy now works on pages that are not https, such as internal tools, staging servers and <code>.test</code> dev sites. It used to fail there with an error.</li><li>On those pages the bookmark now says plainly that it cannot take pictures there (the extension can), instead of showing an error.</li></ul>
+  </article>
+  <article class="rel" id="v1.9.4">
+    <header><a class="pill" href="#v1.9.4">1.9.4</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Pictures pasted into a rich-text editor (Google Docs, email, Notion) are labelled with their number only, since the comment is right above them. The combined picture for Slack and the files from Save pictures keep the full "2 · comment" label.</li></ul>
+  </article>
+  <article class="rel" id="v1.9.3">
+    <header><a class="pill" href="#v1.9.3">1.9.3</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Save pictures now tells you when it fails, instead of doing nothing.</li><li>The extension (not yet in the stores): clicking its icon starts the tool and opens the popup. The popup offers Close the tool, lists every commented page, and asks once per site whether pins may come back after a reload; it remembers Not now. The click that closes the popup no longer opens a comment box.</li><li>The extension in Firefox: Save pictures works, and pins come back after a reload on sites with a port, such as localhost:3000.</li></ul>
+  </article>
+  <article class="rel" id="v1.9.2">
+    <header><a class="pill" href="#v1.9.2">1.9.2</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>The bookmark from the GitHub repository checks for new versions without telling GitHub which site you use it on, the same way the install page's bookmarks do.</li></ul>
+  </article>
+  <article class="rel" id="v1.9.1">
+    <header><a class="pill" href="#v1.9.1">1.9.1</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>For networks that reach only github.com: the GitHub repository now has its own fixed bookmark. It learns of new versions from GitHub, and its Help opens the repository. It replaces the copy of the install page that used to live in the repository.</li><li>No change for bookmarks from the install page.</li></ul>
+  </article>
+  <article class="rel" id="v1.9.0">
+    <header><a class="pill" href="#v1.9.0">1.9.0</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Sharper pictures: thin text no longer comes out smeared or paler than on the page.</li><li>The browser extension (not yet in the stores). It does what the bookmark does, plus lossless pictures, a toolbar popup that starts the tool and lists every commented page by site, a shortcut (Alt+Shift+P), Save pictures as separate files, and pins that come back after a reload on sites you allow. It shares comments and share links with the bookmark.</li><li>Only one tool ever runs on a page. The bookmark hands over to the extension where the extension already runs, and starting the extension closes an open bookmark tool. Your comments stay either way.</li></ul>
+  </article>
+  <article class="rel" id="v1.8.2">
+    <header><a class="pill" href="#v1.8.2">1.8.2</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>New page-comments icon: a comment bubble with a cursor in it. The round button shows it while you comment (browsing keeps the plain cursor), and the install page uses it too.</li></ul>
+  </article>
+  <article class="rel" id="v1.8.1">
+    <header><a class="pill" href="#v1.8.1">1.8.1</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>No visible change. Behind the scenes: the tool was reorganized so the coming browser extension can share it with the bookmark.</li></ul>
+  </article>
+  <article class="rel" id="v1.8.0">
+    <header><a class="pill" href="#v1.8.0">1.8.0</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Clear all moved out of ⋯ into the bar, as a bin icon left of the comments button. It still takes two clicks. After the first click it turns red and says how many comments it will clear.</li><li>Batch: the blue bar's "Done" is now "Close without saving", or "Close" when nothing is selected.</li><li>Batch: the comment box has ‹ › arrows that step through your selections. Each one scrolls into view with a solid outline, and the box moves beside it: below it, or above it when there is no room below. All selections stay outlined while the box is open.</li></ul>
+  </article>
+  <article class="rel" id="v1.7.1">
+    <header><a class="pill" href="#v1.7.1">1.7.1</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Messages (such as "Copied a link…") are now cards like the comments list, not dark tooltips. A message closes when another popup opens (the comments list, ⋯, a comment box, the menu, the shortcuts card) or when you click anything in the bar.</li><li>The key strip is now a small card with one key per row.</li></ul>
+  </article>
+  <article class="rel" id="v1.7.0">
+    <header><a class="pill" href="#v1.7.0">1.7.0</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>The bookmark updates itself: each click runs the newest version from the install page's site. On sites that block outside scripts (Gmail, GitHub, Jira…), or when loading fails or takes over 3 s, it runs the version you dragged. Bookmarks from before 1.7.0 need one last re-drag.</li><li>A second, fixed bookmark on the install page, for workplaces that allow no outside scripts. It never loads anything and always runs the version you dragged.</li><li>The key strip also shows ⌥⇧C (Alt+Shift+C) to switch to browsing.</li></ul>
+  </article>
+  <article class="rel" id="v1.6.0">
+    <header><a class="pill" href="#v1.6.0">1.6.0</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Key strip: while you comment, a small strip above the round button (below it near the top of the screen) shows the main keys: B batch, A area, F freeze, ? all keys. It steps aside while the bar, a comment box, the menu, the comments list or a message is open.</li><li>Batch pictures of selections far apart on the page now come out whole. A dragged area inside a page-tall section used to be cut off, and pages with smooth scrolling could be caught mid-scroll.</li><li>The ⋯ list is a little wider and its rows wrap, so "New version: open, then re-drag the bookmark" fits.</li></ul>
+  </article>
+  <article class="rel" id="v1.5.3">
+    <header><a class="pill" href="#v1.5.3">1.5.3</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Every selected box in a batch, element or dragged area, has a small × on its top-right corner that removes it from the selection. Before, you could not remove a dragged area.</li></ul>
+  </article>
+  <article class="rel" id="v1.5.2">
+    <header><a class="pill" href="#v1.5.2">1.5.2</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Wider comment box: the hint and all four buttons (Delete, Copy, Cancel, Save) fit on one line. If space still runs out, the "Enter saves" hint shortens, never a button.</li><li>Messages (such as "Copied a link…") no longer open behind the toolbar. They sit above it, in the same column as the comments list, and the toolbar's tooltips no longer cover them.</li></ul>
+  </article>
+  <article class="rel" id="v1.5.1">
+    <header><a class="pill" href="#v1.5.1">1.5.1</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>The comments list and the ⋯ list no longer open on top of each other: opening one closes the other.</li></ul>
+  </article>
+  <article class="rel" id="v1.5.0">
+    <header><a class="pill" href="#v1.5.0">1.5.0</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>New toolbar: the round button opens into a bar (modes | outputs | ⋯) toward the middle of the screen. It stays open 1.2 s after the mouse leaves. ⋯ holds Details, Keyboard shortcuts, Help, Clear all and Close.</li><li>Save pictures saves one zip instead of one download per picture. A single picture is still a plain PNG.</li><li>Copy button in the comment box: copies what you selected and typed, with its picture if ticked, without saving the comment.</li><li>A dragged area's label now says "region".</li><li>The "Add screenshot" checkbox matches the tool's look instead of the browser's.</li><li>Share links keep the page's own <code>#</code> part (routes, anchors), so the link opens the same view. The receiver's page drops only the tool's part.</li><li>New install page: sections by task, a side index, hand-over steps for each app, a live shortcut list and a bigger "Try it here".</li></ul>
+  </article>
+  <article class="rel" id="v1.4.0">
+    <header><a class="pill" href="#v1.4.0">1.4.0</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Share link asks your name once per site (Shift+S changes it). Receivers see each writer's name and colour.</li></ul>
+  </article>
+  <article class="rel" id="v1.3.0">
+    <header><a class="pill" href="#v1.3.0">1.3.0</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Save pictures (one file per picture), and Retake for share links that came without pictures.</li><li>Batch: clicks select elements by default, and A switches to areas. In area mode the bar and pins stay clickable. Esc steps back one level.</li></ul>
+  </article>
+  <article class="rel" id="v1.2.0">
+    <header><a class="pill" href="#v1.2.0">1.2.0</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>Share link moved to the round button (S). It carries small pictures as long as the link stays under 30 KB.</li><li>Opening a comment from the comments list scrolls to it and shows its selection.</li></ul>
+  </article>
+  <article class="rel" id="v1.1.x">
+    <header><a class="pill" href="#v1.1.x">1.1.x</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>1.1.1: comments from a share link show in purple. Sizes show in KB.</li><li>1.1.0: Share link (the comments travel inside the link), batch mode (B), keys shown in tooltips, and a question whether to keep or drop your selections.</li></ul>
+  </article>
+  <article class="rel" id="v1.0.x">
+    <header><a class="pill" href="#v1.0.x">1.0.x</a><time datetime="2026-11-24">24 Nov 2026</time></header>
+    <ul><li>1.0.1: a comment opened from the comments list closes when you click outside it. Copy text, for Jira and Claude desktop.</li><li>1.0.0: the first numbered release. A comment box with plain names and a details tab, D to turn details on and off, Shift+click selections with one picture each, Copy pictures, Send to Claude on local site names from your computer's hosts file, and a test area on the install page.</li></ul>
+  </article>
+</main>
+<footer><a href="./">Install page</a><a href="https://github.com/adhi14058/page-comments">GitHub</a></footer>
+<a class="goup" href="#top" aria-label="Back to the top" title="Back to the top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></a>
+<script src="nav.js"></script>
+</html>
