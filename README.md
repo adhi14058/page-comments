@@ -35,47 +35,31 @@
 
 ## 🚀 Three ways to use it
 
-All three run the same tool. In one browser, comments made with one show up in the others, and share links open in all of them.
+| | <img src="docs/images/way-bookmark.svg" width="40" alt=""><br>**The bookmark** | <img src="docs/images/way-github.svg" width="40" alt=""><br>**Copy it from GitHub** | <img src="docs/images/way-extension.svg" width="40" alt=""><br>**The extension** |
+|---|:---:|:---:|:---:|
+| **For** | Most people | Networks that reach only github.com | The sharpest pictures |
+| **Updates** | By itself | A dot tells you | Through the store |
+| **Get it** | **[Install page →](https://page-comments.share.heyadhi.com/)** | **[bookmarklet.txt →](bookmarklet.txt)** | Coming soon |
 
-<table>
-  <tr>
-    <td width="33%" valign="top">
-      <img src="docs/images/way-bookmark.svg" width="56" alt=""><br>
-      <h3>The bookmark</h3>
-      <sub><b>For most people.</b> Updates itself.</sub>
-      <ol>
-        <li>Open the <a href="https://page-comments.share.heyadhi.com/"><b>install page</b></a>.</li>
-        <li>Drag the orange button to your bookmarks bar.</li>
-        <li>On any page, click the bookmark.</li>
-      </ol>
-    </td>
-    <td width="33%" valign="top">
-      <img src="docs/images/way-github.svg" width="56" alt=""><br>
-      <h3>Copy it from GitHub</h3>
-      <sub><b>When your network only lets you reach github.com.</b></sub>
-      <ol>
-        <li>Open <a href="bookmarklet.txt"><code>bookmarklet.txt</code></a> and click <b>Copy raw file</b>.</li>
-        <li>Right-click the bookmarks bar → <b>Add page…</b> (Firefox: <b>Add Bookmark…</b>)</li>
-        <li>Name it <i>Page comments</i> and paste into <b>URL</b>.</li>
-        <li>On any page, click the bookmark.</li>
-      </ol>
-    </td>
-    <td width="33%" valign="top">
-      <img src="docs/images/way-extension.svg" width="56" alt=""><br>
-      <h3>The extension</h3>
-      <sub><b>Chrome and Firefox.</b> Coming to their stores.</sub>
-      <ol>
-        <li>Click the icon: the tool starts.</li>
-        <li>Sharper pictures, and always the newest version, even on strict sites like Gmail.</li>
-        <li>Pins come back after a reload by themselves, on sites you allow.</li>
-      </ol>
-      <sub>Try it now: <a href="docs/DEVELOPING.md#the-extension">load it unpacked</a>.</sub>
-    </td>
-  </tr>
-</table>
+All three run the same tool and share comments and share links.
 
-> [!TIP]
-> **Which one?** Can you open page-comments.share.heyadhi.com? Take **the bookmark**. Only github.com? **Copy it from GitHub**. Want the sharpest pictures and pins that come back on their own? **The extension**.
+<details>
+<summary><b>Add the GitHub copy as a bookmark</b></summary>
+<br>
+
+1. Open [`bookmarklet.txt`](bookmarklet.txt) and click **Copy raw file**.
+2. Right-click the bookmarks bar → **Add page…** (Firefox: **Add Bookmark…**).
+3. Name it *Page comments* and paste into **URL**.
+
+</details>
+
+<details>
+<summary><b>Try the extension before it is in the stores</b></summary>
+<br>
+
+Load it unpacked: see [Developing → The extension](docs/DEVELOPING.md#the-extension).
+
+</details>
 
 ## 📮 Where your comments go
 
