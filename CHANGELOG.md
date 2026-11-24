@@ -2,7 +2,7 @@
 
 What changed for you in each version, newest first.
 
-## 1.9.12 — 2026-11-24
+## 1.10.0 — 2026-11-25
 
 - Freeze's bar now sits at the bottom of the screen, like the Select several bar, so it stays clear of menus near the top (the things you freeze).
 - The small card of keys above the round button is compact: it shows Esc for going back to browsing (Alt+Shift+C stays in the full list of keys).
