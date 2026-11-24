@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { stripComments, highlight } = require('./highlight.js');
 
-const server = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
+const server = fs.readFileSync(path.join(__dirname, '..', 'server', 'server.js'), 'utf8');
 
 test('stripping comments keeps server.js valid and drops only comments', () => {
   const code = stripComments(server);

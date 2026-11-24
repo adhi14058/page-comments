@@ -11,6 +11,7 @@ const { stripComments, highlight } = require('./highlight.js');
 
 const SITE = 'page-comments';
 const SITE_URL = `https://${SITE}.share.heyadhi.com/`; // also SITE in core.js
+const ROOT = path.join(__dirname, '..'); // the repository: release.json, CHANGELOG.md and the built files live there
 const SHARE_CLI = path.join(os.homedir(), '.local/share/heyadhi-share/heyadhi.mjs');
 
 // esbuild is fetched by npx, nothing to install.
@@ -24,17 +25,17 @@ if (!uiCss || uiCss.includes('${')) throw new Error('core.js styles not found as
 const cssMin = execFileSync('npx', ['-y', 'esbuild@0.28.2', '--minify', '--loader=css'], { input: uiCss, encoding: 'utf8' }).trim();
 const raw = minifiedJs.replace(uiCss, () => cssMin.replace(/[`\\]/g, '\\$&'));
 // Releases are major.minor.patch. release.json keeps the last published version and a hash of its code: changed code
-// gets the next patch (or `node build.js minor` / `major`); unchanged code keeps its version, so nobody is told to update.
-const RELEASE = path.join(__dirname, 'release.json');
+// gets the next patch (or `node bookmarklet/build.js minor` / `major`); unchanged code keeps its version, so nobody is told to update.
+const RELEASE = path.join(ROOT, 'release.json');
 const last = JSON.parse(fs.readFileSync(RELEASE, 'utf8'));
 const hash = crypto.createHash('sha256').update(raw).digest('hex');
 const bump = process.argv[2];
-if (bump && !['major', 'minor', 'patch'].includes(bump)) throw new Error('usage: node build.js [major|minor|patch]');
+if (bump && !['major', 'minor', 'patch'].includes(bump)) throw new Error('usage: node bookmarklet/build.js [major|minor|patch]');
 const [major, minor, patch] = last.version.split('.').map(Number);
 const version = !bump && hash === last.hash ? last.version
   : bump === 'major' ? `${major + 1}.0.0` : bump === 'minor' ? `${major}.${minor + 1}.0` : `${major}.${minor}.${patch + 1}`;
 // Every published version has its release note in CHANGELOG.md (Adhi: "for every release, just keep a release note").
-if (version !== last.version && !fs.readFileSync(path.join(__dirname, 'CHANGELOG.md'), 'utf8').includes(`## ${version} `)) {
+if (version !== last.version && !fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8').includes(`## ${version} `)) {
   throw new Error(`add a "## ${version} — <date>" entry to CHANGELOG.md before publishing`);
 }
 const client = raw.replace('__PAGE_COMMENTS_VERSION__', version);
@@ -47,7 +48,7 @@ const versionSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${vMajor * 10
 // The server is shown as readable source inside a bash/zsh command that writes it to a file, so people can read
 // what they run. A quoted heredoc keeps the shell from touching $, backticks or quotes in the code.
 // Comments are stripped (the page explains the server instead) and the code is coloured at build time.
-const serverCode = stripComments(fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8')).trimEnd();
+const serverCode = stripComments(fs.readFileSync(path.join(ROOT, 'server', 'server.js'), 'utf8')).trimEnd();
 if (serverCode.includes('\nPAGE_COMMENTS_SERVER\n')) throw new Error('server.js contains the heredoc end marker');
 const installHtml = `<span class="b">cat</span> &gt; ~/page-comments-server.js &lt;&lt;<span class="m">'PAGE_COMMENTS_SERVER'</span>\n` +
   `${highlight(serverCode)}\n<span class="m">PAGE_COMMENTS_SERVER</span>`;
@@ -116,7 +117,7 @@ const arrows = NOTES.map(([, d]) => `<path class="halo" d="${d}"/><path d="${d}"
 
 // The shortcut list is the tool's own (KEYS in core.js), so the page cannot drift from the card the tool shows.
 // data-k names the keys the way the page script names a keydown, so pressing one lights its row.
-const keysSrc = fs.readFileSync(path.join(__dirname, 'core.js'), 'utf8').match(/const KEYS = (\[[\s\S]*?\]\]);/)?.[1];
+const keysSrc = fs.readFileSync(path.join(ROOT, 'core', 'core.js'), 'utf8').match(/const KEYS = (\[[\s\S]*?\]\]);/)?.[1];
 if (!keysSrc) throw new Error('the KEYS list in core.js was not found');
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const keyRows = new Function('ALT_SHIFT', `return ${keysSrc}`)('Alt+Shift+').map(([k, what]) => {
@@ -631,14 +632,14 @@ try {
   fs.writeFileSync(RELEASE, JSON.stringify({ version, hash }, null, 2) + '\n');
   console.log(`published ${out.url} version ${version} (bookmark ${(Buffer.byteLength(bookmark) / 1024).toFixed(1)} KB)`);
   // The extension is built from the same core with the same version, so the two never drift apart.
-  console.log(`extension ${version} built in ${require('./build-extension.js')(version)}`);
+  console.log(`extension ${version} built in ${require('../extension/build.js')(version)}`);
   // For people who cannot reach the share site: the same install page as a file in the repository (it works opened
   // straight from a download), and the fixed bookmark as one line to paste into a new bookmark's address.
   // Every release commits and pushes just these files (Adhi, 2026-11-24), so the GitHub copy never falls behind.
-  fs.mkdirSync(path.join(__dirname, 'docs'), { recursive: true });
-  fs.writeFileSync(path.join(__dirname, 'docs', 'index.html'), html);
-  fs.writeFileSync(path.join(__dirname, 'bookmarklet.txt'), bookmarkFixed + '\n');
-  const git = (...args) => execFileSync('git', args, { cwd: __dirname, encoding: 'utf8' });
+  fs.mkdirSync(path.join(ROOT, 'docs'), { recursive: true });
+  fs.writeFileSync(path.join(ROOT, 'docs', 'index.html'), html);
+  fs.writeFileSync(path.join(ROOT, 'bookmarklet.txt'), bookmarkFixed + '\n');
+  const git = (...args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' });
   git('add', 'docs/index.html', 'bookmarklet.txt');
   if (git('diff', '--cached', '--name-only', '--', 'docs/index.html', 'bookmarklet.txt').trim()) {
     git('commit', '-m', `Release ${version}: install page and bookmarklet for the repository`, '--', 'docs/index.html', 'bookmarklet.txt');

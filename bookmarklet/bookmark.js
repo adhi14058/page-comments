@@ -1,7 +1,7 @@
 // The bookmark's side of page-comments: pictures through Chrome's tab capture, several pictures saved as one zip, and
 // a check for newer versions (a bookmark keeps the copy it was dragged with on sites that block outside scripts).
 // build.js bundles this file with core.js into the bookmark. The extension has its own file with the same shape.
-import { startPageComments } from './core.js';
+import { startPageComments } from '../core/core.js';
 
 // Chrome asks "Share this tab?" the first time a picture is needed; the capture then stays on until the tool closes,
 // so later pictures need no prompt.

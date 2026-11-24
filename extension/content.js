@@ -1,9 +1,9 @@
 // The extension's side of page-comments, run inside a tab when you click "Comment on this page" in the popup, press
-// the shortcut, or (on sites you allowed) when a page that has comments loads. build-extension.js bundles it with
+// the shortcut, or (on sites you allowed) when a page that has comments loads. extension/build.js bundles it with
 // core.js into dist/<browser>/content.js. It runs in the extension's own isolated copy of the page's scripts: the page
 // cannot see or call it, but it shares the page's DOM, localStorage and IndexedDB, so comments made with the bookmark
 // show up here and the other way round.
-import { startPageComments } from '../core.js';
+import { startPageComments } from '../core/core.js';
 
 const api = globalThis.browser ?? chrome;
 const html = document.documentElement;
@@ -63,7 +63,7 @@ const start = () => {
   });
 };
 
-// The first run on a page marks it, so the bookmark can hand over to us (see bookmark.js); every later run only
+// The first run on a page marks it, so the bookmark can hand over to us (see bookmarklet/bookmark.js); every later run only
 // switches the tool on or off (the core closes itself when started twice).
 if (!globalThis.__pageCommentsExtension) {
   globalThis.__pageCommentsExtension = true;

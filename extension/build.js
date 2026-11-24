@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const SRC = path.join(__dirname, 'extension');
+const SRC = __dirname;
 const FILES = ['background.js', 'restore.js', 'offscreen.html', 'offscreen.js', 'popup.html', 'popup.css', 'popup.js'];
 
 const manifest = (version, browser) => ({
@@ -30,7 +30,7 @@ const manifest = (version, browser) => ({
 });
 
 module.exports = (version) => {
-  const content = execFileSync('npx', ['-y', 'esbuild@0.28.2', 'extension/content.js', '--bundle', '--format=iife'], { cwd: __dirname, encoding: 'utf8' });
+  const content = execFileSync('npx', ['-y', 'esbuild@0.28.2', 'content.js', '--bundle', '--format=iife'], { cwd: __dirname, encoding: 'utf8' });
   if (!content.includes('__PAGE_COMMENTS_VERSION__')) throw new Error('core.js lost its __PAGE_COMMENTS_VERSION__ placeholder');
   for (const browser of ['chrome', 'firefox']) {
     const out = path.join(SRC, 'dist', browser);
@@ -39,10 +39,10 @@ module.exports = (version) => {
     fs.writeFileSync(path.join(out, 'content.js'), content.replace('__PAGE_COMMENTS_VERSION__', version));
     // The offscreen page exists only for Chrome's service worker (see background.js).
     for (const f of FILES.filter((f) => browser === 'chrome' || !f.startsWith('offscreen'))) fs.copyFileSync(path.join(SRC, f), path.join(out, f));
-    for (const s of [16, 32, 48, 128]) fs.copyFileSync(path.join(__dirname, 'icons', `icon-${s}.png`), path.join(out, 'icons', `icon-${s}.png`));
+    for (const s of [16, 32, 48, 128]) fs.copyFileSync(path.join(__dirname, '..', 'core', 'icons', `icon-${s}.png`), path.join(out, 'icons', `icon-${s}.png`));
     fs.writeFileSync(path.join(out, 'manifest.json'), JSON.stringify(manifest(version, browser), null, 2) + '\n');
   }
   return path.join(SRC, 'dist');
 };
 
-if (require.main === module) console.log('built', module.exports(require('./release.json').version));
+if (require.main === module) console.log('built', module.exports(require('../release.json').version));
