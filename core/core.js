@@ -641,6 +641,7 @@ export const startPageComments = (platform) => {
     return png(canvas);
   };
   let commenting = false, draft = null, toastTimer = 0, frame = 0, clearTimer = 0, page = pageOf();
+  let dodge = null; // where the round button waits while an open comment box would cover it (see dodgeBox)
 
   // Short CSS path: stops at the nearest id, nth-of-type only where siblings share a tag.
   const selectorOf = (el) => {
@@ -918,6 +919,7 @@ export const startPageComments = (platform) => {
     pop.style.top = Math.max(8, Math.min(y + 12, innerHeight - pop.offsetHeight - 8)) + 'px';
     pop.classList.toggle('flip', pop.getBoundingClientRect().right + 266 > innerWidth); // the details card goes left near the right edge
     placeSide();
+    dodgeBox();
   };
   // Brings the next (or previous) selection of the batch into view, marks it, and moves the box beside it.
   const goPick = (step) => {
@@ -943,7 +945,10 @@ export const startPageComments = (platform) => {
   navNext.onclick = () => goPick(1);
   // Unsaved text: the box differs from what it opened with. A saved comment opened from the list is not unsaved.
   const unsaved = () => !!draft && textarea.value.trim() !== (draft.comment ? draft.comment.comment : '');
-  const closePop = () => { pop.hidden = true; draft = null; areaBox.hidden = true; shown = []; shownCur = -1; drawShown(); };
+  const closePop = () => {
+    pop.hidden = true; draft = null; areaBox.hidden = true; shown = []; shownCur = -1; drawShown();
+    if (dodge) { dodge = null; placeWidget(); } // back to where the user left it
+  };
 
   // A saved comment, opened again, shows what it covers dashed (its element, its area, or each pick of a batch),
   // following the page as it scrolls until the box closes.
@@ -1575,6 +1580,7 @@ export const startPageComments = (platform) => {
   if (!Number.isFinite(pos?.x) || !Number.isFinite(pos?.y)) pos = null;
   // 66 px from the edges leaves room for a tight arc even in a corner.
   const centre = () => {
+    if (dodge) return dodge;
     const x = pos ? pos.x : innerWidth - 66, y = pos ? pos.y : innerHeight - 66;
     return { x: Math.max(66, Math.min(innerWidth - 66, x)), y: Math.max(66, Math.min(innerHeight - 66, y)) };
   };
@@ -1602,6 +1608,19 @@ export const startPageComments = (platform) => {
     widget.style.top = y + 'px';
     layoutBar();
     placeDock();
+  };
+  // An open comment box that would cover the round button sends the button to the nearest screen corner the box leaves
+  // free; closing the box brings it back (closePop).
+  const dodgeBox = () => {
+    const p = pop.getBoundingClientRect(), m = 26 + 12; // the button's radius and a gap
+    const hits = (c) => c.x + m > p.left && c.x - m < p.right && c.y + m > p.top && c.y - m < p.bottom;
+    const was = dodge;
+    dodge = null;
+    const home = centre();
+    if (!hits(home)) { if (was) placeWidget(); return; }
+    const corners = [[innerWidth - 66, innerHeight - 66], [66, innerHeight - 66], [innerWidth - 66, 66], [66, 66]].map(([x, y]) => ({ x, y }));
+    dodge = corners.filter((c) => !hits(c)).sort((a, b) => Math.hypot(a.x - home.x, a.y - home.y) - Math.hypot(b.x - home.x, b.y - home.y))[0] || null;
+    placeWidget();
   };
   const dockObserver = new ResizeObserver(placeDock);
   dockObserver.observe(dock);
@@ -1635,6 +1654,7 @@ export const startPageComments = (platform) => {
   main.onpointerdown = (e) => {
     e.preventDefault();
     const sx = e.clientX, sy = e.clientY, start = centre();
+    dodge = null; // a drag puts it where the user wants, even out of a dodge
     let moved = false;
     main.setPointerCapture(e.pointerId);
     main.onpointermove = (m) => {
