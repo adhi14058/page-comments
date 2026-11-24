@@ -2,6 +2,20 @@
 
 What changed for you in each version, newest first.
 
+## 1.10.1 — 2026-11-25
+
+- With the bookmark, keys work right after you allow "Share this tab?". Before, F, A, B and the other keys did nothing until you clicked the page.
+- Pressing F before sharing is on now asks to share, then counts down and freezes, as the Freeze button does. You no longer press F a second time.
+- While you comment, the cursor is a pointing hand over the whole page, in Freeze too, because a click picks whatever is under it. Only Area keeps the crosshair.
+- The same page opened from a newsletter or an ad (with `utm_…`, `fbclid`, `gclid` and similar tracking parameters in its address) shows the same comments. Comments you already saved keep showing.
+- Shared links are checked more strictly. A broken or tampered link can no longer save a comment that spoils the page's list. A link made by a newer version asks you to update.
+- On right-to-left pages (Arabic, Hebrew) the bar no longer mirrors, and comments and names typed in those languages run right to left.
+- AltGr+Shift+C and AltGr+Shift+F type their letters again (Windows) instead of switching modes or freezing.
+- On sites that block storage, the comment box opens as usual, and Copy no longer says it failed after it worked.
+- The extension no longer closes the tool it has just opened when a page reloads at the same moment.
+- A bookmark you drag from now on no longer tells this website which page you used it on. Drag it again to get this.
+- The website has a privacy page: what is stored, where, and what leaves your device. On the website's Try it demo, a tool you already have running picks the things inside the demo before you press Start.
+
 ## 1.10.0 — 2026-11-25
 
 - page-comments has a new website, and it now lives at page-comments.heyadhi.com: add the tool as the extension, a bookmark or a copy to paste, see how it works, try it right on the page, see what your browser will ask, and look up every key. It also shows this changelog. The old address forwards there, and bookmarks you already have keep working.
