@@ -45,4 +45,4 @@ module.exports = (version) => {
   return path.join(SRC, 'dist');
 };
 
-if (require.main === module) console.log('built', module.exports(require('../release.json').version));
+if (require.main === module) console.log('built', module.exports(require('../release.json').extension?.version ?? require('../release.json').version));

@@ -8,6 +8,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const crypto = require('node:crypto');
 const { stripComments, highlight } = require('./highlight.js');
+const { nextVersions } = require('./version.js');
 
 const SITE = 'page-comments';
 const SITE_URL = `https://${SITE}.share.heyadhi.com/`; // also SITE in core.js
@@ -30,19 +31,24 @@ const bundle = (updates) => {
   return minifiedJs.replace(uiCss, () => cssMin.replace(/[`\\]/g, '\\$&'));
 };
 const raw = bundle('site'), rawGithub = bundle('github');
-// Releases are major.minor.patch. release.json keeps the last published version and a hash of its code: changed code
-// gets the next patch (or `node bookmarklet/build.js minor` / `major`); unchanged code keeps its version, so nobody is told to update.
+// Releases: release.json keeps the last published versions and hashes of their code; version.js says how they move
+// (`node bookmarklet/build.js minor` / `major` bump the bookmark's). The extension's hash covers its own files and
+// icons; the core is in the bookmark's code, so a core change moves both.
 const RELEASE = path.join(ROOT, 'release.json');
 const last = JSON.parse(fs.readFileSync(RELEASE, 'utf8'));
 const hash = crypto.createHash('sha256').update(raw).update(rawGithub).digest('hex');
-const bump = process.argv[2];
-if (bump && !['major', 'minor', 'patch'].includes(bump)) throw new Error('usage: node bookmarklet/build.js [major|minor|patch]');
-const [major, minor, patch] = last.version.split('.').map(Number);
-const version = !bump && hash === last.hash ? last.version
-  : bump === 'major' ? `${major + 1}.0.0` : bump === 'minor' ? `${major}.${minor + 1}.0` : `${major}.${minor}.${patch + 1}`;
+const extSum = crypto.createHash('sha256');
+for (const dir of ['extension', 'core/icons']) {
+  for (const f of fs.readdirSync(path.join(ROOT, dir)).filter((f) => /\.(js|html|css|png)$/.test(f)).sort()) {
+    extSum.update(f).update(fs.readFileSync(path.join(ROOT, dir, f)));
+  }
+}
+const extHash = extSum.digest('hex');
+const { version, extVersion } = nextVersions({ last, hash, extHash, bump: process.argv[2] });
 // Every published version has its release note in CHANGELOG.md (Adhi: "for every release, just keep a release note").
-if (version !== last.version && !fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8').includes(`## ${version} `)) {
-  throw new Error(`add a "## ${version} — <date>" entry to CHANGELOG.md before publishing`);
+const changelog = fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8');
+for (const [v, was] of [[version, last.version], [extVersion, last.extension?.version ?? last.version]]) {
+  if (v !== was && !changelog.includes(`## ${v} `)) throw new Error(`add a "## ${v} — <date>" entry to CHANGELOG.md before publishing`);
 }
 const client = raw.replace('__PAGE_COMMENTS_VERSION__', version);
 if (client === raw) throw new Error('core.js lost its __PAGE_COMMENTS_VERSION__ placeholder');
@@ -636,10 +642,10 @@ try {
   fs.writeFileSync(path.join(dir, 'version.svg'), versionSvg);
   fs.writeFileSync(path.join(dir, 'client.js'), remoteJs);
   const out = JSON.parse(execFileSync('node', [SHARE_CLI, 'share', 'update', SITE, dir], { encoding: 'utf8' }));
-  fs.writeFileSync(RELEASE, JSON.stringify({ version, hash }, null, 2) + '\n');
+  fs.writeFileSync(RELEASE, JSON.stringify({ version, hash, extension: { version: extVersion, hash: extHash } }, null, 2) + '\n');
   console.log(`published ${out.url} version ${version} (bookmark ${(Buffer.byteLength(bookmark) / 1024).toFixed(1)} KB)`);
   // The extension is built from the same core with the same version, so the two never drift apart.
-  console.log(`extension ${version} built in ${require('../extension/build.js')(version)}`);
+  console.log(`extension ${extVersion} built in ${require('../extension/build.js')(extVersion)}`);
   // For people whose network reaches only github.com: the fixed bookmark as one line to paste into a new bookmark's
   // address, the build that checks for updates and links its Help line to GitHub. Every release commits and pushes it
   // (Adhi, 2026-11-24) with the version.svg that bookmark checks and release.json (the README's version badge), so the

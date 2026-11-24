@@ -28,7 +28,7 @@ For using the tool, see the [Guide](GUIDE.md).
 |---|---|
 | `README.md`, `LICENSE` | The front page and the licence |
 | `CHANGELOG.md` | One release note per published version |
-| `release.json` | The one version number of the bookmark and the extension. The README's version badge reads it. |
+| `release.json` | The bookmark's and the extension's versions, with hashes of their code. The README's version badge reads it. |
 | `bookmarklet.txt` | The GitHub copy of the bookmark, written and pushed by every release |
 
 ## 🔨 Build and release
@@ -47,13 +47,20 @@ Releases are `major.minor.patch`.
 | `node bookmarklet/build.js minor` | The next minor |
 | `node bookmarklet/build.js major` | The next major |
 
-`release.json` keeps the last published version and a hash of the bookmark's code (`core.js` with `bookmark.js`).
-A change to the extension's own files alone does not change that hash, so it keeps the version.
+`release.json` keeps the last published versions and hashes of their code. `bookmarklet/version.js` decides how they move, and `bookmarklet/version.test.js` checks it.
+
+| What changed | Bookmark | Extension |
+|---|---|---|
+| The bookmark's code (`core.js` with `bookmark.js`) | Next patch: 1.9.6 | Same: 1.9.6 |
+| Only the extension's own files or icons | Same: 1.9.5 | A fourth number: 1.9.5.1, then 1.9.5.2 |
+| Nothing | Same | Same |
+
+The stores refuse an upload whose version did not go up, and only numbers are allowed (no letters). The first three numbers always say which core a version carries.
 
 **What one run does**
 
 1. Bundles `core.js` with `bookmark.js` using esbuild (`npx` downloads it on first use).
-2. Picks the version, and stops when `CHANGELOG.md` has no `## <version> — <date>` entry for a new one.
+2. Picks both versions, and stops when `CHANGELOG.md` has no `## <version> — <date>` entry for a new one (an extension-only release gets its own entry, e.g. `## 1.9.5.1`).
 3. Builds the install page. Its server command is `server.js` without its comments, syntax-coloured by `highlight.js`, in a quoted heredoc that writes `~/page-comments-server.js`.
 4. Publishes the install page, `client.js` and `version.svg` to [page-comments.share.heyadhi.com](https://page-comments.share.heyadhi.com/) with the `heyadhi-share` CLI. No local copy is kept.
 5. Writes `release.json` and builds the extension.
