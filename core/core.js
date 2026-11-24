@@ -30,6 +30,44 @@ export const shortSelector = (selector, keep = 3) => String(selector).split(FRAM
   return tail.length <= keep + 1 ? tail.join(' > ') : `${tail[0]} > … > ${tail.slice(-keep).join(' > ')}`;
 }).join(FRAME_SEP);
 
+
+// What a share link may carry of a comment. A link is someone else's data: fromLink keeps only comments of the right
+// shape, with strings where the tool reads text and plain numbers where it draws boxes, and only real colours (they
+// end up in styles). A comment it cannot make sense of is left out, never saved half-broken.
+const SHARED = ['id', 'comment', 'selector', 'selectedText', 'dx', 'dy', 'area', 'items', 'group', 'text', 'html', 'info', 'size', 'background', 'frozen', 'by'];
+const PIC_URL = /^data:image\/(webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/;
+const colour = (v) => typeof v === 'string' && /^(#[0-9a-f]{3,8}|transparent)$/i.test(v);
+// A box (an area, or a batch pick's area) as its four numbers only, or null when one is not a finite number.
+const box = (b) => (b && ['dx', 'dy', 'w', 'h'].every((k) => Number.isFinite(b[k])) ? { dx: b.dx, dy: b.dy, w: b.w, h: b.h } : null);
+export const fromLink = (c, page) => {
+  if (!c || typeof c.comment !== 'string' || typeof c.selector !== 'string' || typeof c.id !== 'string') return null;
+  const out = Object.fromEntries(SHARED.filter((k) => c[k] !== undefined).map((k) => [k, c[k]]));
+  out.dx = +out.dx || 0;
+  out.dy = +out.dy || 0;
+  for (const k of ['text', 'html', 'selectedText', 'size']) if (k in out && typeof out[k] !== 'string') out[k] = '';
+  if (out.info && !(colour(out.info.background) && colour(out.info.color))) delete out.info;
+  if (out.background !== undefined && !colour(out.background)) delete out.background;
+  if (out.area) {
+    out.area = box(out.area);
+    if (!out.area) return null;
+  }
+  if (typeof out.by === 'string' && out.by.trim()) out.by = out.by.trim().slice(0, 40);
+  else delete out.by;
+  if (out.items !== undefined) {
+    if (!Array.isArray(out.items)) return null;
+    const items = out.items.map((it) => it && typeof it.selector === 'string' && {
+      selector: it.selector, text: typeof it.text === 'string' ? it.text : '',
+      ...(it.box !== undefined ? { box: box(it.box) } : {}),
+    });
+    if (!items.every((it) => it && it.box !== null)) return null;
+    out.items = items;
+  }
+  // An area or a batch is drawn and named from its items.
+  if ((out.area || out.group) && !out.items) return null;
+  const pics = Array.isArray(c.pics) ? c.pics.filter((p) => p && typeof p.url === 'string' && PIC_URL.test(p.url) && Number.isFinite(p.width)) : [];
+  return { ...out, page, shared: true, pics, hadPic: c.hadPic === true };
+};
+
 export const startPageComments = (platform) => {
   const SERVER = 'http://localhost:4747';
   const SITE = 'https://page-comments.heyadhi.com/';
@@ -562,10 +600,16 @@ export const startPageComments = (platform) => {
   };
   // Pictures are too big for localStorage, so they live in the site's IndexedDB, keyed by comment id: one picture as a
   // Blob, or several (one per Shift+clicked element) as a list of { blob, width }.
+  // Never raise this database's version: copies of the tool that never update (bookmarks dragged long ago) open it at
+  // version 1, and a higher version would lock them out of every picture. Something new gets a database of its own.
   const db = new Promise((ok, fail) => {
     const req = indexedDB.open('page-comments', 1);
     req.onupgradeneeded = () => req.result.createObjectStore('shots');
-    req.onsuccess = () => ok(req.result);
+    req.onsuccess = () => {
+      // Should some other copy upgrade it anyway, step aside rather than block that upgrade.
+      req.result.onversionchange = () => req.result.close();
+      ok(req.result);
+    };
     req.onerror = () => fail(req.error);
   });
   db.catch(() => {}); // reported when a screenshot is saved, not here
@@ -1797,7 +1841,6 @@ export const startPageComments = (platform) => {
   // ---- Share link: this page's comments, compressed into the link's #page-comments=… part, with small copies of the
   // pictures while the link stays under 30 KB (Slack takes 40,000 characters a message); past that, without pictures.
   const SHARE_KEY = 'page-comments=', LINK_MAX = 30000;
-  const SHARED = ['id', 'comment', 'selector', 'selectedText', 'dx', 'dy', 'area', 'items', 'group', 'text', 'html', 'info', 'size', 'background', 'frozen', 'by'];
   // Each writer's name gets its own colour (the same name always the same one); orange stays yours, purple is a link
   // without names. The names come from links: only ever shown as text, and the colour comes from this fixed list.
   // No blues: the tool's own highlight is blue. No orange: that is yours.
@@ -1815,7 +1858,6 @@ export const startPageComments = (platform) => {
     canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
     return { url: await dataUrl(await new Promise((ok) => canvas.toBlob(ok, 'image/webp', 0.7))), width: canvas.width };
   };
-  const PIC_URL = /^data:image\/(webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/;
   const blobOf = (url) => { const [head, b64] = url.split(','); return new Blob([Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0))], { type: head.slice(5, -7) }); };
   const bytesOf = async (stream) => new Uint8Array(await new Response(stream).arrayBuffer());
   const pack = async (data) => {
@@ -1826,22 +1868,6 @@ export const startPageComments = (platform) => {
   const unpack = async (str) => {
     const bytes = Uint8Array.from(atob(str.replace(/-/g, '+').replace(/_/g, '/')), (ch) => ch.charCodeAt(0));
     return JSON.parse(new TextDecoder().decode(await bytesOf(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw')))));
-  };
-  // A link is someone else's data: keep only comments of the right shape, and only real colours (they end up in styles).
-  const colour = (v) => typeof v === 'string' && /^(#[0-9a-f]{3,8}|transparent)$/i.test(v);
-  const fromLink = (c) => {
-    if (!c || typeof c.comment !== 'string' || typeof c.selector !== 'string' || typeof c.id !== 'string') return null;
-    const out = Object.fromEntries(SHARED.filter((k) => c[k] !== undefined).map((k) => [k, c[k]]));
-    out.dx = +out.dx || 0;
-    out.dy = +out.dy || 0;
-    if (out.info && !(colour(out.info.background) && colour(out.info.color))) delete out.info;
-    if (out.background !== undefined && !colour(out.background)) delete out.background;
-    if (out.area && !['dx', 'dy', 'w', 'h'].every((k) => Number.isFinite(out.area[k]))) return null;
-    if (typeof out.by === 'string' && out.by.trim()) out.by = out.by.trim().slice(0, 40);
-    else delete out.by;
-    if (out.items && !(Array.isArray(out.items) && out.items.every((it) => it && typeof it.selector === 'string'))) return null;
-    const pics = Array.isArray(c.pics) ? c.pics.filter((p) => p && typeof p.url === 'string' && PIC_URL.test(p.url) && Number.isFinite(p.width)) : [];
-    return { ...out, page: pageOf(), shared: true, pics, hadPic: c.hadPic === true };
   };
   // A link too long for its pictures leaves them out: offer to take them again here, on this page. Frozen ones (a menu
   // or tooltip at one moment) and ones whose element is not on this page cannot be retaken.
@@ -1883,8 +1909,12 @@ export const startPageComments = (platform) => {
     const { own, ours } = splitHash();
     if (!ours) return;
     try {
+      const data = await unpack(ours);
+      // Today's links hold a list of comments. Any other shape that still reads as JSON comes from a later version
+      // that changed the format.
+      if (!Array.isArray(data)) throw new Error('newer');
       const have = new Set(comments.map((c) => c.id));
-      const fresh = (await unpack(ours)).map(fromLink).filter((c) => c && !have.has(c.id));
+      const fresh = data.map((c) => fromLink(c, pageOf())).filter((c) => c && !have.has(c.id));
       for (const c of fresh) {
         const pics = c.pics;
         if (c.hadPic && !pics.length) missingPics.push(c);
@@ -1901,8 +1931,9 @@ export const startPageComments = (platform) => {
       render();
       toast(fresh.length ? `Opened ${fresh.length} shared comment(s) on this page.` : 'The shared comments are already here.');
       drawRetake();
-    } catch {
-      toast('Could not read the comments in this link: it may have been cut short.');
+    } catch (err) {
+      toast(err.message === 'newer' ? 'This link was made by a newer version of page-comments: update yours, then open the link again.'
+        : 'Could not read the comments in this link: it may have been cut short.');
     }
     // Drop only our part. The page's own hash goes back with location.replace, which tells a router that reads the hash
     // (hashchange) and adds no history entry; with no own hash, the address just loses its #.
