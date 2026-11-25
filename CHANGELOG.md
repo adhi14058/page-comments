@@ -2,6 +2,11 @@
 
 What changed for you in each version, newest first.
 
+## 1.10.10 — 2026-11-25
+
+- When you comment on selected text, that text stays marked in orange while the comment box is open, and again when you open the comment later. The mark never shows in the comment's picture.
+- While a comment box is open, pressing on the page no longer selects text there. A click outside still closes the box, or takes you back to it when you have typed something.
+
 ## 1.10.9 — 2026-11-25
 
 - A comment on several selections puts its pin on the first one you selected, and its box opens right under it. Before, the box opened at the bottom of the area around all of them, often at the bottom of the screen, and the pin landed in an empty corner. Batch comments saved before keep their pin where it was, but open under their first selection.
