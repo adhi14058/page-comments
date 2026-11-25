@@ -74,7 +74,17 @@ const start = (startedBy) => {
 if (!globalThis.__pageCommentsExtension) {
   globalThis.__pageCommentsExtension = true;
   html.dataset.pageCommentsExtension = '1';
-  document.addEventListener('page-comments:start', () => start('bookmark'));
+  // After the extension is reloaded or updated, this copy stays in pages that were already open, cut off from the
+  // extension (its runtime.id is gone), and would keep answering the bookmark with the old version until a reload. Cut
+  // off, it closes its tool, drops the mark and stops listening: the bookmark then runs its own, newest copy.
+  const alive = () => { try { return !!api.runtime?.id; } catch { return false; } };
+  const onBookmark = () => {
+    if (alive()) return start('bookmark');
+    document.removeEventListener('page-comments:start', onBookmark);
+    globalThis.__pageComments?.();
+    delete html.dataset.pageCommentsExtension;
+  };
+  document.addEventListener('page-comments:start', onBookmark);
   // A click on the page while the popup shows closes the popup and also lands on the page (measured in Chrome), where
   // it would open a comment box: skip that one click. Registered before the core's listeners on window, so it runs
   // first. The background says when the popup opens and closes; a short grace covers its close message arriving

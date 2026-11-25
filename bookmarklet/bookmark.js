@@ -67,8 +67,11 @@ const download = (blob, name) => {
 // The extension, when it runs on this page, marks it (data-page-comments-extension) and takes over: one tool per page,
 // with its sharper pictures. Where it does not run (it needs a click on its icon or the site's permission), the
 // bookmark cannot see it and runs itself. An open extension tool is closed the same way (run twice = close).
-if (document.documentElement.dataset.pageCommentsExtension) document.dispatchEvent(new CustomEvent('page-comments:start'));
-else startPageComments({
+// An extension copy left behind by a reload or update of the extension drops the mark when asked (see
+// extension/content.js): then the bookmark runs itself after all.
+const html = document.documentElement;
+if (html.dataset.pageCommentsExtension) document.dispatchEvent(new CustomEvent('page-comments:start'));
+if (!html.dataset.pageCommentsExtension) startPageComments({
   name: 'bookmark',
   checkVersion: PAGE_COMMENTS_UPDATES, // 'site' or 'github': build.js makes one bookmark of each (esbuild --define)
   capture: {
