@@ -66,6 +66,9 @@ const start = (startedBy) => {
       return files.length === 1 ? `Saved ${files[0].name} to your Downloads folder.` : `Saved ${files.length} pictures to your Downloads folder.`;
     },
     onComments: (info) => remember(info).catch(() => {}),
+    // Your name for shared comments, once for every site.
+    loadName: async () => (await api.storage.local.get('name')).name || '',
+    saveName: (name) => api.storage.local.set({ name }).catch(() => {}),
   });
 };
 

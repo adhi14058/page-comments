@@ -15,6 +15,8 @@
 //   onComments(info) -> optional; told { page, title, count } whenever this page's comments change
 //   startBrowsing    -> true: start in browsing mode (the extension bringing pins back after a reload)
 //   startedBy        -> 'bookmark': the extension started because the bookmark asked it to (the tool says so)
+//   loadName()       -> optional, async: the name for shared comments kept for every site (the extension's storage)
+//   saveName(name)   -> optional: keep it there
 //   pictureType      -> how pictures are stored: 'image/webp' (default, small) or 'image/png' (lossless: WebP halves the
 //                       colour detail, which turns thin coloured text pale; worth it only when the capture is lossless)
 // Comment mode starts on: click any element or select text, write a comment, Enter saves. Copy or send the batch to Claude.
@@ -216,6 +218,33 @@ export const startPageComments = (platform) => {
     .keystrip .who b { color: #18181b; font: inherit; }
     .keys .who { grid-column: 1 / -1; margin-top: 6px; padding-top: 8px; border-top: 1px solid #3f3f46; color: #a1a1aa; font-size: 12px; }
     .keys .who b { grid-column: auto; margin: 0; font-size: inherit; color: #fff; }
+    /* The name for shared comments: a small box right above Share (below it when the bar is at the top of the screen). */
+    .ask { position: absolute; bottom: 34px; width: 252px; background: #fff; color: #18181b; border-radius: 12px; padding: 10px 10px 8px; pointer-events: auto;
+           box-shadow: 0 12px 32px #0006, 0 0 0 1px #0000001a; }
+    .widget.top .ask { bottom: auto; top: 34px; }
+    .ask::after { content: ''; position: absolute; left: var(--ax, 50%); bottom: -6px; width: 12px; height: 12px; margin-left: -6px; background: #fff; rotate: 45deg;
+                  box-shadow: 3px 3px 4px #0000001a; }
+    .widget.top .ask::after { bottom: auto; top: -6px; box-shadow: -2px -2px 3px #0000001a; }
+    .ask .t { display: block; font: 600 12px system-ui, sans-serif; margin: 0 2px 7px; }
+    .ask form, .act.me form { display: flex; gap: 6px; flex: 1; }
+    .ask input, .act.me input { flex: 1; min-width: 0; border: 1px solid #d4d4d8; border-radius: 8px; padding: 6px 9px; font: 13px system-ui, sans-serif; color: #18181b;
+                                outline: none; background: #fff; }
+    .ask input:focus, .act.me input { border-color: #ea580c; box-shadow: 0 0 0 3px #ea580c33; }
+    .ask button, .act.me form button { border: 0; border-radius: 8px; padding: 0 12px; background: #ea580c; color: #fff; font: 700 12.5px system-ui, sans-serif; cursor: pointer; }
+    .ask button:hover, .act.me form button:hover { background: #c2410c; }
+    .ask .hint { display: block; margin: 7px 2px 0; color: #71717a; font: 500 11px system-ui, sans-serif; }
+    .ask .hint kbd { font: 600 10px ui-monospace, monospace; color: #52525b; border: 1px solid #d4d4d8; border-bottom-width: 2px; border-radius: 3px; padding: 0 3px; background: #fafafa; }
+    .act.share.held { background: #3f3f46; color: #fff; }
+    .act.share.held .label { opacity: 0 !important; }
+    .more-list .act.me .who-am-i { flex: 1; }
+    .more-list .act.me .who-am-i b { font: 600 13px system-ui, sans-serif; }
+    .more-list .act.me .who-am-i i { font-style: normal; color: #a1a1aa; }
+    .more-list .act.me .chg { color: #c2410c; font: 600 12.5px system-ui, sans-serif; }
+    .more-list .act.me:hover .chg { text-decoration: underline; }
+    .more-list .act.me.editing, .more-list .act.me.editing:hover { background: #fff7ed; cursor: default; }
+    .more-list .act.me input { padding: 3px 7px; border-radius: 7px; }
+    .more-list .sub { display: block; color: #a1a1aa; font: 500 11px system-ui, sans-serif; padding: 0 8px 4px 34px; margin-top: -3px; }
+    .toast .chg { border: 0; background: none; padding: 0; color: #c2410c; font: 600 13px system-ui, sans-serif; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
     .more-list .label kbd { color: #71717a; border-color: #d4d4d8; background: #fafafa; }
     /* Clear all sits in the bar; armed (one more click clears) it turns red and keeps its label showing. */
     .act.clear:hover:not(:disabled) { background: #7f1d1d; } .act.clear.armed, .act.clear.armed:hover:not(:disabled) { background: #dc2626; color: #fff; } .act.clear.armed .label { opacity: 1; }
@@ -417,6 +446,7 @@ export const startPageComments = (platform) => {
     return el;
   };
   const ICONS = {
+    person: [['circle', { cx: 12, cy: 8, r: 4 }], ['path', { d: 'M4 21c0-4 3.6-7 8-7s8 3 8 7' }]],
     // The page-comments icon (icons/icon.svg) as an outline: a comment bubble with a cursor in it.
     comment: [['path', { d: 'M3 3h18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8l-5 4v-4H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z', 'stroke-width': 1.8 }], ['path', { d: 'M7.4 5.2L12.16 17.44L13.86 12.51L18.79 10.81Z', fill: 'currentColor', stroke: 'none' }]],
     browse: [['path', { d: 'M5 3l6.5 17 2.3-7.2L21 10.5z' }]],
@@ -472,7 +502,10 @@ export const startPageComments = (platform) => {
   const listCnt = h('span', { className: 'cnt', hidden: true });
   listBtn.append(listCnt);
   const sep = () => h('i', { className: 'sep' });
-  const moreList = h('div', { className: 'more-list' }, h('div', { className: 'grp' }, h('b', { textContent: TOOL }), SHOWN_VERSION && ' ·' + SHOWN_VERSION, VIA && ' · from your bookmark'), detailsAct, keysAct, infoLink,
+  const meRow = h('div', { className: 'act me' }); // your name for shared comments: a div, since editing puts a form in it
+  const KEPT = platform.saveName ? 'Asked once, used on every site.' : 'Saved for this site only.';
+  const moreList = h('div', { className: 'more-list' }, h('div', { className: 'grp' }, h('b', { textContent: TOOL }), SHOWN_VERSION && ' ·' + SHOWN_VERSION, VIA && ' · from your bookmark'), detailsAct, keysAct,
+    meRow, h('span', { className: 'sub', textContent: KEPT.replace('Asked once, used', 'Used') }), infoLink,
     closeBtn);
   const items = h('div', { className: 'items' }, areaBtn, batchBtn, freezeBtn, sep(), clearBtn, listBtn, copyBtn, shareBtn, sendBtn, sep(), moreBtn);
   // The card shows only while commenting, where Esc is the short way to browsing (Alt+Shift+C stays in the full list).
@@ -504,7 +537,7 @@ export const startPageComments = (platform) => {
   // - the key strip shows only while commenting with nothing else of ours open.
   let openBefore = [], toastBefore = false;
   const syncOpen = () => {
-    const open = [!panel.hidden, !pop.hidden, !menu.hidden, !keysCard.hidden, widget.classList.contains('listopen')];
+    const open = [!panel.hidden, !pop.hidden, !menu.hidden, !keysCard.hidden, widget.classList.contains('listopen'), shareBtn.classList.contains('held')]; // held: the name box is open
     if (toastBefore && open.some((on, i) => on && !openBefore[i])) toastEl.hidden = true;
     openBefore = open;
     toastBefore = !toastEl.hidden;
@@ -868,7 +901,7 @@ export const startPageComments = (platform) => {
   };
 
   const toast = (s, ms = 5000) => {
-    toastEl.textContent = s;
+    toastEl.replaceChildren(...[].concat(s)); // text, or text and buttons
     toastEl.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { toastEl.hidden = true; }, ms);
@@ -1263,7 +1296,7 @@ export const startPageComments = (platform) => {
         // In a batch, Space adds or removes the outlined element: after ↑ that is the parent, which a click would miss.
         ...(batchOn ? { ' ': () => { const t = currentTarget(); if (t) { const r = frozen ? t.rect : rectOf(t.el); togglePick(frozen ? { ...t, fixed: true } : t, r.left, r.bottom); } } } : {}),
         a: () => !frozen && setArea(!areaMode), b: () => (batchOn ? leaveBatch() : setBatch(true)), f: () => (frozen ? unfreeze() : freeze()), d: () => setDetails(!detailsOn),
-        c: async () => toast(await copyComments().catch((err) => 'Could not copy (' + err.message + ')'), 2500), s: () => (e.shiftKey ? askName() : shareBtn.click()),
+        c: async () => toast(await copyComments().catch((err) => 'Could not copy (' + err.message + ')'), 2500), s: () => { openArc(); if (e.shiftKey) askName(true); else shareBtn.click(); },
         l: toggleList, '?': () => { keysCard.hidden = !keysCard.hidden; },
       }[e.key.toLowerCase()];
       if (!run) return;
@@ -1271,7 +1304,8 @@ export const startPageComments = (platform) => {
       e.stopPropagation();
       return void run();
     }
-    if (!nameBar.hidden) nameBar.hidden = true;
+    if (asking) closeAsk();
+    else if (meRow.classList.contains('editing')) drawMe();
     else if (!keysCard.hidden) keysCard.hidden = true;
     else if (menuState) closeMenu();
     else if (draft) closePop();
@@ -1777,10 +1811,10 @@ export const startPageComments = (platform) => {
     widget.classList.add('open');
   };
   // Leaving the bar closes it after 1.2 s, so a slip of the mouse does not fold it away.
-  const closeArc = () => { clearTimeout(closeTimer); closeTimer = setTimeout(() => { widget.classList.remove('open', 'listopen'); moreBtn.classList.remove('on'); }, 1200); };
+  const closeArc = () => { clearTimeout(closeTimer); closeTimer = setTimeout(() => { if (asking) return; widget.classList.remove('open', 'listopen'); moreBtn.classList.remove('on'); }, 1200); };
   // The comments list and the ⋯ list open in the same spot: opening one closes the other.
   const closeMore = () => { widget.classList.remove('listopen'); moreBtn.classList.remove('on'); };
-  moreBtn.onclick = () => { const on = widget.classList.toggle('listopen'); moreBtn.classList.toggle('on', on); if (on) panel.hidden = true; };
+  moreBtn.onclick = () => { closeAsk(); const on = widget.classList.toggle('listopen'); moreBtn.classList.toggle('on', on); if (on) panel.hidden = true; };
   const toggleList = () => { panel.hidden = !panel.hidden; if (!panel.hidden) closeMore(); };
   detailsAct.onclick = () => { setDetails(!detailsOn); closeMore(); };
   keysAct.onclick = () => { keysCard.hidden = !keysCard.hidden; closeMore(); };
@@ -2033,27 +2067,82 @@ export const startPageComments = (platform) => {
     if (own) location.replace('#' + own);
     else history.replaceState(history.state, '', location.href.split('#')[0]);
   };
-  // Your name goes with the comments you share (received ones keep their writer's). Asked once per site, in a bar
-  // rather than a browser dialog; Shift+S asks again.
+  // Your name goes with the comments you share (received ones keep their writer's). The site's storage keeps it, so the
+  // bookmark asks once per site; the extension also keeps it in its own storage, so it asks once for every site, and
+  // passes it to each site it runs on (the bookmark there then knows it too).
   const NAME_KEY = 'page-comments:name';
   const myName = () => { try { return localStorage.getItem(NAME_KEY) || ''; } catch { return ''; } };
-  const nameInput = h('input', { placeholder: 'Your name', maxLength: 40, dir: 'auto' });
-  const nameGo = h('button', { textContent: 'Share' }), nameCancel = h('button', { textContent: 'Cancel' });
-  const nameBar = h('div', { className: 'freeze-bar pick-bar name-bar', hidden: true },
-    h('span', { textContent: 'Your name, shown with your comments:' }), nameInput, nameGo, nameCancel);
-  root.append(nameBar);
-  // Typing here must not reach the page's own shortcuts (Gmail, GitHub...).
-  for (const type of ['keydown', 'keyup', 'keypress']) nameInput.addEventListener(type, (e) => { e.stopPropagation(); if (type === 'keydown' && e.key === 'Enter') nameGo.click(); });
-  const askName = () => { nameInput.value = myName(); nameBar.hidden = false; nameInput.focus(); };
-  nameCancel.onclick = () => { nameBar.hidden = true; };
-  nameGo.onclick = () => {
-    const name = nameInput.value.trim();
-    if (!name) return nameInput.focus();
+  const setName = (name) => {
     try { localStorage.setItem(NAME_KEY, name); } catch {}
-    nameBar.hidden = true;
-    share();
+    try { platform.saveName?.(name); } catch {} // an extension cut off by its own update cannot save
+    drawMe();
   };
-  shareBtn.onclick = () => (myName() ? share() : askName());
+  platform.loadName?.().then((kept) => {
+    if (kept && kept !== myName()) { try { localStorage.setItem(NAME_KEY, kept); } catch {} drawMe(); }
+    else if (!kept && myName()) platform.saveName(myName()); // a name given on this site before: keep it for all
+  }).catch(() => {});
+  // The box right above Share: Enter or its button saves the name and shares; Esc or Share again closes it.
+  let asking = null;
+  const closeAsk = () => {
+    if (!asking) return;
+    asking.remove();
+    asking = null;
+    shareBtn.classList.remove('held');
+    if (!widget.matches(':hover')) closeArc();
+  };
+  const placeAsk = () => {
+    if (!asking) return;
+    const wr = widget.getBoundingClientRect(), sr = shareBtn.getBoundingClientRect(), cx = sr.left + sr.width / 2, w = asking.offsetWidth;
+    // Centred on Share, kept 8 px inside the screen; the arrow stays on Share.
+    const left = Math.min(Math.max(cx - w / 2, 8), innerWidth - 8 - w);
+    asking.style.left = left - wr.left + 'px';
+    asking.style.setProperty('--ax', cx - left + 'px');
+  };
+  const askName = (again) => {
+    closeAsk();
+    closeMore();
+    openArc();
+    const input = h('input', { placeholder: 'Your name', maxLength: 40, dir: 'auto', value: myName() });
+    const form = h('form', {}, input, h('button', { type: 'submit', textContent: 'Share' }));
+    asking = h('div', { className: 'ask' }, h('span', { className: 't', textContent: again ? 'Change your name on shared comments' : 'Your name on shared comments' }),
+      form, h('span', { className: 'hint' }, KEPT + ' ', h('kbd', { textContent: 'Esc' }), ' cancels'));
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const name = input.value.trim();
+      if (!name) return input.focus();
+      setName(name);
+      closeAsk();
+      share();
+    };
+    // Typing here must not reach the page's own shortcuts (Gmail, GitHub...).
+    for (const type of ['keydown', 'keyup', 'keypress']) input.addEventListener(type, (e) => e.stopPropagation());
+    shareBtn.classList.add('held');
+    widget.append(asking);
+    placeAsk();
+    setTimeout(placeAsk, 400); // again once the opening bar has slid into place
+    input.focus({ preventScroll: true });
+    input.select();
+  };
+  addEventListener('resize', placeAsk);
+  // The ⋯ list's row: your name, and a click edits it right there.
+  const drawMe = (editing) => {
+    meRow.classList.toggle('editing', !!editing);
+    if (!editing) {
+      const me = myName();
+      return meRow.replaceChildren(icon('person'), h('span', { className: 'label' },
+        h('span', { className: 'who-am-i' }, 'Your name: ', me ? h('b', { textContent: me }) : h('i', { textContent: 'not set yet' })), h('span', { className: 'chg', textContent: me ? 'Change' : 'Set' })));
+    }
+    const input = h('input', { placeholder: 'Your name', maxLength: 40, dir: 'auto', value: myName() });
+    const form = h('form', {}, input, h('button', { type: 'submit', textContent: 'Save' }));
+    form.onsubmit = (e) => { e.preventDefault(); const name = input.value.trim(); if (!name) return input.focus(); setName(name); };
+    for (const type of ['keydown', 'keyup', 'keypress']) input.addEventListener(type, (e) => { e.stopPropagation(); if (type === 'keydown' && e.key === 'Escape') drawMe(); });
+    meRow.replaceChildren(icon('person'), form);
+    input.focus({ preventScroll: true });
+    input.select();
+  };
+  meRow.onclick = () => { if (!meRow.classList.contains('editing')) drawMe(true); };
+  drawMe();
+  shareBtn.onclick = () => (asking ? closeAsk() : myName() ? share() : askName());
   const share = async () => {
     try {
       const me = myName();
@@ -2067,8 +2156,9 @@ export const startPageComments = (platform) => {
       }
       if (link.length > LINK_MAX) note += '. It is still long: Slack may refuse it, so send it by email or as a file there';
       await writeClipboard({ text: link });
-      toast(`Copied a link with ${here().length} comment(s)${note}, ${(link.length / 1024).toFixed(1)} KB, as ${me} (Shift+S changes the name). Whoever opens it and clicks their bookmark sees them.`
-        + (pageIsLocal ? ' This page is on your machine: only you can open it.' : ''), 7000);
+      const change = h('button', { className: 'chg', textContent: 'Change name', onclick: () => askName(true) });
+      toast([`Copied a link with ${here().length} comment(s)${note}, ${(link.length / 1024).toFixed(1)} KB, as ${me} · `, change,
+        '. Whoever opens it and clicks their bookmark sees them.' + (pageIsLocal ? ' This page is on your machine: only you can open it.' : '')], 7000);
     } catch (err) {
       toast('Could not copy the link (' + err.message + ')');
     }
@@ -2162,6 +2252,7 @@ export const startPageComments = (platform) => {
     removeEventListener('scroll', schedulePlace, true);
     removeEventListener('resize', schedulePlace);
     removeEventListener('resize', refitPop);
+    removeEventListener('resize', placeAsk);
     removeEventListener('resize', placeWidget);
     dockObserver.disconnect();
     clearTimeout(closeTimer);

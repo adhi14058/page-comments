@@ -244,7 +244,8 @@ Apps that should get several separate pictures take them as files.
 - Whoever opens the link and clicks their bookmark gets the comments, pins and pictures, saved as theirs.
 - Opening a comment from the list scrolls to it and shows what it covers, dashed.
 - It only helps for pages both people can open. Your localhost is not one of them, and the message says so.
-- The first share on a site asks your name in a small bar. It is remembered; <kbd>Shift</kbd>+<kbd>S</kbd> changes it.
+- The first share asks your name in a small box right above **Share**. The extension remembers it for every site; the bookmark for that site only, since a browser keeps each site's storage apart.
+- Change it in the **⋯** list (**Your name · Change**), with **Change name** in the message after sharing, or with <kbd>Shift</kbd>+<kbd>S</kbd>.
 
 <details>
 <summary><b>Size limits and pictures</b></summary>
