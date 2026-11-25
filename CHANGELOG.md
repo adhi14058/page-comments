@@ -2,6 +2,11 @@
 
 What changed for you in each version, newest first.
 
+## 1.10.7 — 2026-11-25
+
+- Messages have a × to close them. A message stays while your pointer is on it, and goes 4 seconds after you move away.
+- A message, or the comments list, no longer covers the round button's tooltip: while you point at the button, they move just clear of it.
+
 ## 1.10.6 — 2026-11-25
 
 - Share asks your name in a small box right above the Share button, instead of a strip at the bottom of the screen.
