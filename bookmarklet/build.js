@@ -8,6 +8,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const crypto = require('node:crypto');
+const os = require('node:os');
 const { stripComments, highlight } = require('./highlight.js');
 const { nextVersions } = require('./version.js');
 const { sitePages, writeSite } = require('./site.js');
@@ -103,17 +104,41 @@ const keysSrc = fs.readFileSync(path.join(ROOT, 'core', 'core.js'), 'utf8').matc
 if (!keysSrc) throw new Error('the KEYS list in core.js was not found');
 const keys = new Function('ALT_SHIFT', `return ${keysSrc}`)('Alt+Shift+');
 
-const siteFiles = sitePages({ version, extVersion, bookmark, bookmarkFixed, siteUrl: SITE_URL, serverHtml: installHtml, keys, changelog, clientJs: remoteJs, versionSvg });
+// The Chrome extension as a download on the site, for people who load it by hand until it is in the store: one folder
+// with a fixed name, so an update unzips over the last one, and fixed file times, so an unchanged extension zips to the
+// same bytes and adds nothing to the repository.
+const zipChrome = () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'page-comments-zip-'));
+  try {
+    fs.cpSync(path.join(ROOT, 'extension', 'dist', 'chrome'), path.join(tmp, 'page-comments-chrome'), { recursive: true });
+    const files = fs.readdirSync(tmp, { recursive: true }).sort();
+    for (const f of files) fs.utimesSync(path.join(tmp, f), 1767225600, 1767225600); // 2026-01-01 UTC
+    const plain = files.filter((f) => fs.statSync(path.join(tmp, f)).isFile());
+    return execFileSync('zip', ['-qXD', '-', ...plain], { cwd: tmp, env: { ...process.env, TZ: 'UTC' } });
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+};
+// A release builds the extension first, from the same core with the same version, so the two never drift apart; if it
+// fails, nothing has been written yet. --site keeps the download it finds: the extension may have changed since.
+const zipPath = path.join(ROOT, 'site', 'page-comments-chrome.zip');
+let extZip;
+if (siteOnly) {
+  if (!fs.existsSync(zipPath)) throw new Error('site/ has no extension download yet: release first');
+  extZip = fs.readFileSync(zipPath);
+} else {
+  console.log(`extension ${extVersion} built in ${require('../extension/build.js')(extVersion)}`);
+  extZip = zipChrome();
+}
+
+const siteFiles = sitePages({ version, extVersion, bookmark, bookmarkFixed, siteUrl: SITE_URL, serverHtml: installHtml, keys, changelog, clientJs: remoteJs, versionSvg, extZip });
 if (siteOnly) {
   writeSite(siteFiles);
   console.log(`wrote site/ for bookmark ${version}, extension ${extVersion}; nothing published`);
   return; // a CommonJS module may return: the rest releases
 }
 
-// A release is a commit: the server that serves site/ pulls main, so the push below is what publishes it. The
-// extension is built first, from the same core with the same version, so the two never drift apart; if it fails,
-// nothing has been written yet.
-console.log(`extension ${extVersion} built in ${require('../extension/build.js')(extVersion)}`);
+// A release is a commit: the server that serves site/ pulls main, so the push below is what publishes it.
 // For people whose network reaches only github.com: the fixed bookmark as one line to paste into a new bookmark's
 // address, the build that checks for updates and links its Help line to GitHub. Every release commits and pushes it
 // (Adhi, 2026-11-24) with the version.svg that bookmark checks and release.json (the README's version badge), so the

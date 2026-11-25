@@ -1,5 +1,5 @@
 // The website, written to site/: the install page, the changelog page, the privacy page and the playground, the sitemap and robots.txt,
-// plus client.js and version.svg, the two files every bookmark loads. site-src/ is its source; site/ is only ever build
+// plus client.js and version.svg, the two files every bookmark loads, and the Chrome extension as a zip. site-src/ is its source; site/ is only ever build
 // output (a copy of site-src/ with the pages filled in), so the release can commit it as it is and a server can serve
 // it as it is.
 const fs = require('node:fs');
@@ -52,7 +52,7 @@ ${PAGES.map((p) => `  <url><loc>${HOME}${p}</loc><lastmod>${rels[0].iso}</lastmo
 // The site's generated files, by name. Built before anything is published, so a broken page stops the release.
 // keys: the tool's own shortcut list (KEYS in core.js). The page groups it under headings with shorter words, so the
 // build checks that both name the same keys: a key added to the tool stops the build until the page lists it.
-const sitePages = ({ version, extVersion, bookmark, bookmarkFixed, siteUrl, serverHtml, keys, changelog, clientJs, versionSvg }) => {
+const sitePages = ({ version, extVersion, bookmark, bookmarkFixed, siteUrl, serverHtml, keys, changelog, clientJs, versionSvg, extZip }) => {
   const index = fs.readFileSync(path.join(SRC, 'index.html'), 'utf8');
   const pageKeys = [...index.matchAll(/class="krow[^"]*" data-k="([^"]*)"/g)].map((m) => m[1]).sort();
   const toolKeys = keys.map(([k]) => k.split(' / ').map((x) => x.replace('+click', '')).join(' ')).sort();
@@ -62,7 +62,8 @@ const sitePages = ({ version, extVersion, bookmark, bookmarkFixed, siteUrl, serv
   const rels = releases(changelog);
   return {
     // siteHost: where the self-updating bookmark loads its code from, named on its copy button.
-    'index.html': fill(index, { home: HOME, version, extVersion, bookmark, bookmarkFixed, siteHost: new URL(siteUrl).host, serverCode: serverHtml, serverLines: serverHtml.split('\n').length }),
+    'index.html': fill(index, { home: HOME, version, extVersion, bookmark, bookmarkFixed, siteHost: new URL(siteUrl).host, serverCode: serverHtml, serverLines: serverHtml.split('\n').length,
+      extZipKB: Math.round(extZip.length / 1024) }),
     'changelog.html': fill(fs.readFileSync(path.join(SRC, 'changelog.html'), 'utf8'),
       { home: HOME, version, extVersion, releases: rels.map(releaseHtml).join('\n') }),
     'privacy.html': fill(fs.readFileSync(path.join(SRC, 'privacy.html'), 'utf8'), { home: HOME, version }),
@@ -70,6 +71,7 @@ const sitePages = ({ version, extVersion, bookmark, bookmarkFixed, siteUrl, serv
     'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${HOME}sitemap.xml\n`,
     'client.js': clientJs,
     'version.svg': versionSvg,
+    'page-comments-chrome.zip': extZip,
   };
 };
 

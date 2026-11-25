@@ -98,6 +98,17 @@
         <button data-store="firefox" class="store"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 3h6v3a2 2 0 1 0 4 0h2v6h-3a2 2 0 1 0 0 4h3v5H3V10h3a2 2 0 1 0 0-4H3V3h6z"/></svg>Add to Firefox<span class="soon">coming soon</span></button>
       </div>
       <p class="not-yet" hidden>Not in the stores yet. <button data-go="bookmark">Take the bookmark for now.</button></p>
+      <!-- Until the stores have it: the Chrome build to load by hand. Each release writes the zip next to this page. -->
+      <div class="handcard">
+        <h3>Use it in Chrome today, before the store</h3>
+        <a class="dl" href="page-comments-chrome.zip" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download for Chrome<small>.zip, {{extZipKB}} KB</small></a>
+        <ol class="hsteps">
+          <li><b>Unzip it.</b> You get a folder, <code>page-comments-chrome</code>. Keep it: Chrome runs the extension from it.</li>
+          <li><b>Open <code>chrome://extensions</code></b><button class="cp" type="button" data-copy="chrome://extensions">Copy</button> and switch on <b>Developer mode</b>, top right.</li>
+          <li><b>Click Load unpacked</b> and choose the folder. Pin it from the puzzle icon in the toolbar.</li>
+        </ol>
+        <p class="upd">Also Edge, Brave and Opera. To update: download again, unzip over the same folder, press ↻ on the extension.</p>
+      </div>
       <p class="why">Sharpest pictures. Pins come back after a reload, on sites you allow. The newest version, even on strict sites.</p>
     </div>
 

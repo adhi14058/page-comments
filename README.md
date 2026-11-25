@@ -39,7 +39,7 @@
 |---|:---:|:---:|:---:|
 | **For** | Most people | Networks that reach only github.com | The sharpest pictures |
 | **Updates** | By itself | A dot tells you | Through the store |
-| **Get it** | **[Install page →](https://page-comments.heyadhi.com/)** | **[bookmarklet.txt →](bookmarklet.txt)** | Coming soon |
+| **Get it** | **[Install page →](https://page-comments.heyadhi.com/)** | **[bookmarklet.txt →](bookmarklet.txt)** | Stores soon; [Chrome by hand →](https://page-comments.heyadhi.com/?way=extension) |
 
 All three run the same tool and share comments and share links.
 
@@ -57,7 +57,11 @@ All three run the same tool and share comments and share links.
 <summary><b>Try the extension before it is in the stores</b></summary>
 <br>
 
-Load it unpacked: see [Developing → The extension](docs/DEVELOPING.md#the-extension).
+1. Download [page-comments-chrome.zip](https://page-comments.heyadhi.com/page-comments-chrome.zip) and unzip it. Keep the folder `page-comments-chrome`: Chrome runs the extension from it.
+2. Open `chrome://extensions` and switch on **Developer mode**, top right.
+3. Click **Load unpacked** and choose the folder.
+
+Works in Edge, Brave and Opera too. It does not update itself: to update, download again, unzip over the same folder, and press ↻ on the extension. To build it from the source instead, see [Developing → The extension](docs/DEVELOPING.md#the-extension).
 
 </details>
 

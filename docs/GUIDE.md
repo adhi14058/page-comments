@@ -344,7 +344,7 @@ Every release updates `bookmarklet.txt`.
 
 ## 🧩 The extension
 
-The extension runs the same tool, with sharper pictures. It is not in the stores yet: [load it unpacked](DEVELOPING.md#the-extension).
+The extension runs the same tool, with sharper pictures. It is not in the stores yet. For Chrome (and Edge, Brave, Opera), download it from the [install page](https://page-comments.heyadhi.com/?way=extension) and load it by hand, in three steps shown there.
 
 | You do | You get |
 |---|---|
