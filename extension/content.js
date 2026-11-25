@@ -47,13 +47,14 @@ const remember = async ({ page, title, count }) => {
 
 // The background sets this flag when it brings the tool back after a reload: then it starts in browsing mode, showing
 // the pins without taking over clicks.
-const start = () => {
+const start = (startedBy) => {
   const restoring = globalThis.__pageCommentsRestore;
   delete globalThis.__pageCommentsRestore;
   // One tool per page: an open bookmark tool closes first; the comments stay, as both use the same storage.
   if (html.dataset.pageComments === 'bookmark') document.dispatchEvent(new CustomEvent('page-comments:close'));
   startPageComments({
     name: 'extension',
+    startedBy, // 'bookmark' when the bookmark asked: the tool says so, since it is not the one that was clicked
     shadowMode: 'closed', // our buttons can take pictures and save files: page scripts must not be able to press them
     checkVersion: false, // the store updates the extension
     startBrowsing: !!restoring,
@@ -73,7 +74,7 @@ const start = () => {
 if (!globalThis.__pageCommentsExtension) {
   globalThis.__pageCommentsExtension = true;
   html.dataset.pageCommentsExtension = '1';
-  document.addEventListener('page-comments:start', start);
+  document.addEventListener('page-comments:start', () => start('bookmark'));
   // A click on the page while the popup shows closes the popup and also lands on the page (measured in Chrome), where
   // it would open a comment box: skip that one click. Registered before the core's listeners on window, so it runs
   // first. The background says when the popup opens and closes; a short grace covers its close message arriving

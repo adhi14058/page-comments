@@ -14,6 +14,7 @@
 //   shadowMode       -> 'closed' keeps page scripts from pressing our buttons (the extension's buttons can take pictures)
 //   onComments(info) -> optional; told { page, title, count } whenever this page's comments change
 //   startBrowsing    -> true: start in browsing mode (the extension bringing pins back after a reload)
+//   startedBy        -> 'bookmark': the extension started because the bookmark asked it to (the tool says so)
 //   pictureType      -> how pictures are stored: 'image/webp' (default, small) or 'image/png' (lossless: WebP halves the
 //                       colour detail, which turns thin coloured text pale; worth it only when the capture is lossless)
 // Comment mode starts on: click any element or select text, write a comment, Enter saves. Copy or send the batch to Claude.
@@ -207,6 +208,14 @@ export const startPageComments = (platform) => {
     .keystrip kbd { justify-self: start; font: 600 10.5px/1 ui-monospace, monospace; color: #18181b; background: #f4f4f5; border: 1px solid #d4d4d8;
                     border-bottom-width: 2px; border-radius: 4px; padding: 2px 5px; }
     .keystrip .all { color: #71717a; }
+    /* Which tool this is (bookmark or extension) and how it started, in words: the round button itself stays the same. */
+    .label .who { display: block; text-align: left; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #3f3f46; color: #a1a1aa; font: 600 10.5px/1 system-ui, sans-serif; }
+    .label .who b { color: #fff; font: inherit; }
+    .grp b { color: #18181b; font: inherit; }
+    .keystrip .who { display: block; grid-column: 1 / -1; margin-top: 2px; padding-top: 6px; border-top: 1px solid #e4e4e7; color: #71717a; font: 600 11px system-ui, sans-serif; }
+    .keystrip .who b { color: #18181b; font: inherit; }
+    .keys .who { grid-column: 1 / -1; margin-top: 6px; padding-top: 8px; border-top: 1px solid #3f3f46; color: #a1a1aa; font-size: 12px; }
+    .keys .who b { grid-column: auto; margin: 0; font-size: inherit; color: #fff; }
     .more-list .label kbd { color: #71717a; border-color: #d4d4d8; background: #fafafa; }
     /* Clear all sits in the bar; armed (one more click clears) it turns red and keeps its label showing. */
     .act.clear:hover:not(:disabled) { background: #7f1d1d; } .act.clear.armed, .act.clear.armed:hover:not(:disabled) { background: #dc2626; color: #fff; } .act.clear.armed .label { opacity: 1; }
@@ -431,6 +440,11 @@ export const startPageComments = (platform) => {
   const badge = h('span', { className: 'badge', hidden: true });
   const updateDot = h('span', { className: 'dot', hidden: true });
   const mainTip = h('span', { className: 'label' });
+  // Bookmark or extension: only one runs on a page, and where the extension is installed a click on the bookmark starts
+  // the extension instead (platform.startedBy), which is easy to miss. The version is left out of a copy pasted from source.
+  const TOOL = platform.name === 'extension' ? 'Extension' : 'Bookmark', SHOWN_VERSION = /^\d/.test(VERSION) ? ' ' + VERSION : '';
+  const VIA = platform.startedBy === 'bookmark' ? 'started from your bookmark' : '';
+  const who = (before, sep) => h('span', { className: 'who' }, before, h('b', { textContent: TOOL }), SHOWN_VERSION + (VIA ? sep + VIA : ''));
   const main = h('button', { className: 'main' }, icon('comment'), badge, updateDot, mainTip);
   // One action in the bar (or the ⋯ list): its button (or link) carries an icon and a label.
   // The keyboard key of an action shows in its tooltip, after the name (which flash() and others change).
@@ -458,12 +472,13 @@ export const startPageComments = (platform) => {
   const listCnt = h('span', { className: 'cnt', hidden: true });
   listBtn.append(listCnt);
   const sep = () => h('i', { className: 'sep' });
-  const moreList = h('div', { className: 'more-list' }, h('div', { className: 'grp', textContent: 'More' }), detailsAct, keysAct, infoLink,
+  const moreList = h('div', { className: 'more-list' }, h('div', { className: 'grp' }, h('b', { textContent: TOOL }), SHOWN_VERSION && ' ·' + SHOWN_VERSION, VIA && ' · from your bookmark'), detailsAct, keysAct, infoLink,
     closeBtn);
   const items = h('div', { className: 'items' }, areaBtn, batchBtn, freezeBtn, sep(), clearBtn, listBtn, copyBtn, shareBtn, sendBtn, sep(), moreBtn);
   // The card shows only while commenting, where Esc is the short way to browsing (Alt+Shift+C stays in the full list).
   const keyStrip = h('div', { className: 'keystrip', hidden: true },
-    ...[['B', 'batch'], ['A', 'area'], ['F', 'freeze'], ['Esc', 'browse'], ['?', 'all keys']].map(([k, what]) => h('span', { className: k === '?' ? 'all' : '' }, h('kbd', { textContent: k }), what)));
+    ...[['B', 'batch'], ['A', 'area'], ['F', 'freeze'], ['Esc', 'browse'], ['?', 'all keys']].map(([k, what]) => h('span', { className: k === '?' ? 'all' : '' }, h('kbd', { textContent: k }), what)),
+    who('', ' · '));
   // Close in one click: a small × on the round button's outer side, away from the bar, while the bar is open.
   const quickClose = h('button', { className: 'quick-close', ariaLabel: 'Close page-comments' }, svg('svg', { viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'aria-hidden': 'true' }, svg('path', { d: 'M2 2l8 8M10 2l-8 8' })));
   const widget = h('div', { className: 'widget' }, moreList, keyStrip, quickClose, h('div', { className: 'bar' }, items, main));
@@ -481,7 +496,8 @@ export const startPageComments = (platform) => {
     ['Shift+click', 'start a batch with this element'], ['A', 'select an area'], ['F', 'freeze or unfreeze'], ['D', 'details on / off: colours, font, spacing'], ['C', 'copy all comments'], ['S', 'share link (Shift+S: change your name)'], ['L', 'comments list'],
     ['Esc', 'back out'], [ALT_SHIFT + 'F', 'freeze, in any mode'], [ALT_SHIFT + 'C', 'commenting / browsing, in any mode'], ['?', 'this card']];
   const keysCard = h('div', { className: 'keys', hidden: true }, h('b', { textContent: 'Keyboard shortcuts (while commenting)' }),
-    ...KEYS.flatMap(([k, what]) => [h('span', {}, ...k.split(' / ').flatMap((x, i) => [i ? ' / ' : '', h('kbd', { textContent: x })])), h('span', { textContent: what })]));
+    ...KEYS.flatMap(([k, what]) => [h('span', {}, ...k.split(' / ').flatMap((x, i) => [i ? ' / ' : '', h('kbd', { textContent: x })])), h('span', { textContent: what })]),
+    who('Page Comments · ', ' · '));
   // Two rules about what is open, checked whenever anything of ours shows, hides or changes state, so no single place
   // that opens something has to remember them:
   // - a message that was already showing closes when another popup opens (it is about what was on screen before);
@@ -935,7 +951,7 @@ export const startPageComments = (platform) => {
     main.classList.toggle('on', on);
     main.firstChild.replaceWith(icon(on ? 'comment' : 'browse'));
     main.ariaLabel = on ? 'Commenting. Click to switch to browsing.' : 'Browsing. Click to switch to commenting.';
-    mainTip.replaceChildren((on ? 'Click to browse the page' : 'Click to comment') + ' · drag to move', h('kbd', { textContent: ALT_SHIFT + 'C' }));
+    mainTip.replaceChildren(who('Page Comments · ', ' · '), (on ? 'Click to browse the page' : 'Click to comment') + ' · drag to move', h('kbd', { textContent: ALT_SHIFT + 'C' }));
     hl.hidden = true;
     // Browsing means using the page, so nothing of ours may stay open over it.
     if (!on) { closePop(); panel.hidden = true; setArea(false); closeMenu(); unfreeze(); picked = []; setBatch(false); kbTarget = null; }
