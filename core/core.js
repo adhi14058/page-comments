@@ -1135,7 +1135,10 @@ export const startPageComments = (platform) => {
     if (top < 0 || top + height > innerHeight) scrollBy({ top: top + Math.min(height, innerHeight) / 2 - innerHeight / 2, behavior: 'instant' });
     r = rectOf(el);
     shown = c.group ? c.items : [{ selector: c.selector, box: c.area }];
-    if (c.area) openPop({ el, selector: c.selector, area: c.area, items: c.items, comment: c }, r.left + c.area.dx, r.top + c.area.dy + c.area.h);
+    // A batch opens under its first pick, where its pin is; an area under the area.
+    const firstEl = c.group && find(c.items[0].selector), fr = firstEl && rectOf(firstEl), fb = fr && c.items[0].box;
+    if (fr) openPop({ el, selector: c.selector, area: c.area, items: c.items, comment: c }, fr.left + (fb ? fb.dx : 0), fb ? fr.top + fb.dy + fb.h : fr.bottom);
+    else if (c.area) openPop({ el, selector: c.selector, area: c.area, items: c.items, comment: c }, r.left + c.area.dx, r.top + c.area.dy + c.area.h);
     else openPop({ el, selector: c.selector, selectedText: c.selectedText, comment: c }, r.left + c.dx, r.top + c.dy);
     drawShown();
   };
@@ -1187,7 +1190,7 @@ export const startPageComments = (platform) => {
     const { el, selectedText, x, y, area, items, frozen: rec, group } = d;
     if (area) {
       return {
-        id: newId(), comment, el, page, dx: area.dx, dy: area.dy, area, items, selector: d.selector, ...(group ? { group } : {}),
+        id: newId(), comment, el, page, dx: (d.pin || area).dx, dy: (d.pin || area).dy, area, items, selector: d.selector, ...(group ? { group } : {}),
         size: `${area.w}×${area.h}`, background: rec ? rec.info.background : backgroundOf(el), ...(rec ? { frozen: true } : {}),
       };
     }
@@ -1393,7 +1396,7 @@ export const startPageComments = (platform) => {
     for (const t of list) while (a && !holds(a, t.el)) a = up(a); // across frames: picks may be in several pages
     if (frozen) while (a && !frozen.byEl.has(a)) a = a.parentElement;
     const anchor = frozen ? (a ? frozen.byEl.get(a) : frozen.entries[0]) : liveTarget(a || document.body);
-    const rects = list.map(pickRect), ar = frozen ? anchor.rect : rectOf(anchor.el);
+    const rects = list.map(pickRect), ar = frozen ? anchor.rect : rectOf(anchor.el), first = rects[0];
     const u = { left: Math.min(...rects.map((r) => r.left)), top: Math.min(...rects.map((r) => r.top)), right: Math.max(...rects.map((r) => r.right)), bottom: Math.max(...rects.map((r) => r.bottom)) };
     openPop({
       el: anchor.el, selector: anchor.selector, ...(frozen ? { frozen: anchor } : {}), group: true,
@@ -1402,7 +1405,10 @@ export const startPageComments = (platform) => {
         ? { selector: t.selector, box: t.box, text: clip(`area ${t.box.w}×${t.box.h} over: ${t.items.map((it) => it.text).join(' | ')}`, 160) }
         : { selector: t.selector, text: clip(textOf(t.el), 80) })),
       picks: list,
-    }, u.left, u.bottom);
+      // The pin goes on the first pick and the box opens under it: the corner or bottom of the rectangle around all
+      // the picks is often empty page, far from any of them.
+      pin: { dx: Math.round(first.left - ar.left), dy: Math.round(first.top - ar.top) },
+    }, first.left, first.bottom);
   };
   pickComment.onclick = () => (confirming ? ((confirming = false), drawPicked()) : openPicked());
   pickClear.onclick = () => (confirming ? ((picked = []), setBatch(false)) : leaveBatch());
