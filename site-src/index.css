@@ -250,7 +250,7 @@ html.dark .asks-sec .never li > svg { color: #fdba74; }
 /* The way's three moments side by side, joined by a line; then the other browsers and what never asks. */
 .asks-sec .tl { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; position: relative; }
 .asks-sec .tl > li { display: flex; } .asks-sec .tl .scard { flex: 1; }
-.asks-sec .more { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 20px; margin-top: 20px; align-items: start; }
+.asks-sec .more { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 20px; margin-top: 20px; align-items: stretch; } /* the Never asks card as tall as the card beside it */
 .asks-sec .more .never.wide { grid-column: 1 / -1; }
 .asks-sec .more .never.wide ul { grid-template-columns: 1fr 1fr; gap: 12px 28px; }
 .asks-sec .ffc { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
