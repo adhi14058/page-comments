@@ -2,6 +2,10 @@
 
 What changed for you in each version, newest first.
 
+## 1.10.9 — 2026-11-25
+
+- A comment on several selections puts its pin on the first one you selected, and its box opens right under it. Before, the box opened at the bottom of the area around all of them, often at the bottom of the screen, and the pin landed in an empty corner. Batch comments saved before keep their pin where it was, but open under their first selection.
+
 ## 1.10.8 — 2026-11-25
 
 - While you write a new comment, what it is about stays outlined in light blue, as it already was when you open a comment again. Before, the outline went away as soon as the box opened.
