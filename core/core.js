@@ -493,7 +493,7 @@ export const startPageComments = (platform) => {
   const pickCount = h('span'), pickComment = h('button', { textContent: 'Comment' }), pickClear = h('button', { textContent: 'Clear' });
   const pickBar = h('div', { className: 'freeze-bar pick-bar', hidden: true }, pickCount, pickComment, pickClear);
   const KEYS = [['↑ / ↓', 'parent / inner element'], ['Enter', 'comment on the highlighted element'], ['B', 'batch: click to select several (A: drag areas), then comment'],
-    ['Shift+click', 'start a batch with this element'], ['A', 'select an area'], ['F', 'freeze or unfreeze'], ['D', 'details on / off: colours, font, spacing'], ['C', 'copy all comments'], ['S', 'share link (Shift+S: change your name)'], ['L', 'comments list'],
+    ['Shift+click', 'start a batch with this element'], ['Space', 'in a batch: add or remove the outlined element (↑ first for its parent)'], ['A', 'select an area'], ['F', 'freeze or unfreeze'], ['D', 'details on / off: colours, font, spacing'], ['C', 'copy all comments'], ['S', 'share link (Shift+S: change your name)'], ['L', 'comments list'],
     ['Esc', 'back out'], [ALT_SHIFT + 'F', 'freeze, in any mode'], [ALT_SHIFT + 'C', 'commenting / browsing, in any mode'], ['?', 'this card']];
   const keysCard = h('div', { className: 'keys', hidden: true }, h('b', { textContent: 'Keyboard shortcuts (while commenting)' }),
     ...KEYS.flatMap(([k, what]) => [h('span', {}, ...k.split(' / ').flatMap((x, i) => [i ? ' / ' : '', h('kbd', { textContent: x })])), h('span', { textContent: what })]),
@@ -1260,6 +1260,8 @@ export const startPageComments = (platform) => {
       const item = (start) => [...menu.querySelectorAll('.mi')].find((b) => b.textContent.startsWith(start));
       const run = menuState ? { arrowup: () => item('Select parent')?.click(), arrowdown: () => item('Select inner')?.click(), enter: () => item('Comment on this')?.click() }[e.key.toLowerCase()] : {
         arrowup: () => moveKb(true), arrowdown: () => moveKb(false), enter: () => (batchOn ? openPicked() : commentOnHighlighted()),
+        // In a batch, Space adds or removes the outlined element: after ↑ that is the parent, which a click would miss.
+        ...(batchOn ? { ' ': () => { const t = currentTarget(); if (t) { const r = frozen ? t.rect : rectOf(t.el); togglePick(frozen ? { ...t, fixed: true } : t, r.left, r.bottom); } } } : {}),
         a: () => !frozen && setArea(!areaMode), b: () => (batchOn ? leaveBatch() : setBatch(true)), f: () => (frozen ? unfreeze() : freeze()), d: () => setDetails(!detailsOn),
         c: async () => toast(await copyComments().catch((err) => 'Could not copy (' + err.message + ')'), 2500), s: () => (e.shiftKey ? askName() : shareBtn.click()),
         l: toggleList, '?': () => { keysCard.hidden = !keysCard.hidden; },
@@ -1314,7 +1316,7 @@ export const startPageComments = (platform) => {
     if (!picked.length) confirming = false;
     pickBar.hidden = !batchOn;
     pickCount.textContent = confirming ? `Drop the ${picked.length} selected?`
-      : `Batch · ${picked.length} selected · ${areaMode ? 'drag to add an area (A: back to elements)' : 'click to add or remove (A: areas)'}`;
+      : `Batch · ${picked.length} selected · ${areaMode ? 'drag to add an area (A: back to elements)' : 'click or Space to add or remove, ↑ for the parent (A: areas)'}`;
     pickComment.textContent = confirming ? 'Keep' : 'Comment';
     pickComment.disabled = !confirming && !picked.length;
     pickClear.textContent = confirming ? 'Drop' : picked.length ? 'Close without saving' : 'Close';

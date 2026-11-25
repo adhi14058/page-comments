@@ -137,6 +137,7 @@ These work while commenting.
 <br>
 
 1. Start a batch. Every click now adds or removes an element.
+   To add a bigger element, press <kbd>↑</kbd> until it is outlined, then <kbd>Space</kbd> (or click inside it).
 2. Press <kbd>A</kbd> to drag area boxes instead. <kbd>A</kbd> again goes back to elements.
    On a frozen page a drag always adds an area.
 3. Press <kbd>Enter</kbd>, or **Comment** on the blue bar.
@@ -156,7 +157,7 @@ You click, drag and right-click the picture just like the live page.
 
 - <kbd>F</kbd> or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> (<kbd>⌥⇧F</kbd>) freezes at once.
 - The bar's **Freeze: 3 s to open a menu first** counts down 3 seconds, so you can open the page's menu with the mouse first.
-- With the bookmark, the first press only starts tab sharing, because Chrome's prompt would close an open menu. Press again to freeze.
+- With the bookmark, the first freeze asks Chrome to share the tab. Once you allow it, the freeze counts down 3 seconds, because the prompt closes an open menu: open it again in that time.
 - <kbd>Esc</kbd> or **Unfreeze**, on the blue bar at the bottom of the screen, ends it.
 
 </details>
@@ -172,6 +173,7 @@ Single keys work while commenting, and never while you type in a field.
 | <kbd>A</kbd> | Select an area |
 | <kbd>B</kbd> | Batch: select several |
 | <kbd>Shift</kbd>+click | Start a batch with this element |
+| <kbd>Space</kbd> | In a batch: add or remove the outlined element |
 | <kbd>F</kbd> | Freeze or unfreeze |
 | <kbd>D</kbd> | Details on or off |
 | <kbd>L</kbd> | Comments list |
