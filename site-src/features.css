@@ -1,0 +1,303 @@
+/* The features section ("What else it does", index.html; features.js runs it). Six tiles: with a mouse on a wide screen
+   one big slot shows a feature in full and five small slots show the rest; on touch screens and phones the tiles stack.
+
+   Its drawings of the tool work like the browser drawings in "What your browser asks": no screenshots, everything sized
+   in em from the drawing's width (container units), so one drawing works in a small tile and in the big one. The browser
+   frame follows the site's theme; the web page inside stays light, as a real site would. The tool's own parts (outline,
+   pill, details card, pins, comment box) copy the tool's real look. A drawing animates only while an ancestor has .anim
+   (features.js adds it when the tile comes into view and again on hover); without .anim, and with reduced motion, it
+   shows its final state. Everything here sits under .feats and its keyframes start with ft-, so nothing reaches the
+   rest of the page. */
+
+.feats .stage { container-type: inline-size; position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--card-sunk); }
+.feats .sc { --fr: #dfe3e7; --tb: #fff; --ln: #e8eaed; --sub: #5f6368; --bd: #c4c7c5; --ctx: #1f1f1f;
+      position: absolute; inset: 0; font: 400 var(--fs, 2.9cqw)/1.35 system-ui, sans-serif; color: #0f172a; }
+html.dark .feats .sc { --fr: #1f1f1f; --tb: #35363a; --ln: #3c3c41; --sub: #9aa0a6; --bd: #5f6368; --ctx: #e3e3e3; }
+.feats .sc *, .feats .sc *::before, .feats .sc *::after { box-sizing: border-box; }
+.feats .sc p { margin: 0; }
+
+/* A browser window. */
+.feats .win { position: absolute; display: flex; flex-direction: column; border-radius: .7em .7em 0 0; overflow: hidden; background: var(--fr);
+       box-shadow: 0 0 0 1px #0000001a, 0 1.2em 2.6em -1em #0005; }
+html.dark .feats .win { box-shadow: 0 0 0 1px #ffffff17, 0 1.2em 2.6em -1em #000; }
+.feats .win-top { flex: none; display: flex; align-items: center; gap: .4em; padding: .5em .7em; background: var(--tb); border-bottom: 1px solid var(--ln); }
+.feats .win-top > i { flex: none; width: .55em; height: .55em; border-radius: 50%; background: var(--bd); }
+.feats .addr { flex: 1; min-width: 0; margin-left: .35em; padding: .2em .8em; border-radius: 999px; background: var(--fr); color: var(--sub); font-size: .82em;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.feats .addr .trk { opacity: .6; }
+.feats .tbx { flex: none; width: 1.5em; height: 1.5em; border-radius: 50%; display: grid; place-items: center; }
+.feats .tbx img { width: 1em; height: 1em; }
+.feats .bmb { flex: none; display: flex; gap: .8em; align-items: center; padding: .3em .8em; background: var(--tb); border-bottom: 1px solid var(--ln); font-size: .78em; color: var(--sub); }
+.feats .bmb b { display: inline-flex; align-items: center; gap: .35em; font-weight: 600; color: var(--ctx); padding: .1em .55em; border-radius: 999px; background: var(--fr); }
+.feats .bmb .pci { width: 1.05em; height: 1.05em; }
+.feats .ring { box-shadow: 0 0 0 .16em #ea580c, 0 0 0 .45em #ea580c33; }
+/* The page: someone's light website, dimmed a little in dark mode, as the playground is. */
+.feats .pg { position: relative; flex: 1; overflow: hidden; background: linear-gradient(180deg, #f8fafc, #eef2ff); color: #0f172a; }
+html.dark .feats .pg { filter: brightness(.9); }
+.feats .gl { display: block; height: .6em; border-radius: 99px; background: #e2e8f0; }
+
+/* A pricing card, as on the playground. */
+.feats .plan { position: absolute; background: #fff; border: .12em solid #6366f1; border-radius: .9em; padding: .85em 1em .9em; box-shadow: 0 .6em 1.4em #6366f122; }
+.feats .plan .nm { display: block; font-weight: 700; line-height: 1.4; }
+.feats .plan .price { position: relative; margin: .2em 0 .3em; font: 800 2.1em/1 system-ui, sans-serif; letter-spacing: -.03em; }
+.feats .plan .price span { font: 500 .42em system-ui, sans-serif; color: #64748b; letter-spacing: 0; }
+.feats .plan .note { position: relative; margin: 0 0 .8em; font-size: .78em; line-height: 1.4; color: #94a3b8; }
+.feats .plan .cta { position: relative; display: block; text-align: center; font-weight: 650; font-size: .82em; color: #fff; background: #4f46e5; border-radius: .7em; padding: .55em; }
+
+/* An overlay that covers the element it sits in: the tool's outline and pill over one element. */
+.feats .ov { position: absolute; inset: 0; }
+
+/* The tool's parts. */
+.feats .t-hl { position: absolute; inset: -.2em -.3em; outline: .14em solid #2563eb; background: #2563eb1a; border-radius: .15em; pointer-events: none; }
+.feats .t-pill { position: absolute; left: -.15em; bottom: calc(100% + .35em); display: flex; align-items: center; gap: .55em; padding: .3em .55em .3em .3em; border-radius: .55em;
+          background: #18181b; color: #e4e4e7; font: 400 .62em/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0; white-space: nowrap; box-shadow: 0 .4em 1em #0004; }
+.feats .t-pill .t { background: #2563eb; color: #fff; padding: .3em .45em; border-radius: .35em; font-weight: 700; }
+.feats .t-pill .dim { color: #a1a1aa; }
+.feats .sc kbd { font: 400 .9em/1 ui-monospace, monospace; color: #71717a; background: none; border: 1px solid #3f3f46; border-radius: .25em; padding: .1em .3em; }
+.feats .t-aa { display: inline-grid; place-items: center; width: 2em; height: 1.6em; border-radius: .3em; font: 700 1em/1 system-ui, sans-serif; box-shadow: inset 0 0 0 1px #0002; }
+.feats .t-more { position: absolute; padding: .6em .85em; border-radius: .6em; background: #18181b; color: #e4e4e7; font: 400 .64em/1.8 ui-monospace, SFMono-Regular, Menlo, monospace;
+          white-space: nowrap; box-shadow: 0 .6em 1.4em #0005; }
+.feats .t-more .k { display: inline-block; width: 6.6em; color: #a1a1aa; }
+.feats .t-sw { display: inline-block; width: .85em; height: .85em; margin-right: .4em; border-radius: .15em; vertical-align: -.08em; box-shadow: 0 0 0 1px #0004, 0 0 0 2px #fff8; }
+.feats .t-ok { color: #4ade80; } .feats .t-bad { color: #f87171; }
+/* A pin: its pointed bottom-left corner sits on the spot clicked. */
+.feats .t-pin { position: absolute; width: 1.65em; height: 1.65em; translate: 0 -100%; display: grid; place-items: center; border: .13em solid #fff; border-radius: 50% 50% 50% 0;
+         background: #ea580c; color: #fff; font: 700 .8em/1 system-ui, sans-serif; box-shadow: 0 .15em .5em #0006; }
+/* The round button while commenting: blue, with the comment icon. */
+.feats .t-rb { position: absolute; right: .9em; bottom: .9em; width: 2.3em; height: 2.3em; border-radius: 50%; display: grid; place-items: center; background: #2563eb;
+        box-shadow: 0 .4em 1em #2563eb55, 0 0 0 .15em #fff; }
+.feats .t-rb svg { width: 1.1em; height: 1.1em; }
+/* The comment box. */
+.feats .t-box { position: absolute; width: 14em; padding: .6em .7em .65em; border-radius: .75em; background: #fff; color: #18181b; font-size: .8em;
+         box-shadow: 0 0 0 1px #0000001a, 0 .8em 2em -.4em #0006; }
+.feats .t-box .hd { display: flex; align-items: center; gap: .4em; margin-bottom: .45em; min-width: 0; }
+.feats .t-box .chip { flex: none; font: 700 .8em/1 ui-monospace, monospace; color: #2563eb; background: #2563eb14; border-radius: .3em; padding: .25em .4em; }
+.feats .t-box .what { flex: 1; min-width: 0; font-weight: 600; color: #3f3f46; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.feats .t-box .ta { min-height: 2.9em; padding: .4em .55em; border: 1px solid #93c5fd; border-radius: .5em; box-shadow: 0 0 0 .2em #2563eb1f; }
+.feats .t-box .btns { display: flex; justify-content: flex-end; gap: .35em; margin-top: .45em; }
+.feats .t-box .btns span { font-weight: 600; font-size: .9em; padding: .25em .7em; border-radius: .45em; border: 1px solid #d4d4d8; }
+.feats .t-box .btns .go { color: #fff; background: #2563eb; border-color: #2563eb; }
+.feats .caret { display: inline-block; width: 1px; height: 1.1em; margin-left: 1px; background: #18181b; vertical-align: -.2em; animation: ft-caret 1.05s steps(1) infinite; }
+@keyframes ft-caret { 50% { opacity: 0; } }
+/* Selected text, as the tool marks it while its box is open. */
+.feats .t-mark { background: #fb923c; color: #18181b; border-radius: .12em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+/* Keys under a scene. */
+.feats .keys { position: absolute; display: flex; flex-wrap: wrap; gap: .4em .8em; font-size: .78em; color: var(--sub); }
+.feats .keys span { display: inline-flex; align-items: center; gap: .4em; }
+.feats .keys kbd { color: var(--ctx); border-color: var(--bd); border-bottom-width: 2px; background: var(--tb); padding: .2em .45em; }
+
+/* ── Details and a contrast check ───────────────────────────────────────────── */
+.feats .s-details .win { inset: 7% 5% -8% 5%; }
+.feats .s-details .plan { left: 4%; top: 3.6em; width: 9.8em; }
+.feats .s-details .t-more { left: calc(100% + 2.4em); top: .4em; }
+.feats .s-details .cur { position: absolute; z-index: 4; left: 62%; top: 55%; width: 1.3em; height: 1.3em; filter: drop-shadow(0 .1em .2em #0006); }
+.feats .s-details .on1 { opacity: 0; }
+.feats .anim .s-details .on1 { animation: ft-det1 5s both; }
+.feats .anim .s-details .on2 { animation: ft-det2 5s both; }
+.feats .anim .s-details .cur { animation: ft-detc 5s both; }
+@keyframes ft-det1 { 0%, 10% { opacity: 0; } 14%, 50% { opacity: 1; } 52%, 100% { opacity: 0; } }
+@keyframes ft-det2 { 0%, 50% { opacity: 0; } 52%, 100% { opacity: 1; } }
+@keyframes ft-detc { 0% { translate: 5em 4em; opacity: 0; } 8% { opacity: 1; } 14%, 44% { translate: .6em -2.5em; } 52%, 100% { translate: 0 0; } }
+
+/* ── Works where other tools break ──────────────────────────────────────────── */
+.feats .s-where .sites { position: absolute; inset: 8% 6%; margin: 0; padding: 0; list-style: none; display: grid; align-content: center; gap: .55em; }
+.feats .s-where li { display: flex; align-items: center; gap: .6em; padding: .45em .5em .45em .75em; border-radius: .8em; background: var(--tb); color: var(--ctx);
+              box-shadow: 0 0 0 1px var(--ln), 0 .5em 1.2em -.8em #0005; }
+.feats .s-where li > svg { flex: none; width: 1.05em; height: 1.05em; color: var(--sub); }
+.feats .s-where .ad { flex: 1; min-width: 0; font-size: .86em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.feats .s-where .ad em { font-style: normal; color: var(--sub); }
+.feats .s-where .why { flex: none; margin: 0; max-width: none; font: 650 .7em/1 system-ui, sans-serif; color: var(--sub); background: var(--fr); border-radius: 999px; padding: .35em .6em; }
+.feats .s-where .mpin { position: relative; flex: none; width: 1.5em; height: 1.5em; }
+.feats .s-where .mpin .t-pin { left: .1em; top: 1.45em; font-size: .62em; }
+.feats .s-where .okc { flex: none; width: 1.55em; height: 1.55em; border-radius: 50%; display: grid; place-items: center; background: #16a34a; color: #fff; }
+.feats .s-where .okc svg { width: .95em; height: .95em; }
+.feats .anim .s-where li { animation: ft-whin .45s calc(var(--i) * .32s) both cubic-bezier(.2, .8, .2, 1); }
+.feats .anim .s-where .okc { animation: ft-pop .35s calc(var(--i) * .32s + .35s) both cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes ft-whin { from { opacity: 0; translate: -1.2em 0; } }
+@keyframes ft-pop { from { scale: 0; } }
+
+/* ── Precise picking ─────────────────────────────────────────────────────────── */
+.feats .s-pick .win { inset: 7% 5% -8% 5%; }
+.feats .s-pick .head { position: absolute; left: 6%; top: 1.3em; width: 52%; }
+.feats .s-pick .head b { display: block; font: 800 1.35em/1.15 system-ui, sans-serif; color: #1e1b4b; letter-spacing: -.02em; }
+.feats .s-pick .head p { margin-top: .35em; font-size: .8em; color: #475569; }
+.feats .s-pick .t-box { left: 6%; top: 6.6em; width: 13.5em; } /* em of its own .8em font */
+.feats .s-pick .cards { position: absolute; right: 5%; top: 1.9em; display: flex; gap: .8em; }
+.feats .s-pick .mp { position: relative; width: 6.6em; padding: .7em .7em .75em; border-radius: .7em; background: #fff; border: 1px solid #e2e8f0; display: grid; gap: .45em; }
+.feats .s-pick .mp b { font-size: .8em; }
+.feats .s-pick .mp .gl.big { height: 1.1em; width: 70%; background: #cbd5e1; }
+.feats .s-pick .mp .gl.short { width: 85%; }
+.feats .s-pick .mp .mb { position: relative; height: 1.7em; margin-top: .25em; border-radius: .5em; background: #eef2ff; }
+.feats .s-pick .mp.pro { border: .12em solid #6366f1; }
+.feats .s-pick .mp.pro .mb { background: #4f46e5; }
+/* In a batch: each pick outlined, with its own ×. */
+.feats .s-pick .pk { position: absolute; inset: -.3em; border: .14em dashed #2563eb; border-radius: .8em; background: #2563eb0f; }
+.feats .s-pick .pk::after { content: '×'; position: absolute; top: -.75em; right: -.75em; width: 1.3em; height: 1.3em; border-radius: 50%; display: grid; place-items: center;
+                     background: #2563eb; color: #fff; font: 700 .85em/1 system-ui, sans-serif; }
+.feats .s-pick .up .t-hl { inset: -.3em; border-radius: .8em; }
+.feats .s-pick .keys { right: 5%; top: 15.4em; justify-content: flex-end; color: #64748b; } /* em of its own .78em font */
+.feats .s-pick .keys kbd { color: #334155; background: #fff; border-color: #cbd5e1; }
+/* Beats: the outline on the Pro button, ↑ to the whole card, Space adds it to the batch. */
+.feats .s-pick .in1, .feats .s-pick .in2 { opacity: 0; }
+.feats .anim .s-pick .in1 { animation: ft-pk1 5s both; }
+.feats .anim .s-pick .in2 { animation: ft-pk2 5s both; }
+.feats .anim .s-pick .in3 { animation: ft-pk3 5s both; }
+.feats .anim .s-pick .k-up kbd { animation: ft-kup 5s both; }
+.feats .anim .s-pick .k-sp kbd { animation: ft-ksp 5s both; }
+@keyframes ft-pk1 { 0%, 8% { opacity: 0; } 12%, 36% { opacity: 1; } 38%, 100% { opacity: 0; } }
+@keyframes ft-pk2 { 0%, 36% { opacity: 0; } 38%, 64% { opacity: 1; } 66%, 100% { opacity: 0; } }
+@keyframes ft-pk3 { 0%, 64% { opacity: 0; } 66%, 100% { opacity: 1; } }
+@keyframes ft-kup { 30%, 44% { color: #334155; border-color: #cbd5e1; background: #fff; } 34%, 40% { color: #fff; border-color: #ea580c; background: #ea580c; } }
+@keyframes ft-ksp { 58%, 72% { color: #334155; border-color: #cbd5e1; background: #fff; } 62%, 68% { color: #fff; border-color: #ea580c; background: #ea580c; } }
+
+/* ── Your work is safe ───────────────────────────────────────────────────────── */
+.feats .s-safe .win { top: 8%; bottom: 5%; width: 44%; border-radius: .7em; }
+.feats .s-safe .w1 { left: 4%; } .feats .s-safe .w2 { right: 4%; }
+.feats .s-safe .tab { position: absolute; z-index: 2; top: .6em; left: .6em; font: 650 .68em/1 system-ui, sans-serif; color: #475569; background: #fff; border: 1px solid #e2e8f0; border-radius: 999px; padding: .35em .6em; }
+.feats .s-safe .scroll { position: absolute; inset: 0; padding: 2.6em 1.1em 0; display: grid; gap: .55em; align-content: start; }
+.feats .s-safe .scroll .gl.h { width: 55%; height: 1em; background: #c7d2fe; }
+.feats .s-safe .pcard { position: relative; margin-top: .4em; padding: .7em; border-radius: .7em; background: #fff; border: .12em solid #6366f1; display: grid; gap: .45em; }
+.feats .s-safe .pcard .pr { font: 800 1.35em/1 system-ui, sans-serif; letter-spacing: -.03em; }
+.feats .s-safe .pcard .pr span { font: 500 .45em system-ui, sans-serif; color: #64748b; }
+.feats .s-safe .pcard .mb { height: 1.4em; border-radius: .45em; background: #4f46e5; }
+.feats .s-safe .t-box { left: .7em; right: .7em; bottom: .7em; width: auto; font-size: .72em; }
+.feats .s-safe .t-box .ta { min-height: 0; }
+.feats .s-safe .kept { margin-top: .45em; font-weight: 650; color: #15803d; }
+.feats .s-safe .eq { position: absolute; z-index: 3; left: 50%; top: 50%; translate: -50% -50%; width: 2em; height: 2em; border-radius: 50%; display: grid; place-items: center;
+              background: var(--card); color: var(--text); box-shadow: 0 0 0 1px var(--line), 0 .4em 1em #0003; }
+.feats .s-safe .eq svg { width: 1.1em; height: 1.1em; }
+.feats .anim .s-safe .scroll { animation: ft-sscroll 5s both ease-in-out; }
+.feats .anim .s-safe .w1 .p2 { animation: ft-spin1 5s both; }
+.feats .anim .s-safe .w2 .p2 { animation: ft-spin2 5s both; }
+@keyframes ft-sscroll { 0%, 12% { translate: 0 0; } 32%, 62% { translate: 0 -2.2em; } 82%, 100% { translate: 0 0; } }
+@keyframes ft-spin1 { 0%, 18% { scale: 0; } 24%, 100% { scale: 1; } }
+@keyframes ft-spin2 { 0%, 38% { scale: 0; } 44%, 100% { scale: 1; } }
+.feats .s-safe .p2 { transform-origin: 0 100%; }
+
+/* ── Bookmark or extension, same comments ────────────────────────────────────── */
+.feats .s-both .win { top: 9%; bottom: 5%; width: 44%; border-radius: .7em; }
+.feats .s-both .w1 { left: 4%; } .feats .s-both .w2 { right: 4%; }
+.feats .s-both .pg .gl { position: absolute; left: 10%; }
+.feats .s-both .way { position: absolute; z-index: 3; top: 1.8%; font: 700 .7em/1 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+html.dark .feats .s-both .way { color: #a1a1aa; }
+.feats .s-both .wy1 { left: 5%; } .feats .s-both .wy2 { right: 5%; }
+.feats .s-both .blk { position: absolute; left: 10%; right: 10%; top: 5.2em; display: grid; grid-template-columns: 1fr 1fr; gap: .6em; }
+.feats .s-both .blk i { height: 4.5em; border-radius: .5em; background: #fff; border: 1px solid #e2e8f0; }
+.feats .s-both .t-rb { width: 1.9em; height: 1.9em; right: .6em; bottom: .6em; }
+.feats .s-both .eq { position: absolute; z-index: 3; left: 50%; top: 52%; translate: -50% -50%; width: 2em; height: 2em; border-radius: 50%; display: grid; place-items: center;
+              background: var(--card); color: var(--text); font: 800 1.1em/1 system-ui, sans-serif; box-shadow: 0 0 0 1px var(--line), 0 .4em 1em #0003; }
+.feats .anim .s-both .t-pin { animation: ft-pop .4s calc(.3s + var(--i) * .25s) both cubic-bezier(.3, 1.6, .5, 1); transform-origin: 0 100%; }
+.feats .anim .s-both .ring { animation: ft-ringp 1.6s .2s 2 both; }
+@keyframes ft-ringp { 50% { box-shadow: 0 0 0 .16em #ea580c, 0 0 0 .8em #ea580c00; } }
+
+/* ── What Claude gets: Copy's plain text, in a dark panel like the site's code blocks ──── */
+.feats .ctext { display: flex; flex-direction: column; min-height: 0; border-radius: 14px; background: #131316; border: 1px solid #27272a; overflow: hidden; color: #e4e4e7; }
+.feats .ctext .cbar { flex: none; display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: #1c1c20; border-bottom: 1px solid #27272a; font: 12px ui-monospace, monospace; color: #a1a1aa; }
+.feats .ctext .cbar i { width: 9px; height: 9px; border-radius: 50%; background: #3f3f46; }
+.feats .ctext .cbar span { margin-left: 6px; } .feats .ctext .cbar small { margin-left: auto; font: inherit; color: #71717a; }
+.feats .ctext pre { flex: 1; min-height: 0; margin: 0; padding: 14px 16px 16px; overflow: auto; font: 12.5px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace; color: #e4e4e7;
+             scrollbar-width: thin; scrollbar-color: #3f3f46 transparent; }
+.feats .ctext pre::-webkit-scrollbar { width: 8px; height: 8px; }
+.feats .ctext pre::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 8px; } .feats .ctext pre::-webkit-scrollbar-thumb:hover { background: #52525b; }
+.feats .ctext pre::-webkit-scrollbar-track, .feats .ctext pre::-webkit-scrollbar-corner { background: transparent; }
+.feats .ctext .ln { display: block; min-height: 1.65em; }
+.feats .cx-h { color: #fdba74; font-weight: 700; } .feats .cx-k { color: #a1a1aa; } .feats .cx-c { color: #93c5fd; } .feats .cx-s { color: #c3e88d; }
+.feats .anim .ctext .ln { animation: ft-lnin .3s calc(var(--i) * 70ms) both; }
+@keyframes ft-lnin { from { opacity: 0; translate: -.5em 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .feats .anim .sc *, .feats .anim .ctext .ln, .feats .caret { animation: none !important; }
+}
+
+/* ── The section ─────────────────────────────────────────────────────────────── */
+/* The top bar covers the top 58 px, so a link to the section lands just under it. */
+#features { scroll-margin-top: 72px; }
+.feats { padding: 88px 0 0; }
+.feats .fhead { margin-bottom: 28px; }
+.feats .fhead .lead { margin: 0; }
+.feats h3 kbd, .feats p kbd { padding: 1px 5px; font-size: 11.5px; }
+.feats p code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; padding: 1px 5px; border-radius: 5px; background: var(--card-sunk); border: 1px solid var(--line); }
+@media (max-width: 860px) { .feats { padding-top: 64px; } }
+@media (max-width: 640px) { .feats .ctext .cbar small { display: none; } }
+
+/* The tiles. "open" marks a tile that shows everything: the one in the big slot, or a tapped one on a phone. The grid is
+   the tiles' offset parent: features.js finds the slot under the pointer from their offsets. */
+.feats .swap { position: relative; display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.feats .tile { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; background: var(--card);
+        border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--lift); cursor: pointer; transition: border-color .2s, box-shadow .2s, translate .2s; }
+.feats .tile:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.feats .tile .stage { flex: none; border-bottom: 1px solid var(--line); }
+.feats .tile .tt { flex: none; padding: 14px 18px 16px; }
+.feats .tile h3 { margin: 0 0 4px; font: 750 18px/1.25 system-ui, sans-serif; letter-spacing: -.02em; }
+.feats .tile .tt > p { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--text-2); }
+.feats .xtra p { margin: 0; padding-top: 6px; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+html.dark .feats .xtra p { color: #a1a1aa; }
+/* A closed tile: its title, its drawing, two lines. */
+.feats .tile:not(.open) .tt > p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.feats .tile:not(.open) .xtra, .feats .t-claude:not(.open) .ctext { display: none; }
+.feats .tile { transform-origin: top left; } /* the swap animation scales each tile from its corner */
+
+/* What Claude gets. Closed: picture 1 stands where the others have a drawing. Open: Copy's text too. */
+.feats .t-claude .cap { order: -1; flex: none; display: grid; place-content: center; padding: 18px; background: var(--card-sunk); border-bottom: 1px solid var(--line); }
+.feats .t-claude .cap .png { width: min(100%, 250px); }
+.feats .t-claude .ctext { margin: 0 18px 18px; }
+.feats .swap .ctext pre { font-size: 12px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; overflow-x: hidden; overflow-y: auto; }
+.feats .swap .ctext .ln { padding-left: 2ch; text-indent: -2ch; }
+.feats .cap { margin: 0; display: grid; gap: 8px; min-width: 0; }
+/* Picture 1 as the tool pastes it (core.js captioned): a dark band with the number and comment, then the element with
+   24 px around it (the plan's name above, its side borders), never narrower than 240 px. 1 px = 100cqw / 240. */
+.feats .cap .png { container-type: inline-size; border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px #0000001f, 0 12px 28px -14px #0007; }
+html.dark .feats .cap .png { box-shadow: 0 0 0 1px #ffffff24, 0 12px 28px -14px #000; }
+.feats .cap .band { height: 11.67cqw; display: flex; align-items: center; padding: 0 4.17cqw; background: #18181b; color: #fff; font: 600 5.42cqw/1 system-ui, sans-serif;
+             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.feats .cap .crop { position: relative; height: 33.33cqw; overflow: hidden; color: #0f172a; }
+.feats .cap .edge { position: absolute; top: 0; bottom: 0; width: .83cqw; background: #6366f1; }
+.feats .cap .edge.l { left: 1.67cqw; } .feats .cap .edge.r { left: 84.17cqw; }
+.feats .cap .nm { position: absolute; left: 10cqw; top: -3.1cqw; font: 700 7.08cqw/10.6cqw system-ui, sans-serif; }
+.feats .cap .pr { position: absolute; left: 10cqw; top: 10cqw; font: 800 13.33cqw/1 system-ui, sans-serif; letter-spacing: -.03em; white-space: nowrap; }
+.feats .cap .pr span { font: 500 .47em system-ui, sans-serif; color: #64748b; letter-spacing: 0; }
+.feats .cap figcaption { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); }
+.feats .cap figcaption b { color: var(--text); font-weight: 600; }
+html.dark .feats .cap figcaption { color: #a1a1aa; }
+
+/* The details card sits at the page's right edge, so a browser's minimum font size widens it to the left, never off the page. */
+.feats .s-details .mv .t-more { left: auto; right: 4%; top: 4em; }
+
+/* Phones and touch screens: a stack; a closed tile says it opens. */
+.feats .tile:not(.open) .tt h3::after { content: '+'; margin-left: 8px; color: var(--orange); font-weight: 700; }
+@media (max-width: 640px) { .feats .swap { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
+.feats .t-claude { grid-column: 1 / -1; } /* on a wide screen its slot decides */
+
+/* A mouse on a wide screen: the big slot and five small ones. The grid has a fixed height, so a swap never moves
+   anything below the section. */
+@media (hover: hover) and (pointer: fine) and (min-width: 900px) {
+  .feats .swap { height: 960px; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: 1fr 1fr 1.1fr;
+          grid-template-areas: "big big s1" "big big s2" "s3 s4 s5"; }
+  .feats .tile[data-slot=big] { grid-area: big; } .feats .tile[data-slot=s1] { grid-area: s1; } .feats .tile[data-slot=s2] { grid-area: s2; }
+  .feats .tile[data-slot=s3] { grid-area: s3; } .feats .tile[data-slot=s4] { grid-area: s4; } .feats .tile[data-slot=s5] { grid-area: s5; }
+  .feats .tile:not(.open) .tt h3::after { content: none; }
+  .feats .tile[data-slot=big] { cursor: auto; }
+  /* A small tile lifts a little under the pointer: it can be clicked. features.js sets .over from the slot under the
+     pointer, since :hover would flicker at the bottom edge, where the lift moves the tile off the pointer. */
+  .feats .tile.over:not([data-slot=big]) { translate: 0 -3px; border-color: #ea580c66; box-shadow: var(--lift), 0 16px 32px -16px #ea580c66; }
+  /* Drawings fill what the text leaves, as large as fits, on the bottom edge (their windows run off it). */
+  .feats .tile .stage { flex: 1 1 0; min-height: 0; aspect-ratio: auto; container-type: size; }
+  .feats .tile .sc { --fs: min(2.9cqw, 4.64cqh); inset: auto; left: 50%; bottom: 0; translate: -50% 0; width: min(100cqw, 160cqh); aspect-ratio: 16 / 10; }
+  .feats .tile[data-slot=big] h3 { font-size: 23px; }
+  .feats .tile[data-slot=big] .tt { padding: 16px 22px 20px; }
+  .feats .tile[data-slot=big] .tt > p { font-size: 15.5px; max-width: 70ch; }
+  .feats .t-claude:not([data-slot=big]) .cap { flex: 1 1 0; min-height: 0; }
+  /* What Claude gets in the big slot: title and picture side by side, Copy's text full width below. */
+  .feats .t-claude[data-slot=big] { display: grid; grid-template-columns: minmax(0, 1fr) clamp(190px, 32%, 250px); grid-template-rows: auto minmax(0, 1fr);
+                             grid-template-areas: "tt cap" "text text"; gap: 16px 20px; padding: 20px 22px 22px; }
+  .feats .t-claude[data-slot=big] .tt { grid-area: tt; padding: 0; }
+  .feats .t-claude[data-slot=big] .cap { grid-area: cap; order: 0; padding: 0; background: none; border: 0; place-content: start stretch; }
+  .feats .t-claude[data-slot=big] .cap .png { width: 100%; }
+  .feats .t-claude[data-slot=big] .ctext { grid-area: text; margin: 0; min-height: 0; max-height: 100%; }
+}
+/* Resting on a small tile fills a bar along its bottom; when it is full the tile moves to the big slot. features.js sets
+   --rest, its waiting time. */
+.feats .tile .dwell { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--orange); transform-origin: left; scale: 0 1; pointer-events: none; }
+.feats .tile.resting .dwell { animation: ft-dwell var(--rest) linear both; }
+@keyframes ft-dwell { to { scale: 1 1; } }
+@media (prefers-reduced-motion: reduce) { .feats .tile { transition: none; } .feats .tile.resting .dwell { animation: none; scale: 1 1; } }
