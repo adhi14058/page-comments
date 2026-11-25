@@ -657,6 +657,8 @@ export const startPageComments = (platform) => {
     if (!platform.capture.ready()) await platform.capture.start();
     // Only the page belongs in the picture: not the tool, not a text-selection highlight, not a focus outline.
     host.style.visibility = 'hidden';
+    const wasMarked = marked;
+    markText(null);
     for (const doc of [document, ...linked.keys()]) doc.getSelection()?.removeAllRanges();
     if (document.activeElement && document.activeElement !== document.body && document.activeElement !== host) document.activeElement.blur();
     try {
@@ -665,6 +667,7 @@ export const startPageComments = (platform) => {
       return await crop(source, k, rect());
     } finally {
       host.style.visibility = '';
+      if (wasMarked && !pop.hidden) markText(wasMarked);
     }
   };
   // Pictures are too big for localStorage, so they live in the site's IndexedDB, keyed by comment id: one picture as a
@@ -977,7 +980,8 @@ export const startPageComments = (platform) => {
   // <body>, so it keeps its own cursors (and Area mode its crosshair).
   const EMBEDS = 'iframe, frame, embed, object', FRAMES = 'iframe, frame', LINKED = 'data-page-comments-frame';
   const embedRule = `iframe:not([${LINKED}]), frame:not([${LINKED}]), embed, object { pointer-events: none !important; }
-    html, body, body *, body *::before, body *::after { cursor: pointer !important; }`;
+    html, body, body *, body *::before, body *::after { cursor: pointer !important; }
+    ::highlight(page-comments-text) { background-color: #fb923c; color: #18181b; }`;
   const embedSheet = new CSSStyleSheet();
   embedSheet.replaceSync(embedRule);
   const sheets = new Map([[document, embedSheet]]); // a stylesheet object serves one page: each linked frame has its own
@@ -1014,6 +1018,30 @@ export const startPageComments = (platform) => {
     drawPicked(); // the bar says which way the next pick is made
   };
 
+  // The text a comment is about, marked in orange while its box is open (the CSS Custom Highlight API; where a browser
+  // lacks it, nothing is marked). A comment opened again finds its text in its element, spaces aside.
+  const MARK = 'page-comments-text';
+  let marked = null;
+  const markText = (range) => {
+    marked?.startContainer.ownerDocument.defaultView?.CSS?.highlights?.delete(MARK);
+    marked = null;
+    const win = range?.startContainer.ownerDocument.defaultView;
+    if (!win?.Highlight || !win.CSS?.highlights) return;
+    win.CSS.highlights.set(MARK, new win.Highlight(range));
+    marked = range;
+  };
+  const findText = (el, text) => {
+    const nodes = [], walker = el.ownerDocument.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let all = '';
+    for (let n; (n = walker.nextNode());) { nodes.push([n, all.length]); all += n.data; }
+    const m = new RegExp(text.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s*')).exec(all);
+    if (!m) return null;
+    const at = (i) => { let k = nodes.length - 1; while (k > 0 && nodes[k][1] > i) k--; return [nodes[k][0], i - nodes[k][1]]; };
+    const range = el.ownerDocument.createRange();
+    range.setStart(...at(m.index));
+    range.setEnd(...at(m.index + m[0].length));
+    return range;
+  };
   const openPop = (d, x, y) => {
     draft = { ...d, x, y };
     const el = d.el || (d.comment && elOf(d.comment));
@@ -1049,6 +1077,7 @@ export const startPageComments = (platform) => {
     navPos.textContent = many ? `–/${many.length}` : '';
     hl.hidden = true;
     pop.hidden = false;
+    markText(d.range || (d.selectedText && el && !frozen && findText(el, d.selectedText)) || null);
     placePop(x, y, el);
     drawShown();
     textarea.focus();
@@ -1111,6 +1140,7 @@ export const startPageComments = (platform) => {
   // Unsaved text: the box differs from what it opened with. A saved comment opened from the list is not unsaved.
   const unsaved = () => !!draft && textarea.value.trim() !== (draft.comment ? draft.comment.comment : '');
   const closePop = () => {
+    markText(null);
     pop.hidden = true; draft = null; areaBox.hidden = true; shown = []; shownCur = -1; drawShown();
     if (dodge) { dodge = null; placeWidget(); } // back to where the user left it
   };
@@ -1260,9 +1290,10 @@ export const startPageComments = (platform) => {
     const sel = e.target.ownerDocument.getSelection(); // a frame's page has its own selection
     const text = sel.toString().trim();
     // The smallest element that holds the whole selection, which may span several elements.
-    const common = text && sel.getRangeAt(0).commonAncestorContainer;
+    const range = text && sel.getRangeAt(0).cloneRange(), common = range && range.commonAncestorContainer;
     const el = text ? (common.nodeType === 1 ? common : common.parentElement) : targetOf(e);
-    openPop({ el, selector: selectorOf(el), selectedText: text }, x, y);
+    if (text) sel.removeAllRanges();
+    openPop({ el, selector: selectorOf(el), selectedText: text, range }, x, y);
   };
   // Details (colours, font, spacing, selector) are one remembered switch: D, or the comment box's tab.
   // A press-once switch, not a held key: holding a key while moving the mouse is awkward, and Alt is Option on a Mac.
@@ -1424,7 +1455,9 @@ export const startPageComments = (platform) => {
     showHighlight(el.getBoundingClientRect(), inspect(el));
   });
   // Shift+click would otherwise extend the page's text selection.
-  const onDown = (e) => { if (commenting && e.shiftKey && !ours(e)) e.preventDefault(); };
+  // A press on the page selects no text while Shift is held (a pick) or a comment box is open: there a click only
+  // closes the box (or goes back to its unsaved text), so a selection would be lost at once; the box keeps the focus.
+  const onDown = (e) => { if (commenting && (e.shiftKey || draft) && !ours(e)) e.preventDefault(); };
 
   // ↑ / ↓ move the highlight to the parent / back to the inner element; Enter (or a click inside it) comments on it.
   let hovered = null, kbTarget = null, kbStack = [];
