@@ -1122,13 +1122,13 @@ export const startPageComments = (platform) => {
     const { el, selectedText, x, y, area, items, frozen: rec, group } = d;
     if (area) {
       return {
-        id: newId(), comment, el, page: pageOf(), dx: area.dx, dy: area.dy, area, items, selector: d.selector, ...(group ? { group } : {}),
+        id: newId(), comment, el, page, dx: area.dx, dy: area.dy, area, items, selector: d.selector, ...(group ? { group } : {}),
         size: `${area.w}×${area.h}`, background: rec ? rec.info.background : backgroundOf(el), ...(rec ? { frozen: true } : {}),
       };
     }
     const r = rec ? rec.rect : rectOf(el);
     return {
-      id: newId(), comment, selectedText, el, page: pageOf(), dx: Math.max(0, x - r.left), dy: Math.max(0, y - r.top),
+      id: newId(), comment, selectedText, el, page, dx: Math.max(0, x - r.left), dy: Math.max(0, y - r.top),
       selector: d.selector, text: clip(textOf(el), 200), html: clip(el.outerHTML, 400), info: rec ? rec.info : inspect(el), ...(rec ? { frozen: true } : {}),
     };
   };
@@ -1137,8 +1137,10 @@ export const startPageComments = (platform) => {
     if (!comment) return;
     const { el, comment: editing, area, frozen: rec, picks } = draft, wantShot = shotBox.checked;
     let c = editing;
-    if (c) c.comment = comment;
-    else comments.push((c = commentFrom(draft, comment)));
+    if (c) {
+      c.comment = comment;
+      if (!comments.includes(c)) comments.push(c); // another tab deleted it while it was being edited here
+    } else comments.push((c = commentFrom(draft, comment)));
     closePop();
     render();
     if (!el) return; // an edit of a comment whose element is gone keeps its screenshot as it was
@@ -1233,9 +1235,10 @@ export const startPageComments = (platform) => {
     }
     // Single keys only while commenting, and never while typing (in our comment box or in the page's fields).
     // The real target, not e.target: focus stays on our buttons after a click, and the shadow root retargets them to host.
+    // Inside our UI that is our root's focused element: the extension's closed root shows the page only its host.
     // Enter on one of our focused buttons must still press that button.
     if (e.key !== 'Escape') {
-      const t = e.composedPath()[0];
+      const t = ours(e) ? root.activeElement : e.composedPath()[0];
       if (!commenting || draft || editable(t) || (e.key === 'Enter' && ours(e)) || e.ctrlKey || e.metaKey || e.altKey) return;
       // With our menu open, ↑ / ↓ / Enter work its items.
       const item = (start) => [...menu.querySelectorAll('.mi')].find((b) => b.textContent.startsWith(start));
@@ -1500,10 +1503,11 @@ export const startPageComments = (platform) => {
   let countdown = 0;
   const freezeLater = async () => {
     if (countdown) return;
+    if (unsaved()) return textarea.focus(); // as freeze(): never throw away unsaved text
     if (!platform.capture.ready()) {
       try { await platform.capture.start(); } catch (err) { return toast('Freeze needs screen sharing: ' + (err.name === 'NotAllowedError' ? 'it was not allowed.' : err.message)); }
     }
-    if (countdown || frozen) return; // a second press while the prompt showed
+    if (countdown || frozen || unsaved()) return; // a second press, or a box typed into, while the prompt showed
     setCommenting(false);
     let left = 3;
     toast(`Freezing in ${left}… open the menu or hover the tooltip now`, 1100);
@@ -1635,11 +1639,11 @@ export const startPageComments = (platform) => {
   const onScrollMenu = (e) => { if (!ours(e)) closeMenu(); };
   addEventListener('scroll', onScrollMenu, true);
   addEventListener('resize', schedulePlace);
+  addEventListener('resize', refitPop);
   // Linking a same-origin frame: our listeners on its window, its own embed stylesheet (for frames inside it), and a mark
   // on its iframe that lets the pointer in. Done for every frame now and again whenever one loads (a new page in a frame
   // is a new document); a frame that now shows a page of another origin loses its mark and is picked whole again.
   const linked = new Map(); // a linked frame's page -> what undoes the linking
-  addEventListener('resize', refitPop);
   const ownTool = (doc) => doc.documentElement?.dataset.pageComments !== undefined;
   const FRAME_EVENTS = [['mousemove', onMove], ['click', onClick], ['mousedown', onDown], ['contextmenu', onContext], ['keydown', onKey],
     ['scroll', schedulePlace], ['scroll', onScrollMenu], ['resize', schedulePlace]];
@@ -1784,16 +1788,20 @@ export const startPageComments = (platform) => {
   };
 
   // Another tab of the same site changed the comments: take its copy so neither tab overwrites the other.
+  // Text being typed is never thrown away: an open box with unsaved text stays, and an edit goes on with the other tab's
+  // copy of its comment. Closing the box under the typing would also send the next letters to the shortcuts.
   const onStorage = (e) => {
     if (e.key !== KEY) return;
     comments = load();
-    closePop();
+    if (!unsaved()) closePop();
+    else if (draft.comment) draft.comment = comments.find((x) => x.id === draft.comment.id) || draft.comment;
     render();
   };
   addEventListener('storage', onStorage);
-  // Single-page apps change the URL without reloading; nothing fires for pushState, so check the URL.
+  // Single-page apps change the URL without reloading; nothing fires for pushState, so check the URL. Not while a box
+  // holds unsaved text (apps also rewrite their address on their own): it is saved to the page it was written on.
   const urlTimer = setInterval(() => {
-    if (pageOf() === page) return;
+    if (pageOf() === page || unsaved()) return;
     page = pageOf();
     closePop();
     render();
@@ -2117,6 +2125,7 @@ export const startPageComments = (platform) => {
     clearInterval(countdown);
     removeEventListener('scroll', schedulePlace, true);
     removeEventListener('resize', schedulePlace);
+    removeEventListener('resize', refitPop);
     removeEventListener('resize', placeWidget);
     dockObserver.disconnect();
     clearTimeout(closeTimer);
@@ -2125,7 +2134,6 @@ export const startPageComments = (platform) => {
     cancelAnimationFrame(frame);
     clearTimeout(toastTimer);
     clearTimeout(clearTimer);
-    removeEventListener('resize', refitPop);
     clearInterval(urlTimer);
     platform.capture.stop(); // the bookmark: ends Chrome's "sharing this tab"
     document.removeEventListener('page-comments:close', destroy);
