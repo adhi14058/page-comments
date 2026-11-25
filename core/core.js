@@ -875,7 +875,7 @@ export const startPageComments = (platform) => {
     pin.style.left = x + 'px';
     pin.style.top = y + 'px';
   });
-  const schedulePlace = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(() => { place(); drawPicked(); drawShown(); }); };
+  const schedulePlace = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(() => { place(); followPop(); drawPicked(); drawShown(); }); };
 
   const render = () => {
     persist();
@@ -984,14 +984,40 @@ export const startPageComments = (platform) => {
     navPos.textContent = many ? `–/${many.length}` : '';
     hl.hidden = true;
     pop.hidden = false;
-    placePop(x, y);
+    placePop(x, y, el);
     drawShown();
     textarea.focus();
   };
-  const placePop = (x, y) => {
-    pop.style.left = Math.max(8, Math.min(x + 12, innerWidth - pop.offsetWidth - 8)) + 'px';
-    pop.style.top = Math.max(8, Math.min(y + 12, innerHeight - pop.offsetHeight - 8)) + 'px';
+  // The box opens on screen beside its pick, then stays at that spot of the page: scrolling moves it with its element, as
+  // it moves the pins, instead of leaving it on the screen over other content. Not on a frozen picture, which never
+  // scrolls, nor when the element is gone.
+  let popAt = null; // { el, dx, dy }: the box's offset from its element
+  const placePop = (x, y, el) => {
+    const left = Math.max(8, Math.min(x + 12, innerWidth - pop.offsetWidth - 8));
+    const top = Math.max(8, Math.min(y + 12, innerHeight - pop.offsetHeight - 8));
+    pop.style.left = left + 'px';
+    pop.style.top = top + 'px';
+    const r = el && !frozen ? rectOf(el) : null;
+    popAt = r ? { el, dx: left - r.left, dy: top - r.top } : null;
     pop.classList.toggle('flip', pop.getBoundingClientRect().right + 266 > innerWidth); // the details card goes left near the right edge
+    placeSide();
+    dodgeBox();
+  };
+  // The window got smaller (Chrome's "sharing this tab" bar, DevTools, a resize): bring the box back on screen, and keep
+  // it at its new spot of the page from there.
+  const refitPop = () => {
+    if (pop.hidden) return;
+    const p = pop.getBoundingClientRect();
+    placePop(p.left - 12, p.top - 12, popAt?.el);
+  };
+  const followPop = () => {
+    if (pop.hidden || !popAt || frozen) return;
+    const r = rectOf(popAt.el);
+    if (!r.width && !r.height) return; // gone from the layout: leave the box where it is
+    pop.style.left = r.left + popAt.dx + 'px';
+    pop.style.top = r.top + popAt.dy + 'px';
+    // A new area's rectangle stays on the spot it was dragged over, measured from the same element.
+    if (draft.area && !areaBox.hidden) Object.assign(areaBox.style, { left: r.left + draft.area.dx + 'px', top: r.top + draft.area.dy + 'px' });
     placeSide();
     dodgeBox();
   };
@@ -1010,7 +1036,7 @@ export const startPageComments = (platform) => {
       showRect(el, rect);
       // Below the selection, or above it when the page ends too soon to fit the box below.
       const r = rect(), fits = r.bottom + 20 + pop.offsetHeight <= innerHeight;
-      placePop(r.left, fits ? r.bottom : r.top - pop.offsetHeight - 24);
+      placePop(r.left, fits ? r.bottom : r.top - pop.offsetHeight - 24, el);
     }
     drawShown();
     textarea.focus();
@@ -1613,6 +1639,7 @@ export const startPageComments = (platform) => {
   // on its iframe that lets the pointer in. Done for every frame now and again whenever one loads (a new page in a frame
   // is a new document); a frame that now shows a page of another origin loses its mark and is picked whole again.
   const linked = new Map(); // a linked frame's page -> what undoes the linking
+  addEventListener('resize', refitPop);
   const ownTool = (doc) => doc.documentElement?.dataset.pageComments !== undefined;
   const FRAME_EVENTS = [['mousemove', onMove], ['click', onClick], ['mousedown', onDown], ['contextmenu', onContext], ['keydown', onKey],
     ['scroll', schedulePlace], ['scroll', onScrollMenu], ['resize', schedulePlace]];
@@ -2098,6 +2125,7 @@ export const startPageComments = (platform) => {
     cancelAnimationFrame(frame);
     clearTimeout(toastTimer);
     clearTimeout(clearTimer);
+    removeEventListener('resize', refitPop);
     clearInterval(urlTimer);
     platform.capture.stop(); // the bookmark: ends Chrome's "sharing this tab"
     document.removeEventListener('page-comments:close', destroy);
