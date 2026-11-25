@@ -244,13 +244,18 @@ export const startPageComments = (platform) => {
     .more-list .act.me.editing, .more-list .act.me.editing:hover { background: #fff7ed; cursor: default; }
     .more-list .act.me input { padding: 3px 7px; border-radius: 7px; }
     .more-list .sub { display: block; color: #a1a1aa; font: 500 11px system-ui, sans-serif; padding: 0 8px 4px 34px; margin-top: -3px; }
+    .card.toast { position: relative; padding-right: 36px; } /* room for the ×; .card sets the padding later */
+    .toast .x { position: absolute; top: 7px; right: 7px; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%; display: grid; place-items: center;
+                background: transparent; color: #a1a1aa; cursor: pointer; }
+    .toast .x:hover { background: #f4f4f5; color: #18181b; }
+    .toast .x svg { width: 12px; height: 12px; }
     .toast .chg { border: 0; background: none; padding: 0; color: #c2410c; font: 600 13px system-ui, sans-serif; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
     .more-list .label kbd { color: #71717a; border-color: #d4d4d8; background: #fafafa; }
     /* Clear all sits in the bar; armed (one more click clears) it turns red and keeps its label showing. */
     .act.clear:hover:not(:disabled) { background: #7f1d1d; } .act.clear.armed, .act.clear.armed:hover:not(:disabled) { background: #dc2626; color: #fff; } .act.clear.armed .label { opacity: 1; }
     .more-list .act.info.new { background: #dcfce7; color: #15803d; } .more-list .act.info.new svg { color: #15803d; }
     /* The comments list and messages share one column above the bar (below it near the top of the screen). */
-    .dock { position: fixed; width: max-content; display: flex; flex-direction: column; gap: 8px; }
+    .dock { position: fixed; width: max-content; display: flex; flex-direction: column; gap: 8px; transition: translate .18s cubic-bezier(.2, .8, .2, 1); }
     .card, .toast { pointer-events: auto; box-shadow: 0 10px 30px #0005; }
     .toast { max-width: 340px; font-size: 13px; line-height: 1.45; } /* a message is a card, like the comments list */
     .card { background: #fff; color: #18181b; border-radius: 12px; padding: 12px; }
@@ -900,12 +905,20 @@ export const startPageComments = (platform) => {
     return `<p>Page: <a href="${esc(pageOf())}">${esc(pageOf())}</a></p>${parts.join('')}`;
   };
 
+  // A message closes by itself, or with its ×; only the ×, so a click on a link in it or a text selection does not
+  // close it. While the pointer is on it, it stays; leaving gives it 4 s more.
+  const hideToast = () => { toastEl.hidden = true; clearTip(false); };
+  const toastX = h('button', { className: 'x', ariaLabel: 'Close this message', title: 'Close', onclick: hideToast }, icon('close'));
   const toast = (s, ms = 5000) => {
-    toastEl.replaceChildren(...[].concat(s)); // text, or text and buttons
+    toastEl.replaceChildren(...[].concat(s), toastX); // text, or text and buttons
     toastEl.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { toastEl.hidden = true; }, ms);
+    toastTimer = setTimeout(hideToast, ms);
+    placeDock();
+    clearTip(main.matches(':hover'));
   };
+  toastEl.addEventListener('mouseenter', () => clearTimeout(toastTimer));
+  toastEl.addEventListener('mouseleave', () => { if (!toastEl.hidden) toastTimer = setTimeout(hideToast, 4000); });
 
   // Each pin stays on the spot that was clicked, kept as an offset inside its element so it follows
   // scrolling and layout changes. A pin hides while its element is gone or not rendered.
@@ -1776,6 +1789,18 @@ export const startPageComments = (platform) => {
     dock.style.left = Math.max(8, Math.min(innerWidth - d.width - 8, left)) + 'px';
     dock.style.top = Math.max(8, Math.min(innerHeight - d.height - 8, top)) + 'px';
   };
+  // The round button's own tooltip (two lines) reaches past the gap placeDock leaves, so while it shows, the dock (a
+  // message, the comments list) moves just clear of it, and back when the pointer leaves.
+  const clearTip = (on) => {
+    dock.style.translate = '';
+    const d = dock.getBoundingClientRect();
+    if (!on || !d.height) return;
+    const t = mainTip.getBoundingClientRect(), below = d.top > t.top;
+    const by = below ? t.bottom + 8 - d.top : d.bottom - (t.top - 8);
+    if (by > 0) dock.style.translate = `0 ${below ? by : -by}px`;
+  };
+  main.addEventListener('mouseenter', () => clearTip(true));
+  main.addEventListener('mouseleave', () => clearTip(false));
   const placeWidget = () => {
     const { x, y } = centre();
     widget.style.left = x + 'px';
