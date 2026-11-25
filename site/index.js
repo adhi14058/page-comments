@@ -119,6 +119,11 @@ for (const b of document.querySelectorAll('.copybig')) {
     .then(() => showCopied(b, true, b.dataset.done || 'Copied. Now paste it.', label), () => showCopied(b, false, '', label));
 }
 
+// The extension's hand-install steps: Copy puts chrome://extensions on the clipboard to paste in the address bar.
+for (const b of document.querySelectorAll('.cp')) {
+  b.onclick = () => copyText(b.dataset.copy).then(() => showCopied(b, true, 'Copied', 'Copy'), () => showCopied(b, false, '', 'Copy'));
+}
+
 // A copy button's tooltip opens above it, below only where above would cover the other button (the row has wrapped and
 // that one sits above) or run off the top of the screen while below is clear. Esc closes it without moving the pointer or
 // focus away; it comes back on the next visit.

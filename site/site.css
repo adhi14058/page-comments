@@ -146,6 +146,24 @@ section.band { padding: 96px 0 0; }
 .why { margin: 22px auto 0; color: #d4d4d8; font-size: 16px; max-width: 46ch; }
 .not-yet { margin: 14px 0 0; font-size: 14px; color: #fdba74; }
 .not-yet button { font: inherit; color: #fff; background: none; border: 0; text-decoration: underline; cursor: pointer; padding: 0; }
+/* Until the stores: the Chrome build to download and load by hand (a web page cannot link to chrome:// addresses, so
+   that one has a Copy button). */
+.handcard { margin: 22px auto 0; max-width: 620px; border-radius: 18px; border: 1px dashed #ffffff33; padding: 18px 18px 16px; }
+.handcard h3 { margin: 0 0 12px; font: 650 16px system-ui, sans-serif; color: #fafafa; }
+.dl { display: inline-flex; align-items: center; gap: 10px; font: 650 16px system-ui, sans-serif; border-radius: 14px; padding: 12px 20px;
+      background: #fafafa; color: var(--ink); text-decoration: none; }
+.dl svg { width: 22px; height: 22px; }
+.dl small { font: 500 13px system-ui, sans-serif; color: #71717a; margin-left: 2px; }
+.hsteps { list-style: none; counter-reset: s; margin: 18px auto 0; padding: 0; text-align: left; display: grid; gap: 10px; }
+.hsteps li { counter-increment: s; position: relative; padding: 10px 14px 10px 46px; border-radius: 12px; background: #ffffff0d; border: 1px solid #ffffff1a;
+             color: #d4d4d8; font-size: 15px; line-height: 1.45; }
+.hsteps li::before { content: counter(s); position: absolute; left: 12px; top: 10px; width: 24px; height: 24px; border-radius: 50%; background: var(--orange);
+                     color: #fff; font: 700 13px/24px system-ui, sans-serif; text-align: center; }
+.hsteps b { color: #fafafa; }
+.hsteps code { font: 13px ui-monospace, monospace; background: #ffffff14; border-radius: 6px; padding: 1px 6px; color: #fde68a; }
+.cp { margin-left: 6px; font: 600 12px system-ui, sans-serif; background: #ffffff1f; color: #fafafa; border: 1px solid #ffffff33; border-radius: 6px; padding: 1px 8px; cursor: pointer; }
+.cp.done { background: #16a34a; border-color: #16a34a; }
+.upd { margin: 12px 0 0; color: #a1a1aa; font-size: 13.5px; }
 
 /* Bookmark pane: the button to drag up to the bar. */
 .bmwrap { position: relative; display: inline-block; }
