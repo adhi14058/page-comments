@@ -1042,6 +1042,9 @@ export const startPageComments = (platform) => {
     // which cannot scroll).
     const many = d.group || (d.comment && d.comment.group) ? d.items || d.comment.items : null;
     if (many && !frozen) { shown = many; shownCur = -1; }
+    // A new pick stays outlined while its box is open, as an opened comment does, so it is clear what the comment is
+    // about; on a frozen picture by its recorded rectangle. A new area has its dashed rectangle already.
+    else if (!d.comment && !d.area && (frozen ? d.frozen : el)) { shown = [frozen ? { rect: d.frozen.rect } : { selector: d.selector }]; shownCur = -1; }
     navEl.hidden = !many || many.length < 2 || !!frozen;
     navPos.textContent = many ? `–/${many.length}` : '';
     hl.hidden = true;
@@ -1116,9 +1119,9 @@ export const startPageComments = (platform) => {
   // following the page as it scrolls until the box closes.
   let shown = [], shownCur = -1; // shownCur: the selection ‹ › went to last, drawn solid
   const drawShown = () => shownBoxes.replaceChildren(...shown.flatMap((it, i) => {
-    const el = find(it.selector);
-    if (!el) return [];
-    const r = rectOf(el), b = it.box ? { left: r.left + it.box.dx, top: r.top + it.box.dy, width: it.box.w, height: it.box.h } : r;
+    const el = it.rect ? null : find(it.selector);
+    if (!it.rect && !el) return [];
+    const r = it.rect || rectOf(el), b = it.box ? { left: r.left + it.box.dx, top: r.top + it.box.dy, width: it.box.w, height: it.box.h } : r;
     return [h('div', { className: 'picked' + (i === shownCur ? ' cur' : ''), style: `left:${b.left}px;top:${b.top}px;width:${b.width}px;height:${b.height}px` })];
   }));
   const edit = (c) => {
