@@ -2,6 +2,12 @@
 
 What changed for you in each version, newest first.
 
+## 1.10.6 — 2026-11-25
+
+- Share asks your name in a small box right above the Share button, instead of a strip at the bottom of the screen.
+- The extension remembers your name for every site, so it asks only once. The bookmark remembers it per site, since a browser keeps each site's storage apart.
+- Change your name in the ⋯ list (Your name · Change), or with Change name in the message after sharing. Shift+S still works.
+
 ## 1.10.5 — 2026-11-25
 
 - After you reload the extension, or it updates, a click on the bookmark on a page that was already open runs the newest tool. Before, it kept bringing back the old extension's version until you reloaded the page.
