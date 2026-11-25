@@ -2,6 +2,10 @@
 
 What changed for you in each version, newest first.
 
+## 1.10.8 — 2026-11-25
+
+- While you write a new comment, what it is about stays outlined in light blue, as it already was when you open a comment again. Before, the outline went away as soon as the box opened.
+
 ## 1.10.7 — 2026-11-25
 
 - Messages have a × to close them. A message stays while your pointer is on it, and goes 4 seconds after you move away.
