@@ -1407,6 +1407,22 @@ export const startPageComments = (platform) => {
     for (const el of tops) while (anchor && !anchor.contains(el)) anchor = anchor.parentElement;
     return { anchor: anchor || document.body, tops };
   };
+  // The layer covers the page, so the wheel over it reaches only the document: a page that scrolls a panel of its own
+  // (most web apps) would not scroll at all in area mode. Pass the wheel to what scrolls under the pointer; when
+  // nothing there does, the document scrolls as usual.
+  // shortcut: a panel inside a frame does not get the wheel; pass it into linked frames when a page needs that.
+  const scrollsBy = (el, dx, dy) => {
+    const st = getComputedStyle(el), can = (o) => /auto|scroll|overlay/.test(o);
+    return (dy && can(st.overflowY) && (dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0))
+      || (dx && can(st.overflowX) && (dx > 0 ? el.scrollLeft + el.clientWidth < el.scrollWidth - 1 : el.scrollLeft > 0));
+  };
+  areaLayer.addEventListener('wheel', (e) => {
+    const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1, dx = e.deltaX * k, dy = e.deltaY * k;
+    let el = document.elementsFromPoint(e.clientX, e.clientY).find((x) => x !== host && !host.contains(x));
+    for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+      if (scrollsBy(el, dx, dy)) { e.preventDefault(); return void el.scrollBy(dx, dy); }
+    }
+  }, { passive: false });
   areaLayer.onpointerdown = (e) => {
     e.preventDefault();
     if (unsaved()) return textarea.focus(); // never throw away unsaved text
