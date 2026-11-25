@@ -51,7 +51,7 @@ Commenting is on as soon as the tool opens.
 
 - <kbd>D</kbd> adds the details to the hover outline too: background, text colour, font, padding, radius and contrast.
   It is one remembered switch, shared with the dark tab.
-- The hover details also go to Claude with **Send to Claude**.
+- The details also go into every **Copy** and **Send to Claude**, so Claude gets them either way.
 - A click elsewhere closes an empty comment box. A half-written comment is never thrown away.
 - Click a pin to edit or delete its comment.
 - **Frames.** Inside an embedded frame whose page comes from the same site (Storybook, an app that shows its pages in frames), you pick, comment and pin elements as on the page itself. <kbd>↑</kbd> goes out to the frame, and Copy names the frame.
@@ -100,7 +100,7 @@ Each action shows its name and key on hover.
 |---|---|
 | Point | **Select an area** · **Select several** · **Freeze: 3 s to open a menu first** |
 | Comments | **Clear all** (the bin) · **Comments** list · **Copy** · **Share link** · **Send to Claude** |
-| **⋯** | **Details** · **Keyboard shortcuts** · **Help & install page** · **Close** |
+| **⋯** | **Details** · **Keyboard shortcuts** · **Your name** · **Help & install page** (the GitHub copy: **Help & install on GitHub**) · **Close** |
 
 - **Clear all** takes two clicks within 3 seconds. Armed, it turns red and says how many it will clear.
 - **Send to Claude** shows only on your own dev app, while the local server runs. See [Send to Claude](#send-to-claude).
@@ -195,7 +195,7 @@ On a Mac, <kbd>Alt</kbd>+<kbd>Shift</kbd> is <kbd>⌥⇧</kbd>.
 </p>
 
 Every action works on **this page's comments only**.
-A page is its URL without the `#hash`, so each page keeps its own comments, also in single-page apps.
+A page is its URL without the `#hash` and without tracking parameters (`utm_…`, `fbclid`, `gclid` and the like), so each page keeps its own comments, also in single-page apps.
 
 | Action | Where | Puts out | Use it for |
 |---|---|---|---|
@@ -385,6 +385,6 @@ Browsers keep the clipboard and tab capture for secure pages: https, `localhost`
 |---|---|---|
 | **Copy** | Text and rich text (no combined picture for Slack) | Text and rich text, pictures inside |
 | **Add screenshot** | Off, greyed out. The small **?** beside it opens a card that says why and how to allow it (`chrome://flags/#unsafely-treat-insecure-origin-as-secure`, opening the site as `localhost` / `name.localhost`, or the extension) | Works |
-| **Copy pictures** | Not possible: use **Save pictures** | Not possible: use **Save pictures** |
+| **Copy pictures** | Takes no pictures here; pictures that came in a share link copy as for the extension | One combined picture, which Google Docs and email paste. Slack needs an https page: use **Save pictures** |
 
 </details>

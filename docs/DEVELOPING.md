@@ -14,6 +14,8 @@ For using the tool, see the [Guide](GUIDE.md).
 
 ## 📁 Folders
 
+[FEATURES.md](FEATURES.md) lists every feature, with where it lives in the code and which doc explains it. A change that adds, changes or removes a feature updates it in the same commit.
+
 | Folder | Holds |
 |---|---|
 | `core/` | `core.js`, the tool itself, shared by the bookmark and the extension; `icons/` |

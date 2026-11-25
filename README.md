@@ -112,6 +112,7 @@ Comments live in the page's own browser storage. Nothing leaves your browser unl
 
 - **[Guide](docs/GUIDE.md)**: every action, key and limit.
 - **[Developing](docs/DEVELOPING.md)**: folders, build, release, tests.
+- **[Every feature](docs/FEATURES.md)**: the complete list of what the tool does, with where each lives in the code.
 - **[Changes](CHANGELOG.md)**: what each version brought.
 
 <sub>MIT licensed. See <a href="LICENSE">LICENSE</a>.</sub>
