@@ -2,6 +2,10 @@
 
 What changed for you in each version, newest first.
 
+## 1.10.5 — 2026-11-25
+
+- After you reload the extension, or it updates, a click on the bookmark on a page that was already open runs the newest tool. Before, it kept bringing back the old extension's version until you reloaded the page.
+
 ## 1.10.4 — 2026-11-25
 
 - In a batch, Space adds or removes the outlined element. After ↑ outlines a parent, Space adds that parent; before, only a click somewhere inside it did, and nothing said so. The batch bar now says it.
