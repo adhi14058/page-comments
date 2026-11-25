@@ -248,8 +248,8 @@ Apps that should get several separate pictures take them as files.
 <summary><b>Size limits and pictures</b></summary>
 <br>
 
-- The link carries small copies of the pictures (1 pixel per CSS pixel, WebP quality 0.7, about 1.5 KB each) while it stays under 30 KB.
-- Past 30 KB the link leaves the pictures out, and the message says so. Slack takes 40,000 characters a message.
+- The link carries small copies of the pictures (1 pixel per CSS pixel, WebP quality 0.7, about 1.5 KB each) while it stays under 7,500 characters.
+- Past that the link leaves the pictures out, and the message says so. Slack's message box sends links of about 8,000 characters and refuses longer ones.
 - The person who opens a link without pictures is offered **Retake**. It takes those pictures on their page.
   Frozen pictures, and pictures whose element is missing, cannot be retaken.
 

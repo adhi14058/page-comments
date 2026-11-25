@@ -1929,8 +1929,9 @@ export const startPageComments = (platform) => {
     try { toast(await copyComments(null, true) + ': paste it, then Copy pictures for the second paste.', 3000); } catch (err) { toast('Could not copy (' + err.message + ')'); }
   };
   // ---- Share link: this page's comments, compressed into the link's #page-comments=… part, with small copies of the
-  // pictures while the link stays under 30 KB (Slack takes 40,000 characters a message); past that, without pictures.
-  const SHARE_KEY = 'page-comments=', LINK_MAX = 30000;
+  // pictures while the link stays under 7,500 characters; past that, without pictures. Slack's message box sent an
+  // 8,000-character link and refused a 12,000 one (measured 2026-11-25), though its API takes 40,000.
+  const SHARE_KEY = 'page-comments=', LINK_MAX = 7500;
   // Each writer's name gets its own colour (the same name always the same one); orange stays yours, purple is a link
   // without names. The names come from links: only ever shown as text, and the colour comes from this fixed list.
   // No blues: the tool's own highlight is blue. No orange: that is yours.
@@ -2062,6 +2063,7 @@ export const startPageComments = (platform) => {
         note = `, pictures left out (with them it would be ${(link.length / 1024).toFixed(0)} KB, too long for Slack)`;
         link = start + await pack(here().map((c) => ({ ...plain(c), ...(found.get(c) ? { hadPic: true } : {}) })));
       }
+      if (link.length > LINK_MAX) note += '. It is still long: Slack may refuse it, so send it by email or as a file there';
       await writeClipboard({ text: link });
       toast(`Copied a link with ${here().length} comment(s)${note}, ${(link.length / 1024).toFixed(1)} KB, as ${me} (Shift+S changes the name). Whoever opens it and clicks their bookmark sees them.`
         + (pageIsLocal ? ' This page is on your machine: only you can open it.' : ''), 7000);
