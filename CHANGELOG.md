@@ -2,6 +2,14 @@
 
 What changed for you in each version, newest first.
 
+## 1.10.2 — 2026-11-25
+
+- The comment box stays next to what it is about while you scroll, instead of staying on the screen. A new area's dashed rectangle stays on the spot you dragged over too.
+- If the window gets smaller while a comment box is open (Chrome's "sharing this tab" bar, DevTools), the box comes back on screen instead of being cut off at the bottom.
+- Text you are typing in a comment box is never thrown away. Before, a change from another tab of the same site, or a page that changes its own address, could close the box under you, and the next letters ran as shortcuts (F froze, A started an area).
+- With the extension, typing your name for shared comments no longer runs the shortcuts.
+- The Freeze button no longer closes a comment box that has text in it.
+
 ## 1.10.1 — 2026-11-25
 
 - With the bookmark, keys work right after you allow "Share this tab?". Before, F, A, B and the other keys did nothing until you clicked the page.
