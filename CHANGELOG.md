@@ -2,6 +2,12 @@
 
 What changed for you in each version, newest first.
 
+## 1.10.3 — 2026-11-25
+
+- You can tell which one is running: the round button's tooltip, the ⋯ list and the key cards say "Bookmark 1.10.3" or "Extension 1.10.3". Where the extension is installed, a click on the bookmark starts the extension, and they then add "started from your bookmark".
+- Area mode no longer stops the page from scrolling. On pages that scroll a panel of their own, as most web apps do, the mouse wheel did nothing while area mode was on.
+- Share links stay under 7,500 characters, because Slack refused longer ones. Pictures are left out of the link sooner, and a link that is still long without them says so.
+
 ## 1.10.2 — 2026-11-25
 
 - The comment box stays next to what it is about while you scroll, instead of staying on the screen. A new area's dashed rectangle stays on the spot you dragged over too.
