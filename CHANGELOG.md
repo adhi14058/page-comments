@@ -2,6 +2,10 @@
 
 What changed for you in each version, newest first.
 
+## 1.10.4 — 2026-11-25
+
+- In a batch, Space adds or removes the outlined element. After ↑ outlines a parent, Space adds that parent; before, only a click somewhere inside it did, and nothing said so. The batch bar now says it.
+
 ## 1.10.3 — 2026-11-25
 
 - You can tell which one is running: the round button's tooltip, the ⋯ list and the key cards say "Bookmark 1.10.3" or "Extension 1.10.3". Where the extension is installed, a click on the bookmark starts the extension, and they then add "started from your bookmark".
