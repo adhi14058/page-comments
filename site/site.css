@@ -390,12 +390,13 @@ html.past:not(.dark) .theme-btn, html:not(.dark):has(.bnav.always) .theme-btn, h
 .bnav-menu { display: none; align-items: center; gap: 6px; margin-left: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; padding: 9px 12px; border-radius: 10px; cursor: pointer; }
 .bnav-menu svg { width: 14px; height: 14px; transition: rotate .2s; }
 .bnav.open .bnav-menu svg { rotate: 180deg; }
-@media (max-width: 1120px) { .bnav-hint { display: none !important; } }
-@media (max-width: 900px) { .bnav-ver { display: none; } .bnav-links { margin-left: 8px; } }
-/* Phones and narrow windows: no bookmarks bar to drag to, so the bar keeps only the sections, as a list. 820 px: with
-   four section links, the full bar needs 797 px with the bookmark chip and 812 px with "Get the extension" (measured).
-   A range, not max-width: with display scaling a window can be 820.3 px wide. */
-@media (width < 821px) {
+@media (max-width: 1190px) { .bnav-hint { display: none !important; } }
+@media (max-width: 990px) { .bnav-ver { display: none; } .bnav-links { margin-left: 8px; } }
+/* Phones and narrow windows: no bookmarks bar to drag to, so the bar keeps only the sections, as a list. 900 px: with
+   five section links, the full bar needs 883 px with the bookmark chip and 898 px with "Get the extension" (measured;
+   with the version it needs 967 and 982 px, and with the drag hint 1181 px, hence the two breakpoints above).
+   A range, not max-width: with display scaling a window can be 900.3 px wide. */
+@media (width < 901px) {
   .bnav-act, .bnav-gh { display: none !important; }
   html:has(.hero[data-way=bookmark]) .bnav::before { display: none; }
   .bnav-theme-slot { margin-left: auto; }
