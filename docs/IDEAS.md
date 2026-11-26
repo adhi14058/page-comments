@@ -5,12 +5,40 @@ What the tool does today is in [FEATURES.md](FEATURES.md). When an idea ships, m
 
 **On this page**
 
+- [Bugs to fix](#bugs-to-fix)
+- [Copy a picture without commenting](#copy-a-picture-without-commenting)
 - [Flows: a guided tour of a page or an app](#flows-a-guided-tour-of-a-page-or-an-app)
 - [Comments across a whole site](#comments-across-a-whole-site)
 - [Your own order of comments](#your-own-order-of-comments)
 - [Step through comments with ← and →](#step-through-comments-with--and-)
 - [How these fit together](#how-these-fit-together)
 - [Smaller ideas and known gaps](#smaller-ideas-and-known-gaps)
+
+## Bugs to fix
+
+Reported by Adhi on 2026-11-26. None reproduced yet; the causes below are guesses to check first.
+
+1. **Slack on Windows pastes the text but not the picture.** Copy works with pictures in Slack for Adhi and for Mac
+   users, not in Slack's Windows app. Copy puts plain text, rich text and one combined picture into a single clipboard
+   item (`core.js · writeClipboard, copyItems`). Guess: on Windows, Chrome stores the picture in a clipboard format the
+   Slack app does not read when text is there too, or Slack takes the text form first. Check on a Windows machine:
+   which formats the clipboard holds after Copy, and what Slack pastes when only the picture is copied (Copy pictures).
+2. **The comment box shows up in the picture.** The tool hides itself, waits one frame, then takes the picture
+   (`core.js · shoot`); a picture came out with the comment box in it. Guess: one frame is not always enough before the
+   capture sees the change (the bookmark reads frames from the shared tab, which can lag behind; the extension's
+   capture can run before the next paint). Find out which way (bookmark or extension) and on which page, then make the
+   wait certain (for example, wait until a new frame arrives after hiding) rather than longer.
+3. **The picture does not show the selected text marked.** When a comment is on selected text, its picture shows the
+   element without the selection, because the capture clears the browser's selection and the orange mark on purpose
+   (`core.js · shoot`). Wanted: the picture shows which words the comment is about. Keep the orange mark (not the
+   browser's own selection) visible while the picture is taken, for comments on selected text.
+
+## Copy a picture without commenting
+
+Adhi, 2026-11-26: a faster way to copy just the picture of an element, an area or a selection, without writing a
+comment. Possible places: the right-click menu ("Copy picture"), a key while pointing at the outlined element (a free one: today
+`C` and `Shift+C` both copy all comments), and a "Copy picture" next to Comment in a batch. It would take the picture the same way a comment
+does, with the same margins, and put it on the clipboard alone (Slack takes a single picture well).
 
 ## Flows: a guided tour of a page or an app
 
