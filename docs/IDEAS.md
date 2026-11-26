@@ -38,7 +38,9 @@ Reported by Adhi on 2026-11-26. None reproduced yet; the causes below are guesse
 Adhi, 2026-11-26: a faster way to copy just the picture of an element, an area or a selection, without writing a
 comment. Possible places: the right-click menu ("Copy picture"), a key while pointing at the outlined element (a free one: today
 `C` and `Shift+C` both copy all comments), and a "Copy picture" next to Comment in a batch. It would take the picture the same way a comment
-does, with the same margins, and put it on the clipboard alone (Slack takes a single picture well).
+does, with the same margins, and put only the picture on the clipboard: no comment text, no element details, no
+selector or HTML, no caption band. Just a quick screenshot of that thing, ready to paste (Slack takes a single picture
+well).
 
 ## Flows: a guided tour of a page or an app
 
